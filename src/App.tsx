@@ -6,7 +6,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
-import ContentPage from "./pages/ContentPage";
+import ContentPage from "./pages/AboutTalibon/ContentPage";
 import Footer from "./components/Footer";
 import { aboutApi, executiveApi, legislativeApi, newsApi, transparencyApi, tourismApi, formsApi } from "./services/api";
 

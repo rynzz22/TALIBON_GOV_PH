@@ -1,53 +1,55 @@
-import axios from "axios";
+const BASE_URL = "/api";
 
-const api = axios.create({
-  baseURL: "/api",
-});
+const fetchApi = async (endpoint: string) => {
+  const response = await fetch(`${BASE_URL}${endpoint}`);
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
+  }
+  return response.json();
+};
 
 export const aboutApi = {
-  getProfile: () => api.get("/about/profile"),
-  getSeal: () => api.get("/about/seal"),
-  getHistory: () => api.get("/about/history"),
-  getMayors: () => api.get("/about/mayors"),
-  getBarangays: () => api.get("/about/barangays"),
+  getProfile: () => fetchApi("/about/profile"),
+  getSeal: () => fetchApi("/about/seal"),
+  getHistory: () => fetchApi("/about/history"),
+  getMayors: () => fetchApi("/about/mayors"),
+  getBarangays: () => fetchApi("/about/barangays"),
 };
 
 export const executiveApi = {
-  getMandate: () => api.get("/executive/mandate"),
-  getVisionMission: () => api.get("/executive/vision-mission"),
-  getChart: () => api.get("/executive/chart"),
-  getDirectory: () => api.get("/executive/directory"),
+  getMandate: () => fetchApi("/executive/mandate"),
+  getVisionMission: () => fetchApi("/executive/vision-mission"),
+  getChart: () => fetchApi("/executive/chart"),
+  getDirectory: () => fetchApi("/executive/directory"),
 };
 
 export const legislativeApi = {
-  getMandate: () => api.get("/legislative/mandate"),
-  getStructure: () => api.get("/legislative/structure"),
-  getOrdinances: () => api.get("/legislative/ordinances"),
-  getResolutions: () => api.get("/legislative/resolutions"),
+  getMandate: () => fetchApi("/legislative/mandate"),
+  getStructure: () => fetchApi("/legislative/structure"),
+  getOrdinances: () => fetchApi("/legislative/ordinances"),
+  getResolutions: () => fetchApi("/legislative/resolutions"),
 };
 
 export const newsApi = {
-  getArticles: () => api.get("/news/articles"),
-  getAdvisories: () => api.get("/news/advisories"),
-  getDisasterPreparedness: () => api.get("/news/disaster-preparedness"),
-  getGallery: () => api.get("/news/gallery"),
+  getArticles: () => fetchApi("/news/articles"),
+  getAdvisories: () => fetchApi("/news/advisories"),
+  getDisasterPreparedness: () => fetchApi("/news/disaster-preparedness"),
+  getGallery: () => fetchApi("/news/gallery"),
 };
 
 export const transparencyApi = {
-  getCitizenCharter: () => api.get("/transparency/citizen-charter"),
-  getFullDisclosure: () => api.get("/transparency/full-disclosure"),
-  getInfrastructure: () => api.get("/transparency/infrastructure"),
-  getBudget: () => api.get("/transparency/budget"),
+  getCitizenCharter: () => fetchApi("/transparency/citizen-charter"),
+  getFullDisclosure: () => fetchApi("/transparency/full-disclosure"),
+  getInfrastructure: () => fetchApi("/transparency/infrastructure"),
+  getBudget: () => fetchApi("/transparency/budget"),
 };
 
 export const tourismApi = {
-  getSpots: () => api.get("/tourism/spots"),
-  getFestivities: () => api.get("/tourism/festivities"),
-  getDelicacies: () => api.get("/tourism/delicacies"),
+  getSpots: () => fetchApi("/tourism/spots"),
+  getFestivities: () => fetchApi("/tourism/festivities"),
+  getDelicacies: () => fetchApi("/tourism/delicacies"),
 };
 
 export const formsApi = {
-  getDownloadable: () => api.get("/forms/downloadable"),
+  getDownloadable: () => fetchApi("/forms/downloadable"),
 };
-
-export default api;
