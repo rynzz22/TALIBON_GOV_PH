@@ -83,7 +83,7 @@ export default function App() {
                         {dept.type}
                       </span>
                     </div>
-                    <p className="text-gray-600 font-medium leading-relaxed">{dept.description}</p>
+                    <p className="text-gray-600 font-medium leading-relaxed">{dept?.description}</p>
                   </div>
                 ))
               ) : (
@@ -108,12 +108,14 @@ export default function App() {
               )}
             </div>
           )} />} />
+          <Route path="/about/demographics" element={<ContentPage title="Demographics" fetchData={aboutApi.getDemographics} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data?.content}</p>} />} />
+          <Route path="/about/location" element={<ContentPage title="Location" fetchData={aboutApi.getLocation} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data?.content}</p>} />} />
           <Route path="/about/vicinity" element={<ContentPage title="Vicinity Map" fetchData={aboutApi.getVicinityMap} renderContent={(data) => (
             <div className="space-y-8">
               <div className="aspect-video bg-gray-50 rounded-[3rem] overflow-hidden border border-gray-100 shadow-2xl flex items-center justify-center">
                 <img src={data.url} alt={data.title} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
               </div>
-              <p className="text-xl text-gray-700 leading-relaxed font-medium">{data.description}</p>
+              <p className="text-xl text-gray-700 leading-relaxed font-medium">{data?.description}</p>
             </div>
           )} />} />
           <Route path="/about/industry" element={<ContentPage title="Industry" fetchData={aboutApi.getIndustry} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data.content}</p>} />} />
@@ -122,7 +124,7 @@ export default function App() {
               {Array.isArray(data) && data.map((service: any) => (
                 <div key={service.name} className="p-8 bg-white border border-gray-100 rounded-3xl shadow-sm">
                   <h3 className="text-2xl font-black text-gray-900 mb-4">{service.name}</h3>
-                  <p className="text-lg text-gray-600 font-medium">{service.description}</p>
+                  <p className="text-lg text-gray-600 font-medium">{service?.description}</p>
                 </div>
               ))}
             </div>
@@ -196,7 +198,7 @@ export default function App() {
               {Array.isArray(data) && data.map((ord: any) => (
                 <div key={ord.id} className="p-8 bg-blue-50 rounded-3xl border border-blue-100">
                   <h3 className="text-2xl font-black text-gray-900 mb-4">{ord.title}</h3>
-                  <p className="text-lg text-gray-600 font-medium">{ord.description}</p>
+                  <p className="text-lg text-gray-600 font-medium">{ord?.description}</p>
                 </div>
               ))}
             </div>
@@ -383,7 +385,7 @@ export default function App() {
                     <img src={`https://picsum.photos/seed/spot${spot.id}/800/800`} alt={spot.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" />
                   </div>
                   <h3 className="text-3xl font-black text-gray-900 mb-4 uppercase tracking-tighter">{spot.name}</h3>
-                  <p className="text-lg text-gray-600 font-medium leading-relaxed">{spot.description}</p>
+                  <p className="text-lg text-gray-600 font-medium leading-relaxed">{spot?.description}</p>
                 </div>
               ))}
             </div>
@@ -398,7 +400,7 @@ export default function App() {
                   <div>
                     <p className="text-xs font-black text-blue-600 uppercase tracking-widest mb-4">{fest.date}</p>
                     <h3 className="text-4xl font-black text-gray-900 mb-6">{fest.name}</h3>
-                    <p className="text-xl text-gray-700 leading-relaxed font-medium">{fest.description}</p>
+                    <p className="text-xl text-gray-700 leading-relaxed font-medium">{fest?.description}</p>
                   </div>
                 </div>
               ))}
@@ -412,7 +414,7 @@ export default function App() {
                     <img src={`https://picsum.photos/seed/${item.name}/400/400`} alt={item.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                   </div>
                   <h3 className="text-2xl font-black text-gray-900 mb-4">{item.name}</h3>
-                  <p className="text-gray-600 font-medium">{item.description}</p>
+                  <p className="text-gray-600 font-medium">{item?.description}</p>
                 </div>
               ))}
             </div>

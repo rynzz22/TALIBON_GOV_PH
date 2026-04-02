@@ -15,6 +15,8 @@ export const aboutApi = {
   getIndustry: () => api.get("/about/industry"),
   getServices: () => api.get("/about/services"),
   getHymn: () => api.get("/about/hymn"),
+  getDemographics: () => api.get("/about/demographics"),
+  getLocation: () => api.get("/about/location"),
 };
 
 export const executiveApi = {

@@ -54,4 +54,14 @@ export class AboutController {
   getHymn() {
     return this.aboutService.getHymn();
   }
+
+  @Get("demographics")
+  getDemographics() {
+    return this.aboutService.getDemographics();
+  }
+
+  @Get("location")
+  getLocation() {
+    return this.aboutService.getLocation();
+  }
 }

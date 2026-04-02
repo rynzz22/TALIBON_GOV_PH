@@ -293,4 +293,18 @@ Talibon has achieved a significant milestone, securing the 17th position among 1
       lyrics: "Talibon, lungsod nga pinangga... (Lyrics of the Talibon Hymn)",
     };
   }
+
+  getDemographics() {
+    return {
+      title: "Demographics",
+      content: "Talibon has a population of 71,272 (2020 census). It is the second most populous town in Bohol.",
+    };
+  }
+
+  getLocation() {
+    return {
+      title: "Location",
+      content: "Talibon is located in the northernmost part of Bohol, bounded by Camotes Sea to the north.",
+    };
+  }
 }
