@@ -1,41 +1,32 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Inject } from "@nestjs/common";
+import { ExecutiveService } from "./executive.service";
 
 @Controller("api/executive")
 export class ExecutiveController {
+  constructor(@Inject(ExecutiveService) private readonly executiveService: ExecutiveService) {}
+
   @Get("mandate")
   getMandate() {
-    return {
-      title: "Mandate",
-      content: "The Executive Department is responsible for implementing laws and policies for the welfare of the people of Talibon.",
-    };
+    return this.executiveService.getMandate();
   }
 
   @Get("vision-mission")
   getVisionMission() {
-    return {
-      vision: "A vibrant, resilient, and inclusive Talibon that is the center of seafood excellence in Bohol.",
-      mission: "To provide efficient and effective governance that promotes sustainable development and social justice.",
-    };
+    return this.executiveService.getVisionMission();
   }
 
   @Get("chart")
   getChart() {
-    return {
-      title: "Organizational Chart",
-      structure: [
-        { role: "Mayor", name: "Current Mayor" },
-        { role: "Vice Mayor", name: "Current Vice Mayor" },
-        { role: "Department Heads", count: 12 },
-      ],
-    };
+    return this.executiveService.getChart();
   }
 
   @Get("directory")
   getDirectory() {
-    return [
-      { department: "Mayor's Office", contact: "0912-345-6789" },
-      { department: "Treasurer's Office", contact: "0912-345-6790" },
-      { department: "Health Office", contact: "0912-345-6791" },
-    ];
+    return this.executiveService.getDirectory();
+  }
+
+  @Get("gad-ims")
+  getGadIms() {
+    return this.executiveService.getGadIms();
   }
 }

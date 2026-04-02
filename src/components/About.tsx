@@ -95,7 +95,7 @@ export default function About() {
 
             <div className="pt-6 flex flex-wrap items-center gap-6">
               <Link 
-                to="/mayors"
+                to="/about/mayors"
                 className="bg-blue-600 text-white px-10 py-5 rounded-[2rem] font-black text-xs tracking-widest shadow-2xl shadow-blue-600/20 hover:bg-blue-700 transition-all flex items-center gap-2 group"
               >
                 <Users size={18} />
@@ -142,7 +142,7 @@ export default function About() {
               </p>
               <div className="pt-4">
                 <Link 
-                  to="/history"
+                  to="/about/history"
                   className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-xs tracking-widest shadow-xl shadow-blue-600/20 hover:bg-blue-700 transition-all flex items-center gap-2 w-fit group"
                 >
                   EXPLORE FULL HISTORY

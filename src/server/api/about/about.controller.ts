@@ -1,43 +1,57 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Inject } from "@nestjs/common";
+import { AboutService } from "./about.service";
 
 @Controller("api/about")
 export class AboutController {
+  constructor(@Inject(AboutService) private readonly aboutService: AboutService) {}
+
   @Get("profile")
   getProfile() {
-    return {
-      title: "Brief Profile",
-      content: "Talibon is a first-class municipality in the province of Bohol, Philippines. It is the seat of the Diocese of Talibon and is known as the 'Seafood Capital of Bohol'.",
-    };
+    return this.aboutService.getProfile();
   }
 
   @Get("seal")
   getSeal() {
-    return {
-      title: "Official Seal",
-      description: "The official seal of Talibon represents its rich maritime heritage and its status as a key coastal municipality.",
-    };
+    return this.aboutService.getSeal();
   }
 
   @Get("history")
   getHistory() {
-    return {
-      title: "Brief History",
-      content: "Talibon was established in 1830. It has a rich history tied to the sea and the legacy of its people, including the late President Carlos P. Garcia.",
-    };
+    return this.aboutService.getHistory();
   }
 
   @Get("mayors")
   getMayors() {
-    return [
-      { name: "Carlos P. Garcia", term: "1925-1931" },
-      { name: "Current Mayor", term: "2022-Present" },
-    ];
+    return this.aboutService.getMayors();
+  }
+
+  @Get("departments")
+  getDepartments() {
+    return this.aboutService.getDepartments();
+  }
+
+  @Get("vicinity-map")
+  getVicinityMap() {
+    return this.aboutService.getVicinityMap();
   }
 
   @Get("barangays")
   getBarangays() {
-    return [
-      "Bagacay", "Balintawak", "Burgos", "Caboy", "Calituban", "Cataban", "Guindacpan", "Magsaysay", "Poblacion", "San Agustin", "San Francisco", "San Jose", "San Roque", "Santo Niño", "Tanghaligue", "Tapal", "Trinidad", "Zamora"
-    ];
+    return this.aboutService.getBarangays();
+  }
+
+  @Get("industry")
+  getIndustry() {
+    return this.aboutService.getIndustry();
+  }
+
+  @Get("services")
+  getServices() {
+    return this.aboutService.getServices();
+  }
+
+  @Get("hymn")
+  getHymn() {
+    return this.aboutService.getHymn();
   }
 }

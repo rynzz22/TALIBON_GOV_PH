@@ -1,15 +1,21 @@
 import { Module, MiddlewareConsumer, NestModule, RequestMethod } from "@nestjs/common";
-import { createServer as createViteServer } from "vite";
 import * as path from "path";
 import * as express from "express";
 
 import { AboutController } from "./api/about/about.controller";
+import { AboutService } from "./api/about/about.service";
 import { ExecutiveController } from "./api/executive/executive.controller";
+import { ExecutiveService } from "./api/executive/executive.service";
 import { LegislativeController } from "./api/legislative/legislative.controller";
+import { LegislativeService } from "./api/legislative/legislative.service";
 import { NewsController } from "./api/news/news.controller";
+import { NewsService } from "./api/news/news.service";
 import { TransparencyController } from "./api/transparency/transparency.controller";
+import { TransparencyService } from "./api/transparency/transparency.service";
 import { TourismController } from "./api/tourism/tourism.controller";
+import { TourismService } from "./api/tourism/tourism.service";
 import { FormsController } from "./api/forms/forms.controller";
+import { FormsService } from "./api/forms/forms.service";
 
 import { SupabaseService } from "./supabase.service";
 
@@ -24,17 +30,28 @@ import { SupabaseService } from "./supabase.service";
     TourismController,
     FormsController,
   ],
-  providers: [SupabaseService],
+  providers: [
+    SupabaseService,
+    AboutService,
+    ExecutiveService,
+    LegislativeService,
+    NewsService,
+    TransparencyService,
+    TourismService,
+    FormsService,
+  ],
 })
 export class AppModule implements NestModule {
   async configure(consumer: MiddlewareConsumer) {
     if (process.env.NODE_ENV !== "production") {
+      const { createServer: createViteServer } = await import("vite");
       const vite = await createViteServer({
         server: { middlewareMode: true },
         appType: "spa",
       });
       consumer
         .apply(vite.middlewares)
+        .exclude({ path: "api/(.*)", method: RequestMethod.ALL })
         .forRoutes({ path: "*", method: RequestMethod.ALL });
     } else {
       const distPath = path.join(process.cwd(), "dist");

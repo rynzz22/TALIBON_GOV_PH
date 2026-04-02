@@ -1,36 +1,57 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Inject } from "@nestjs/common";
+import { TransparencyService } from "./transparency.service";
 
 @Controller("api/transparency")
 export class TransparencyController {
+  constructor(@Inject(TransparencyService) private readonly transparencyService: TransparencyService) {}
+
   @Get("citizen-charter")
   getCitizenCharter() {
-    return {
-      title: "Citizen Charter",
-      content: "The Citizen Charter outlines the services and standards of the municipality of Talibon.",
-    };
+    return this.transparencyService.getCitizenCharter();
   }
 
   @Get("full-disclosure")
   getFullDisclosure() {
-    return {
-      title: "Full Disclosure Policy",
-      content: "The Full Disclosure Policy ensures transparency in all municipal transactions.",
-    };
+    return this.transparencyService.getFullDisclosure();
   }
 
   @Get("infrastructure")
   getInfrastructure() {
-    return [
-      { id: 1, title: "Coastal Road Project", status: "Ongoing", budget: "P10,000,000" },
-      { id: 2, title: "Poblacion Drainage System", status: "Completed", budget: "P5,000,000" },
-    ];
+    return this.transparencyService.getInfrastructure();
+  }
+
+  @Get("finance-reports")
+  getFinanceReports() {
+    return this.transparencyService.getFinanceReports();
+  }
+
+  @Get("executive-orders")
+  getExecutiveOrders() {
+    return this.transparencyService.getExecutiveOrders();
   }
 
   @Get("budget")
   getBudget() {
-    return {
-      title: "Budget and Finances",
-      content: "The annual budget is allocated for various municipal services and projects.",
-    };
+    return this.transparencyService.getBudget();
+  }
+
+  @Get("bayanihan-grant")
+  getBayanihanGrant() {
+    return this.transparencyService.getBayanihanGrant();
+  }
+
+  @Get("biddings")
+  getBiddings() {
+    return this.transparencyService.getBiddings();
+  }
+
+  @Get("ordinances")
+  getOrdinances() {
+    return this.transparencyService.getOrdinances();
+  }
+
+  @Get("sroi")
+  getSroi() {
+    return this.transparencyService.getSroi();
   }
 }

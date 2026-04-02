@@ -129,6 +129,9 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-center md:text-left">
+            <p className="text-[10px] font-black text-blue-400 tracking-[0.3em] uppercase mb-2">
+              REPUBLIC OF THE PHILIPPINES
+            </p>
             <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">
               Copyright © 2024. Municipality of Talibon, Province of Bohol.
             </p>

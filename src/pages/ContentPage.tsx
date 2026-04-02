@@ -50,9 +50,13 @@ const ContentPage: React.FC<ContentPageProps> = ({ title, fetchData, renderConte
             <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl font-bold">
               {error}
             </div>
-          ) : (
+          ) : (data && (!Array.isArray(data) || data.length > 0)) ? (
             <div className="bg-white rounded-3xl shadow-xl shadow-blue-900/5 p-8 md:p-12 border border-blue-50">
               {renderContent(data)}
+            </div>
+          ) : (
+            <div className="bg-white rounded-3xl shadow-xl shadow-blue-900/5 p-8 md:p-12 border border-blue-50 text-center text-gray-500 font-bold">
+              No content available.
             </div>
           )}
         </motion.div>

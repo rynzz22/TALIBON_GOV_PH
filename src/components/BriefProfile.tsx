@@ -1,8 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
-import { MapPin, Navigation, Users, Briefcase, Award, Anchor, Waves, Ship, Landmark } from 'lucide-react';
+import { MapPin, Navigation, Users, Briefcase, Award, Anchor, Waves, Ship, Landmark, FileText } from 'lucide-react';
+import axios from 'axios';
+
+interface ProfileData {
+  title: string;
+  content: string;
+}
 
 const BriefProfile: React.FC = () => {
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+
+  useEffect(() => {
+    axios.get('/api/about/profile')
+      .then(res => setProfile(res.data))
+      .catch(err => console.error('Error fetching profile:', err));
+  }, []);
+
   const stats = [
     { label: "Land Area", value: "140.46 sq km", icon: MapPin },
     { label: "Population", value: "71,272", icon: Users },
@@ -163,6 +177,28 @@ const BriefProfile: React.FC = () => {
             </div>
           </div>
         </motion.div>
+
+        {/* Full Narrative Profile */}
+        {profile && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-16 glass-card p-12 rounded-[3.5rem] border border-blue-100 bg-white"
+          >
+            <div className="flex items-center gap-3 text-blue-600 mb-8">
+              <FileText size={28} />
+              <h3 className="text-3xl font-black tracking-tight">Full Profile Narrative</h3>
+            </div>
+            <div className="prose prose-blue max-w-none">
+              {profile.content.split('\n\n').map((paragraph, idx) => (
+                <p key={idx} className="text-gray-600 leading-relaxed font-medium mb-6 last:mb-0">
+                  {paragraph}
+                </p>
+              ))}
+            </div>
+          </motion.div>
+        )}
       </div>
     </section>
   );
