@@ -9,6 +9,8 @@ import Home from "./pages/Home";
 import ContentPage from "./pages/ContentPage";
 import OfficialSealPage from "./pages/OfficialSealPage";
 import EnactedOrdinancesPage from "./pages/EnactedOrdinancesPage";
+import ResolutionsPage from "./pages/ResolutionsPage";
+import CitizenCharterPage from "./pages/CitizenCharterPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import Footer from "./components/Footer";
 import { aboutApi, executiveApi, legislativeApi, newsApi, transparencyApi, tourismApi, formsApi } from "./services/api";
@@ -238,16 +240,7 @@ export default function App() {
             </div>
           )} />} />
           <Route path="/legislative/ordinances" element={<EnactedOrdinancesPage />} />
-          <Route path="/legislative/resolutions" element={<ContentPage title="Resolutions" fetchData={legislativeApi.getResolutions} renderContent={(data) => (
-            <div className="space-y-6">
-              {Array.isArray(data) && data.map((res: any, idx: number) => (
-                <div key={`${res.id}-${idx}`} className="p-8 bg-white border border-gray-100 rounded-3xl shadow-sm">
-                  <h3 className="text-2xl font-black text-gray-900 mb-4">{String(res.title)}</h3>
-                  <p className="text-lg text-gray-600 font-medium">{String(res.date)}</p>
-                </div>
-              ))}
-            </div>
-          )} />} />
+          <Route path="/legislative/resolutions" element={<ResolutionsPage />} />
 
           {/* News */}
           <Route path="/news/articles" element={<ContentPage title="News Articles" fetchData={newsApi.getArticles} renderContent={(data) => (
@@ -347,7 +340,7 @@ export default function App() {
           )} />} />
 
           {/* Transparency */}
-          <Route path="/transparency/charter" element={<ContentPage title="Citizen's Charter" fetchData={transparencyApi.getCitizenCharter} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data.content}</p>} />} />
+          <Route path="/transparency/charter" element={<CitizenCharterPage />} />
           <Route path="/transparency/disclosure" element={<ContentPage title="Full Disclosure Policy" fetchData={transparencyApi.getFullDisclosure} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data.content}</p>} />} />
           <Route path="/transparency/infrastructure" element={<ContentPage title="Infrastructure Projects" fetchData={transparencyApi.getInfrastructure} renderContent={(data) => (
             <div className="space-y-6">
