@@ -11,6 +11,10 @@ import OfficialSealPage from "./pages/OfficialSealPage";
 import EnactedOrdinancesPage from "./pages/EnactedOrdinancesPage";
 import ResolutionsPage from "./pages/ResolutionsPage";
 import CitizenCharterPage from "./pages/CitizenCharterPage";
+import FullDisclosurePage from "./pages/FullDisclosurePage";
+import BusinessPermitPage from "./pages/BusinessPermitPage";
+import BuildingPermitPage from "./pages/BuildingPermitPage";
+import ZoningClearancePage from "./pages/ZoningClearancePage";
 import AdminDashboard from "./pages/AdminDashboard";
 import Footer from "./components/Footer";
 import { aboutApi, executiveApi, legislativeApi, newsApi, transparencyApi, tourismApi, formsApi } from "./services/api";
@@ -341,7 +345,7 @@ export default function App() {
 
           {/* Transparency */}
           <Route path="/transparency/charter" element={<CitizenCharterPage />} />
-          <Route path="/transparency/disclosure" element={<ContentPage title="Full Disclosure Policy" fetchData={transparencyApi.getFullDisclosure} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data.content}</p>} />} />
+          <Route path="/transparency/disclosure" element={<FullDisclosurePage />} />
           <Route path="/transparency/infrastructure" element={<ContentPage title="Infrastructure Projects" fetchData={transparencyApi.getInfrastructure} renderContent={(data) => (
             <div className="space-y-6">
               {Array.isArray(data) && data.map((project: any, idx: number) => (
@@ -449,37 +453,9 @@ export default function App() {
           )} />} />
 
           {/* Forms */}
-          <Route path="/forms/business" element={<ContentPage title="Business Permit" fetchData={formsApi.getBusinessPermits} renderContent={(data) => (
-            <div className="space-y-6">
-              <p className="text-xl text-gray-600 font-medium mb-8">Download the necessary forms for your business permit application below.</p>
-              {Array.isArray(data) && data.map((form: any) => (
-                <a key={form.id} href={form.url} className="flex items-center justify-between p-8 bg-white border-2 border-dashed border-blue-200 rounded-3xl hover:border-blue-600 hover:bg-blue-50 transition-all group">
-                  <h3 className="text-2xl font-black text-gray-900 group-hover:text-blue-600 transition-colors uppercase tracking-tight">{form.title}</h3>
-                  <div className="px-6 py-3 bg-blue-600 text-white rounded-xl font-black text-xs tracking-widest">DOWNLOAD PDF</div>
-                </a>
-              ))}
-            </div>
-          )} />} />
-          <Route path="/forms/building" element={<ContentPage title="Building Permits" fetchData={formsApi.getBuildingPermits} renderContent={(data) => (
-            <div className="space-y-4">
-              {Array.isArray(data) && data.map((form: any) => (
-                <a key={form.id} href={form.url} className="flex items-center justify-between p-6 bg-gray-50 border border-gray-100 rounded-2xl hover:bg-gray-100 transition-all">
-                  <span className="font-black text-gray-900 uppercase tracking-tight">{form.title}</span>
-                  <span className="text-xs font-black text-blue-600">DOWNLOAD</span>
-                </a>
-              ))}
-            </div>
-          )} />} />
-          <Route path="/forms/zoning" element={<ContentPage title="Zoning Clearance" fetchData={formsApi.getZoningClearance} renderContent={(data) => (
-            <div className="space-y-4">
-              {Array.isArray(data) && data.map((form: any) => (
-                <a key={form.id} href={form.url} className="flex items-center justify-between p-6 bg-blue-50 border border-blue-100 rounded-2xl hover:bg-blue-100 transition-all">
-                  <span className="font-black text-gray-900 uppercase tracking-tight">{form.title}</span>
-                  <span className="text-xs font-black text-blue-600">DOWNLOAD</span>
-                </a>
-              ))}
-            </div>
-          )} />} />
+          <Route path="/forms/business" element={<BusinessPermitPage />} />
+          <Route path="/forms/building" element={<BuildingPermitPage />} />
+          <Route path="/forms/zoning" element={<ZoningClearancePage />} />
         </Routes>
         <Footer />
       </div>
