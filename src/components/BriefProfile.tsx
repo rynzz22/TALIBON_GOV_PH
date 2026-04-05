@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { MapPin, Navigation, Users, Briefcase, Award, Anchor, Waves, Ship, Landmark, FileText } from 'lucide-react';
-import axios from 'axios';
 
 interface ProfileData {
   title: string;
@@ -12,8 +11,12 @@ const BriefProfile: React.FC = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
 
   useEffect(() => {
-    axios.get('/api/about/profile')
-      .then(res => setProfile(res.data))
+    fetch('/api/about/profile')
+      .then(res => {
+        if (!res.ok) throw new Error('Network response was not ok');
+        return res.json();
+      })
+      .then(data => setProfile(data))
       .catch(err => console.error('Error fetching profile:', err));
   }, []);
 

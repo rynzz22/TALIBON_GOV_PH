@@ -1,8 +1,13 @@
-import axios from "axios";
-
-const api = axios.create({
-  baseURL: "/api",
-});
+const api = {
+  get: async (url: string) => {
+    const response = await fetch(`/api${url}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return { data };
+  },
+};
 
 export const aboutApi = {
   getProfile: () => api.get("/about/profile"),
