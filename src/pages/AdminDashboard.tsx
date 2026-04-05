@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { auth, db, storage, googleProvider } from '../firebase';
+import { auth } from '../firebase';
+import { supabase } from '../lib/supabase';
 import { signInWithPopup, signOut, onAuthStateChanged, User } from 'firebase/auth';
-import { collection, addDoc, query, orderBy, onSnapshot, deleteDoc, doc, getDoc } from 'firebase/firestore';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { googleProvider } from '../firebase';
 import { motion, AnimatePresence } from 'motion/react';
 import { LogIn, LogOut, Upload, Trash2, FileText, CheckCircle, AlertCircle, ShieldCheck, Plus, X, Search, Folder, ChevronRight, Download } from 'lucide-react';
 
@@ -10,10 +10,10 @@ interface Ordinance {
   id: string;
   title: string;
   year: string;
-  fileUrl: string;
-  fileName?: string;
-  fileSize?: string;
-  createdAt: any;
+  file_url: string;
+  file_name?: string;
+  file_size?: string;
+  created_at: string;
 }
 
 const AdminDashboard: React.FC = () => {
@@ -22,23 +22,19 @@ const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [ordinances, setOrdinances] = useState<Ordinance[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
-  // Form State
-  const [title, setTitle] = useState('');
-  const [year, setYear] = useState(new Date().getFullYear().toString());
-  const [file, setFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Bulk Upload State
+  const [uploadQueue, setUploadQueue] = useState<{ file: File; title: string; year: string; progress: number; status: 'pending' | 'uploading' | 'success' | 'error'; error?: string }[]>([]);
+  const [isBatchUploading, setIsBatchUploading] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       if (currentUser) {
-        // Check if user is admin
-        const adminDoc = await getDoc(doc(db, 'admins', currentUser.uid));
+        // We'll trust the email for now, or you can add a 'admins' table in Supabase too
         const isDefaultAdmin = currentUser.email === 'labradarenz@gmail.com';
-        setIsAdmin(adminDoc.exists() || isDefaultAdmin);
+        setIsAdmin(isDefaultAdmin);
       } else {
         setIsAdmin(false);
       }
@@ -50,14 +46,22 @@ const AdminDashboard: React.FC = () => {
 
   useEffect(() => {
     if (isAdmin) {
-      const q = query(collection(db, 'ordinances'), orderBy('createdAt', 'desc'));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ordinance));
-        setOrdinances(docs);
-      });
-      return () => unsubscribe();
+      fetchOrdinances();
     }
   }, [isAdmin]);
+
+  const fetchOrdinances = async () => {
+    const { data, error } = await supabase
+      .from('ordinances')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      console.error("Error fetching ordinances:", error);
+    } else {
+      setOrdinances(data || []);
+    }
+  };
 
   const handleLogin = async () => {
     try {
@@ -69,58 +73,103 @@ const AdminDashboard: React.FC = () => {
 
   const handleLogout = () => signOut(auth);
 
-  const handleUpload = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file || !title || !year || !user) return;
-
-    setIsUploading(true);
-    setError(null);
-
-    try {
-      const storageRef = ref(storage, `ordinances/${year}/${Date.now()}_${file.name}`);
-      const uploadTask = uploadBytesResumable(storageRef, file);
-
-      uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          setUploadProgress(progress);
-        },
-        (err) => {
-          setError(err.message);
-          setIsUploading(false);
-        },
-        async () => {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          const fileSize = (file.size / (1024 * 1024)).toFixed(2) + ' MB';
-
-          await addDoc(collection(db, 'ordinances'), {
-            title,
-            year,
-            fileUrl: downloadURL,
-            fileName: file.name,
-            fileSize,
-            createdAt: new Date(),
-            authorUid: user.uid,
-          });
-
-          setIsUploading(false);
-          setIsModalOpen(false);
-          setTitle('');
-          setFile(null);
-          setUploadProgress(0);
-        }
-      );
-    } catch (err: any) {
-      setError(err.message);
-      setIsUploading(false);
-    }
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    addFilesToQueue(files);
   };
 
-  const handleDelete = async (id: string) => {
+  const addFilesToQueue = (files: File[]) => {
+    const newItems = files.map(file => {
+      const yearMatch = file.name.match(/\b(20\d{2})\b/);
+      const guessedYear = yearMatch ? yearMatch[0] : new Date().getFullYear().toString();
+      
+      return {
+        file,
+        title: file.name.replace(/\.[^/.]+$/, "").replace(/_/g, " "),
+        year: guessedYear,
+        progress: 0,
+        status: 'pending' as const
+      };
+    });
+    setUploadQueue(prev => [...prev, ...newItems]);
+  };
+
+  const startBatchUpload = async () => {
+    if (isBatchUploading || uploadQueue.length === 0) return;
+    setIsBatchUploading(true);
+
+    for (let i = 0; i < uploadQueue.length; i++) {
+      const item = uploadQueue[i];
+      if (item.status === 'success') continue;
+
+      setUploadQueue(prev => prev.map((it, idx) => idx === i ? { ...it, status: 'uploading' } : it));
+
+      try {
+        const fileExt = item.file.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `${item.year}/${fileName}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('ordinances')
+          .upload(filePath, item.file, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('ordinances')
+          .getPublicUrl(filePath);
+
+        const fileSize = (item.file.size / (1024 * 1024)).toFixed(2) + ' MB';
+
+        const { error: dbError } = await supabase
+          .from('ordinances')
+          .insert([
+            {
+              title: item.title,
+              year: item.year,
+              file_url: publicUrl,
+              file_name: item.file.name,
+              file_size: fileSize,
+              author_uid: user?.uid,
+            }
+          ]);
+
+        if (dbError) throw dbError;
+
+        setUploadQueue(prev => prev.map((it, idx) => idx === i ? { ...it, status: 'success', progress: 100 } : it));
+        fetchOrdinances();
+      } catch (err: any) {
+        setUploadQueue(prev => prev.map((it, idx) => idx === i ? { ...it, status: 'error', error: err.message } : it));
+      }
+    }
+    setIsBatchUploading(false);
+  };
+
+  const removeFromQueue = (index: number) => {
+    setUploadQueue(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const updateQueueItem = (index: number, updates: Partial<typeof uploadQueue[0]>) => {
+    setUploadQueue(prev => prev.map((item, i) => i === index ? { ...item, ...updates } : item));
+  };
+
+  const handleDelete = async (id: string, fileUrl: string) => {
     if (window.confirm('Are you sure you want to delete this ordinance?')) {
       try {
-        await deleteDoc(doc(db, 'ordinances', id));
+        // Delete from DB
+        const { error: dbError } = await supabase
+          .from('ordinances')
+          .delete()
+          .eq('id', id);
+
+        if (dbError) throw dbError;
+
+        // Try to delete from storage if possible (optional, requires more logic to parse path)
+        // For now, just refresh the list
+        fetchOrdinances();
       } catch (err: any) {
         setError(err.message);
       }
@@ -260,18 +309,18 @@ const AdminDashboard: React.FC = () => {
                       </span>
                     </td>
                     <td className="px-8 py-6 text-sm font-bold text-gray-400">
-                      {new Date(ord.createdAt?.seconds * 1000).toLocaleDateString()}
+                      {new Date(ord.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-8 py-6 text-sm font-bold text-gray-400">
-                      {ord.fileSize}
+                      {ord.file_size}
                     </td>
                     <td className="px-8 py-6 text-right">
                       <div className="flex justify-end gap-2">
-                        <a href={ord.fileUrl} target="_blank" rel="noopener noreferrer" className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">
+                        <a href={ord.file_url} target="_blank" rel="noopener noreferrer" className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all">
                           <Download size={18} />
                         </a>
                         <button 
-                          onClick={() => handleDelete(ord.id)}
+                          onClick={() => handleDelete(ord.id, ord.file_url)}
                           className="p-3 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
                         >
                           <Trash2 size={18} />
@@ -294,98 +343,131 @@ const AdminDashboard: React.FC = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => !isUploading && setIsModalOpen(false)}
+              onClick={() => !isBatchUploading && setIsModalOpen(false)}
               className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-xl bg-white rounded-[3rem] shadow-2xl overflow-hidden"
+              className="relative w-full max-w-3xl bg-white rounded-[3rem] shadow-2xl overflow-hidden"
             >
               <div className="p-8 border-b border-gray-50 flex justify-between items-center">
-                <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">Upload Ordinance</h2>
+                <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">Bulk Upload Ordinances</h2>
                 <button 
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => !isBatchUploading && setIsModalOpen(false)}
                   className="p-2 text-gray-400 hover:bg-gray-100 rounded-xl"
                 >
                   <X size={24} />
                 </button>
               </div>
 
-              <form onSubmit={handleUpload} className="p-8 space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Ordinance Title</label>
-                  <textarea
-                    required
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Enter the full title of the ordinance..."
-                    className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white focus:border-blue-200 transition-all min-h-[100px]"
+              <div className="p-8 max-h-[70vh] overflow-y-auto space-y-6">
+                {/* Dropzone */}
+                <div 
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const files = Array.from(e.dataTransfer.files);
+                    addFilesToQueue(files);
+                  }}
+                  className="border-2 border-dashed border-gray-200 rounded-[2rem] p-12 text-center hover:border-blue-400 hover:bg-blue-50 transition-all group cursor-pointer"
+                  onClick={() => document.getElementById('bulk-file-input')?.click()}
+                >
+                  <input 
+                    id="bulk-file-input"
+                    type="file" 
+                    multiple 
+                    accept=".pdf" 
+                    className="hidden" 
+                    onChange={handleFileSelect}
                   />
+                  <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-blue-600 group-hover:scale-110 transition-transform">
+                    <Upload size={32} />
+                  </div>
+                  <p className="text-sm font-black text-gray-900 uppercase tracking-tight">Drag & Drop PDFs here</p>
+                  <p className="text-xs font-medium text-gray-400 mt-2">or click to browse files</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">Year Enacted</label>
-                    <input
-                      required
-                      type="number"
-                      value={year}
-                      onChange={(e) => setYear(e.target.value)}
-                      className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white focus:border-blue-200 transition-all"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4">PDF File</label>
-                    <input
-                      required
-                      type="file"
-                      accept=".pdf"
-                      onChange={(e) => setFile(e.target.files?.[0] || null)}
-                      className="w-full text-xs font-bold text-gray-400 file:mr-4 file:py-4 file:px-6 file:rounded-2xl file:border-0 file:text-[10px] file:font-black file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100 transition-all cursor-pointer"
-                    />
-                  </div>
-                </div>
-
-                {isUploading && (
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-[10px] font-black uppercase tracking-widest">
-                      <span className="text-blue-600">Uploading...</span>
-                      <span className="text-gray-400">{Math.round(uploadProgress)}%</span>
+                {/* Queue */}
+                {uploadQueue.length > 0 && (
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center px-4">
+                      <h3 className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Upload Queue ({uploadQueue.length})</h3>
+                      <button 
+                        onClick={() => setUploadQueue([])}
+                        className="text-[10px] font-black text-red-500 uppercase tracking-widest hover:underline"
+                      >
+                        Clear All
+                      </button>
                     </div>
-                    <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        animate={{ width: `${uploadProgress}%` }}
-                        className="h-full bg-blue-600"
-                      />
+                    
+                    <div className="space-y-3">
+                      {uploadQueue.map((item, idx) => (
+                        <div key={idx} className="p-4 bg-gray-50 rounded-2xl border border-gray-100 flex items-center gap-4">
+                          <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-gray-400">
+                            <FileText size={20} />
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <input 
+                              type="text" 
+                              value={item.title}
+                              onChange={(e) => updateQueueItem(idx, { title: e.target.value })}
+                              className="w-full bg-transparent font-bold text-sm text-gray-900 focus:outline-none focus:text-blue-600"
+                            />
+                            <div className="flex items-center gap-2 mt-1">
+                              <input 
+                                type="text" 
+                                value={item.year}
+                                onChange={(e) => updateQueueItem(idx, { year: e.target.value })}
+                                className="w-16 bg-white border border-gray-200 rounded px-1 text-[10px] font-black text-gray-500"
+                              />
+                              <span className="text-[10px] font-medium text-gray-400">{(item.file.size / 1024 / 1024).toFixed(2)} MB</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-4">
+                            {item.status === 'uploading' && (
+                              <div className="w-12 h-12 relative flex items-center justify-center">
+                                <svg className="w-full h-full -rotate-90">
+                                  <circle cx="24" cy="24" r="20" fill="none" stroke="#f3f4f6" strokeWidth="4" />
+                                  <circle cx="24" cy="24" r="20" fill="none" stroke="#2563eb" strokeWidth="4" strokeDasharray={125.6} strokeDashoffset={125.6 - (125.6 * item.progress) / 100} />
+                                </svg>
+                                <span className="absolute text-[8px] font-black">{Math.round(item.progress)}%</span>
+                              </div>
+                            )}
+                            {item.status === 'success' && <CheckCircle className="text-green-500" size={20} />}
+                            {item.status === 'error' && <AlertCircle className="text-red-500" size={20} />}
+                            {item.status === 'pending' && (
+                              <button onClick={() => removeFromQueue(idx)} className="p-2 text-gray-400 hover:text-red-500">
+                                <X size={16} />
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
+              </div>
 
-                {error && (
-                  <div className="p-4 bg-red-50 text-red-600 rounded-2xl text-xs font-bold border border-red-100 flex items-center gap-2">
-                    <AlertCircle size={16} />
-                    {error}
-                  </div>
-                )}
-
+              <div className="p-8 bg-gray-50 border-t border-gray-100">
                 <button
-                  type="submit"
-                  disabled={isUploading}
+                  onClick={startBatchUpload}
+                  disabled={isBatchUploading || uploadQueue.length === 0}
                   className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isUploading ? (
+                  {isBatchUploading ? (
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                   ) : (
                     <>
                       <Upload size={18} />
-                      PUBLISH ORDINANCE
+                      START UPLOADING {uploadQueue.length} FILES
                     </>
                   )}
                 </button>
-              </form>
+              </div>
             </motion.div>
           </div>
         )}
