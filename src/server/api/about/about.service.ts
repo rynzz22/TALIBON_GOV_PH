@@ -268,43 +268,53 @@ Talibon has achieved a significant milestone, securing the 17th position among 1
 
   getBarangays() {
     return [
-      "Bagacay", "Balintawak", "Burgos", "Caboy", "Calituban", "Cataban", "Guindacpan", "Magsaysay", "Poblacion", "San Agustin", "San Francisco", "San Jose", "San Roque", "Santo Niño", "Tanghaligue", "Tapal", "Trinidad", "Zamora"
+      "Bagacay", "Balintawak", "Burgos", "Caboy", "Calituban", "Cataban", "Guindacpan", "Magsaysay", "Mahanay", "Nocnocan", "Poblacion", "San Agustin", "San Francisco", "San Isidro", "San Jose", "San Pedro", "San Roque", "Santo Niño", "Sikatuna", "Suba", "Tanghaligue", "Tapal", "Trinidad", "Via Victoria", "Zamora"
     ];
   }
 
   getIndustry() {
     return {
       title: "Industry",
-      content: "The primary industries in Talibon are fishing, agriculture, and seaweed farming. It is a major supplier of seafood in the region.",
+      content: "The primary industries in Talibon are fishing, agriculture, and seaweed farming. It is a major supplier of seafood in the region. The municipality’s major products include fishculture (bangus, shrimp, and tilapia), banana, coconut, oyster, rice, seaweeds, swine, cassava, corn, and native chicken. It is also a leading commercial hub with over 1,400 registered retailers, wholesalers, and traders, and a strong presence of banks and financial institutions. Other industries include artisanal fish traps, hats, pottery, and mineral extraction (silica, limestone, diorites, sand, iron ore, and gravel).",
     };
   }
 
   getServices() {
     return [
-      { name: "Business Licensing", description: "Issuance of permits for local businesses." },
-      { name: "Health Services", description: "Primary healthcare and emergency services." },
-      { name: "Social Welfare", description: "Assistance for marginalized sectors." },
+      { name: "Business Licensing", description: "Issuance of permits for local businesses and investment promotions." },
+      { name: "Health Services", description: "Primary healthcare, emergency services, and public health programs." },
+      { name: "Social Welfare", description: "Assistance for marginalized sectors, senior citizens, and PWDs." },
+      { name: "Civil Registration", description: "Registration of vital events like births, marriages, and deaths." },
+      { name: "Real Property Assessment", description: "Management of real property assessments and tax mapping." },
+      { name: "Building Permits", description: "Processing of building permits and infrastructure compliance." },
+      { name: "Zoning Clearance", description: "Issuance of zoning clearances and land-use compliance." },
+      { name: "Disaster Response", description: "Emergency response, disaster preparedness, and recovery efforts." },
+      { name: "Tourism Promotion", description: "Promotion of local tourist spots and cultural heritage preservation." },
+      { name: "Public Employment Service", description: "Job matching, training opportunities, and employment assistance." },
     ];
   }
 
   getHymn() {
     return {
       title: "Talibon Hymn",
-      lyrics: "Talibon, lungsod nga pinangga... (Lyrics of the Talibon Hymn)",
+      imageUrl: "https://talibon.gov.ph/wp-content/themes/yootheme/cache/43/Untitled-design-4-43cd0b59.webp",
     };
   }
 
   getDemographics() {
     return {
       title: "Demographics",
-      content: "Talibon has a population of 71,272 (2020 census). It is the second most populous town in Bohol.",
+      content: "According to the 2020 Philippine Statistics Authority Population Census, Talibon has a population of 71,272 people and a population density of 507 people per square kilometer, making it the second-most populous town in Bohol. It is also home to some of the world’s most densely populated islands, namely Nocnocan, Guindacpan, Calituban, and Cataban.",
     };
   }
 
   getLocation() {
     return {
       title: "Location",
-      content: "Talibon is located in the northernmost part of Bohol, bounded by Camotes Sea to the north.",
+      lat: 10.1517,
+      lng: 124.3311,
+      logoUrl: "http://talibon.gov.ph/wp-content/uploads/2025/09/Talibon-Official-Seal-v4-2003-to-2023-.png",
+      description: "Talibon is located in the northernmost part of Bohol, bounded by Camotes Sea to the north.",
     };
   }
 }
