@@ -152,7 +152,7 @@ export default function App() {
               <p className="text-xl text-gray-700 leading-relaxed font-medium">{data?.description}</p>
             </div>
           )} />} />
-          <Route path="/about/industry" element={<ContentPage title="Industry" fetchData={aboutApi.getIndustry} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data.content}</p>} />} />
+          <Route path="/about/industry" element={<ContentPage title="Industry" fetchData={aboutApi.getIndustry} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium whitespace-pre-line">{data.content}</p>} />} />
           <Route path="/about/services" element={<ContentPage title="Government Services" fetchData={aboutApi.getServices} renderContent={(data) => (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {Array.isArray(data) && data.map((service: any, idx: number) => (

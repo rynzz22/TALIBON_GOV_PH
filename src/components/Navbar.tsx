@@ -33,9 +33,9 @@ export default function Navbar() {
         { name: "DEMOGRAPHICS", href: "/about/demographics", isHash: false },
         { name: "LOCATION", href: "/about/location", isHash: false },
         { name: "INDUSTRY", href: "/about/industry", isHash: false },
-        { name: "GOVERNMENT SERVICES", href: "/about/services", isHash: false },
+        { name: "GOVERNMENT SERVICES", href: "https://talibon-citizen-stg.multisyscorp.io/e-services", isHash: false, isExternal: true },
         { name: "TALIBON HYMN", href: "/about/hymn", isHash: false },
-        { name: "OFFICIAL FACEBOOK PAGE", href: "https://facebook.com/TalibonLGU", isHash: false, isExternal: true },
+        { name: "OFFICIAL FACEBOOK PAGE", href: "https://web.facebook.com/TalibonOfficialPage?_rdc=1&_rdr#", isHash: false, isExternal: true },
       ]
     },
     { 
@@ -219,7 +219,17 @@ export default function Navbar() {
                         >
                           <div className="grid grid-cols-1 gap-1">
                             {link.subLinks.map((sub) => (
-                              sub.isHash ? (
+                              sub.isExternal ? (
+                                <a
+                                  key={sub.name}
+                                  href={sub.href}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="px-4 py-3 text-[10px] font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all tracking-wider"
+                                >
+                                  {sub.name}
+                                </a>
+                              ) : sub.isHash ? (
                                 <HashLink
                                   smooth
                                   key={sub.name}

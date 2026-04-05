@@ -131,9 +131,14 @@ const Hero: React.FC = () => {
                 EXPLORE TALIBON
                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
               </button>
-              <button className="px-10 py-5 bg-white/10 backdrop-blur-md text-white rounded-2xl font-black text-xs tracking-widest hover:bg-white/20 transition-all border border-white/20 shadow-xl">
+              <a 
+                href="https://talibon-citizen-stg.multisyscorp.io/e-services" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="px-10 py-5 bg-white/10 backdrop-blur-md text-white rounded-2xl font-black text-xs tracking-widest hover:bg-white/20 transition-all border border-white/20 shadow-xl inline-block"
+              >
                 GOVERNMENT SERVICES
-              </button>
+              </a>
             </div>
 
             <div className="mt-16 flex flex-col items-center gap-4">

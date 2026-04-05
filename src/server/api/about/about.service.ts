@@ -275,7 +275,7 @@ Talibon has achieved a significant milestone, securing the 17th position among 1
   getIndustry() {
     return {
       title: "Industry",
-      content: "The primary industries in Talibon are fishing, agriculture, and seaweed farming. It is a major supplier of seafood in the region. The municipality’s major products include fishculture (bangus, shrimp, and tilapia), banana, coconut, oyster, rice, seaweeds, swine, cassava, corn, and native chicken. It is also a leading commercial hub with over 1,400 registered retailers, wholesalers, and traders, and a strong presence of banks and financial institutions. Other industries include artisanal fish traps, hats, pottery, and mineral extraction (silica, limestone, diorites, sand, iron ore, and gravel).",
+      content: "Industry\nEconomic sectors\nKey Businesses\nWorkforce\nWorkforce",
     };
   }
 
