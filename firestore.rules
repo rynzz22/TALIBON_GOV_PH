@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: ordinances
+    // Fields:
+    //   - id: string (required)
+    //   - title: string (required, < 500 chars)
+    //   - year: string (required, e.g., "2024", "2025")
+    //   - fileUrl: string (required, valid URL)
+    //   - fileName: string (optional)
+    //   - fileSize: string (optional)
+    //   - createdAt: timestamp (required)
+    //   - authorUid: string (required)
+    //
+    // Collection: admins
+    // Fields:
+    //   - uid: string (required)
+    //   - email: string (required, valid email)
+    //   - role: string (required, "admin")
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+         (request.auth.token.email == "labradarenz@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidOrdinance(data) {
+      return data.keys().hasAll(['title', 'year', 'fileUrl', 'createdAt', 'authorUid']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 500 &&
+             data.year is string && data.year.matches("^\\d{4}$") &&
+             data.fileUrl is string && data.fileUrl.matches("^https://.*") &&
+             data.createdAt is timestamp &&
+             data.authorUid == request.auth.uid;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /ordinances/{ordinanceId} {
+      // Publicly readable
+      allow read: if true;
+      // Only admins can create/update/delete
+      allow create: if isAdmin() && isValidOrdinance(request.resource.data);
+      allow update: if isAdmin() && isValidOrdinance(request.resource.data) &&
+                      request.resource.data.authorUid == resource.data.authorUid;
+      allow delete: if isAdmin();
+    }
+
+    match /admins/{adminId} {
+      // Admins can read admin list
+      allow read: if isAdmin();
+      // Only the default admin or existing admins can add new admins
+      allow write: if isAdmin();
+    }
+  }
+}

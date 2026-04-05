@@ -8,6 +8,8 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import ContentPage from "./pages/ContentPage";
 import OfficialSealPage from "./pages/OfficialSealPage";
+import EnactedOrdinancesPage from "./pages/EnactedOrdinancesPage";
+import AdminDashboard from "./pages/AdminDashboard";
 import Footer from "./components/Footer";
 import { aboutApi, executiveApi, legislativeApi, newsApi, transparencyApi, tourismApi, formsApi } from "./services/api";
 
@@ -18,6 +20,7 @@ export default function App() {
         <Navbar />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           
           {/* About Talibon */}
           <Route path="/about/profile" element={<ContentPage title="Brief Profile" fetchData={aboutApi.getProfile} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data.content}</p>} />} />
@@ -223,25 +226,18 @@ export default function App() {
           {/* Legislative */}
           <Route path="/legislative/mandate" element={<ContentPage title="Legislative Mandate" fetchData={legislativeApi.getMandate} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data.content}</p>} />} />
           <Route path="/legislative/structure" element={<ContentPage title="Organizational Structure" fetchData={legislativeApi.getStructure} renderContent={(data) => (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {Array.isArray(data.members) && data.members.map((member: any, idx: number) => (
-                <div key={`${member.name}-${idx}`} className="p-8 bg-gray-900 text-white rounded-3xl shadow-xl">
-                  <p className="text-xs font-black uppercase tracking-widest mb-2 text-blue-400">{member.role}</p>
-                  <h3 className="text-2xl font-black">{member.name}</h3>
-                </div>
-              ))}
+            <div className="max-w-5xl mx-auto">
+              <div className="bg-white p-4 md:p-8 rounded-[3rem] shadow-2xl border border-gray-100 overflow-hidden">
+                <img 
+                  src={data.imageUrl} 
+                  alt="Legislative Organizational Structure" 
+                  className="w-full h-auto rounded-2xl shadow-sm"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
             </div>
           )} />} />
-          <Route path="/legislative/ordinances" element={<ContentPage title="Enacted Ordinances" fetchData={legislativeApi.getOrdinances} renderContent={(data) => (
-            <div className="space-y-6">
-              {Array.isArray(data) && data.map((ord: any, idx: number) => (
-                <div key={`${ord.id}-${idx}`} className="p-8 bg-blue-50 rounded-3xl border border-blue-100">
-                  <h3 className="text-2xl font-black text-gray-900 mb-4">{String(ord.title)}</h3>
-                  <p className="text-lg text-gray-600 font-medium">{String(ord?.description || "")}</p>
-                </div>
-              ))}
-            </div>
-          )} />} />
+          <Route path="/legislative/ordinances" element={<EnactedOrdinancesPage />} />
           <Route path="/legislative/resolutions" element={<ContentPage title="Resolutions" fetchData={legislativeApi.getResolutions} renderContent={(data) => (
             <div className="space-y-6">
               {Array.isArray(data) && data.map((res: any, idx: number) => (

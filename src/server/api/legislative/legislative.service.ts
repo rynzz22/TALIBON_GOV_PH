@@ -12,11 +12,7 @@ export class LegislativeService {
   getStructure() {
     return {
       title: "Organizational Structure",
-      members: [
-        { role: "Presiding Officer", name: "Hon. Cleto B. Garcia" },
-        { role: "SB Member", name: "Hon. Member 1" },
-        { role: "SB Member", name: "Hon. Member 2" },
-      ],
+      imageUrl: "https://talibon.gov.ph/wp-content/themes/yootheme/cache/05/viber_image_2025-10-24_14-50-54-459-05f74d51.webp",
     };
   }
 

@@ -96,7 +96,7 @@ export default function Navbar() {
       ]
     },
     { 
-      name: "FORMS", 
+      name: "DOWNLOADABLE FORMS", 
       href: "#",
       subLinks: [
         { name: "BUSINESS PERMIT", href: "/forms/business", isHash: false },

@@ -143,9 +143,18 @@ export default function Footer() {
             </p>
           </div>
           
-          <div className="flex items-center gap-2">
-            <p className="text-[10px] font-black text-gray-500 tracking-widest uppercase">Powered By:</p>
-            <span className="text-xs font-black text-blue-500 tracking-tighter">Felji</span>
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <p className="text-[10px] font-black text-gray-500 tracking-widest uppercase">Powered By:</p>
+              <span className="text-xs font-black text-blue-500 tracking-tighter">Felji</span>
+            </div>
+            <div className="h-4 w-px bg-gray-200" />
+            <a 
+              href="/admin" 
+              className="text-[10px] font-black text-gray-400 hover:text-blue-600 tracking-widest uppercase transition-colors"
+            >
+              Admin Login
+            </a>
           </div>
         </div>
       </div>
