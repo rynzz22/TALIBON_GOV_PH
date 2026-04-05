@@ -8,7 +8,7 @@ export default function Footer() {
     { name: "MDRRMO (TESaRU)", number: "09105035390" },
     { name: "RHU Talibon (DOH)", number: "09175620239" },
     { name: "PCG Talibon", number: "09096938871" },
-    { name: "TARSIER", number: "117 / 09497955530 / 09175101490" },
+    { name: "TARSIER", number: "117/09497955530/09175101490" },
     { name: "RHU Birthing Center", number: "(0919) 767 0072" },
     { name: "RHU Main", number: "(0963) 347 6355" },
   ];
@@ -75,7 +75,10 @@ export default function Footer() {
             </div>
 
             <div className="flex gap-4">
-              {[Facebook, Twitter, Instagram].map((Icon, i) => (
+              <a href="https://web.facebook.com/TalibonOfficialPage?_rdc=1&_rdr#" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-blue-600 transition-all">
+                <Facebook size={18} />
+              </a>
+              {[Twitter, Instagram].map((Icon, i) => (
                 <a key={i} href="#" className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center hover:bg-blue-600 transition-all">
                   <Icon size={18} />
                 </a>
@@ -142,7 +145,7 @@ export default function Footer() {
           
           <div className="flex items-center gap-2">
             <p className="text-[10px] font-black text-gray-500 tracking-widest uppercase">Powered By:</p>
-            <span className="text-xs font-black text-blue-500 tracking-tighter">FELJI</span>
+            <span className="text-xs font-black text-blue-500 tracking-tighter">Felji</span>
           </div>
         </div>
       </div>
