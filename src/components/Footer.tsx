@@ -32,7 +32,7 @@ export default function Footer() {
   return (
     <footer id="contact" className="bg-gray-900 text-white pt-16 pb-8 overflow-hidden relative">
       {/* Decorative Ocean Elements */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600" />
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-gold-400 to-blue-600" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
@@ -49,12 +49,12 @@ export default function Footer() {
               </div>
               <div>
                 <h2 className="text-xl font-black tracking-tight">TALIBON</h2>
-                <p className="text-[10px] font-bold text-blue-400 tracking-widest uppercase">Province of Bohol</p>
+                <p className="text-[10px] font-bold text-gold-400 tracking-widest uppercase">Province of Bohol</p>
               </div>
             </div>
             
             <div className="space-y-4">
-              <div className="flex items-center gap-3 text-gray-400 hover:text-blue-400 transition-colors group">
+              <div className="flex items-center gap-3 text-gray-400 hover:text-gold-400 transition-colors group">
                 <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-blue-600/20 transition-colors">
                   <Mail size={18} />
                 </div>
@@ -63,7 +63,7 @@ export default function Footer() {
                   <p className="text-sm font-bold">talibonofficial@gmail.com</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3 text-gray-400 hover:text-blue-400 transition-colors group">
+              <div className="flex items-center gap-3 text-gray-400 hover:text-gold-400 transition-colors group">
                 <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-blue-600/20 transition-colors">
                   <Phone size={18} />
                 </div>
@@ -88,12 +88,12 @@ export default function Footer() {
 
           {/* Emergency Hotlines */}
           <div className="lg:col-span-1">
-            <h3 className="text-sm font-black tracking-[0.2em] uppercase mb-8 text-blue-400">Emergency Hotlines</h3>
+            <h3 className="text-sm font-black tracking-[0.2em] uppercase mb-8 text-gold-400">Emergency Hotlines</h3>
             <div className="grid grid-cols-1 gap-4">
               {hotlines.map((hotline, i) => (
-                <div key={i} className="flex justify-between items-center border-b border-white/5 pb-2 hover:border-blue-500/30 transition-colors group">
+                <div key={i} className="flex justify-between items-center border-b border-white/5 pb-2 hover:border-gold-500/30 transition-colors group">
                   <span className="text-xs font-bold text-gray-400 group-hover:text-gray-200 transition-colors">{hotline.name}</span>
-                  <span className="text-xs font-black text-blue-400">{hotline.number}</span>
+                  <span className="text-xs font-black text-gold-400">{hotline.number}</span>
                 </div>
               ))}
             </div>
@@ -101,13 +101,13 @@ export default function Footer() {
 
           {/* About GOVPH */}
           <div>
-            <h3 className="text-sm font-black tracking-[0.2em] uppercase mb-8 text-blue-400">About GOVPH</h3>
+            <h3 className="text-sm font-black tracking-[0.2em] uppercase mb-8 text-gold-400">About GOVPH</h3>
             <p className="text-xs text-gray-500 leading-relaxed mb-6 font-medium">
               Learn more about the Philippine government, its structure, how government works and the people behind it.
             </p>
             <div className="space-y-3">
               {govPhLinks.map((link, i) => (
-                <a key={i} href={link.href} className="block text-xs font-bold text-gray-400 hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <a key={i} href={link.href} className="block text-xs font-bold text-gray-400 hover:text-gold-400 transition-colors flex items-center gap-2 group">
                   <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
                   {link.name}
                 </a>
@@ -117,10 +117,10 @@ export default function Footer() {
 
           {/* Government Links */}
           <div>
-            <h3 className="text-sm font-black tracking-[0.2em] uppercase mb-8 text-blue-400">Government Links</h3>
+            <h3 className="text-sm font-black tracking-[0.2em] uppercase mb-8 text-gold-400">Government Links</h3>
             <div className="space-y-3">
               {govLinks.map((link, i) => (
-                <a key={i} href={link.href} className="block text-xs font-bold text-gray-400 hover:text-blue-400 transition-colors flex items-center gap-2 group">
+                <a key={i} href={link.href} className="block text-xs font-bold text-gray-400 hover:text-gold-400 transition-colors flex items-center gap-2 group">
                   <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
                   {link.name}
                 </a>
@@ -132,7 +132,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-center md:text-left">
-            <p className="text-[10px] font-black text-blue-400 tracking-[0.3em] uppercase mb-2">
+            <p className="text-[10px] font-black text-gold-400 tracking-[0.3em] uppercase mb-2">
               REPUBLIC OF THE PHILIPPINES
             </p>
             <p className="text-[10px] font-bold text-gray-500 tracking-widest uppercase">

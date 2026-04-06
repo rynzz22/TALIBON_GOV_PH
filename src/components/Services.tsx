@@ -94,7 +94,7 @@ export default function Services() {
         </div>
 
         <div className="mt-16 text-center">
-          <button className="bg-gray-900 text-white px-10 py-4 rounded-full text-lg font-semibold hover:bg-gray-800 transition-all shadow-xl hover:shadow-gray-500/20">
+          <button className="bg-gold-400 text-blue-900 px-10 py-5 rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-gold-500 transition-all shadow-2xl shadow-gold-500/20">
             View All Online Services
           </button>
         </div>

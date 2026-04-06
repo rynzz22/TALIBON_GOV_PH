@@ -3,10 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ArrowRight, Anchor, Fish, Waves } from 'lucide-react';
 
 const BACKGROUND_IMAGES = [
-  "https://scontent.fceb2-2.fna.fbcdn.net/v/t39.30808-6/503266855_1095310069285852_3589177506267010769_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=dd6889&_nc_eui2=AeErNG3znwQctfTwQP8Ybmi0yTF8fMRb74HJMXx8xFvvgdyN_8lSFbQLd_Gb7PUvoJf59bcpT-o3E4RJGDYSRUSc&_nc_ohc=S4PWw3uNBCoQ7kNvwHBO-YJ&_nc_oc=Adrx8DN4EL8wSyvSWOEZjAMP1Hu_eCClMYoWuDYiUo1_zknuC3we8lhdaoMgxpDhkd0&_nc_zt=23&_nc_ht=scontent.fceb2-2.fna&_nc_gid=arlcNJozz9JuFVdFHXuizg&_nc_ss=7a3a8&oh=00_AfzVj64EE2yrtQO84PEbys_PO-uofjIA6596mo4FCCQbEA&oe=69D1011E",
-  "https://scontent.fceb6-1.fna.fbcdn.net/v/t39.30808-6/502915839_1095311819285677_5091851901568921766_n.jpg?_nc_cat=100&ccb=1-7&_nc_sid=dd6889&_nc_eui2=AeFJ5Q75bHxzywvwMr4pyIGIm7yTYkB9_AebvJNiQH38B-fDmG_jhpHZulUG3DqXDfu-xtT5RPycNeUUPhQA3Wpe&_nc_ohc=sYORF9WD-q0Q7kNvwGxdGKj&_nc_oc=AdoJJdD33Ams87z7YbrLt9v99C71-FD7cZkAejOsium6VVZR7jcn1CA2PvgKY_LFOAw&_nc_zt=23&_nc_ht=scontent.fceb6-1.fna&_nc_gid=v7K4myP4fe3H3IOJ43XtFA&_nc_ss=7a3a8&oh=00_AfzpJyhi77uXpNevTIFtl_dXoxXejfunZ4J1_iCBlP6DEA&oe=69D0FDB4",
-  "https://scontent.fceb2-1.fna.fbcdn.net/v/t39.30808-6/502714154_1095311095952416_5004365439819000423_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=dd6889&_nc_eui2=AeFrwX1jHHyYXIapF7dzjVBuc022KtjKIz9zTbYq2MojPyAdhAZr08DT6iyOgPkJELsLv_XDfq8fAatJkiBIVEGr&_nc_ohc=I8dnOGD6rGAQ7kNvwHNMFZ_&_nc_oc=AdrbRCI-ZK1qvOWY6BoPNH7QcVm3cSEApmbjPGcaPxUx0UAXmW5cbf4-3D9s3VfqjjY&_nc_zt=23&_nc_ht=scontent.fceb2-1.fna&_nc_gid=tBO14Jp3wl4VIPiJI6S2ow&_nc_ss=7a3a8&oh=00_AfyG2xpgF3euhxVrah35xLrKNSlrzE0V8QRxbMto9raDnA&oe=69D108C1",
-  "https://scontent.fceb2-2.fna.fbcdn.net/v/t39.30808-6/502845499_1095312322618960_997939339364680833_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=dd6889&_nc_eui2=AeFtiVqeecORugy5iE4tu0RdGIZxawzacu8YhnFrDNpy7x0JkYGvB5sVRWvV8xq1kC3GVdbl4IbyMtFhZ06QTKDT&_nc_ohc=zK4BGL2LXQkQ7kNvwH-G0DU&_nc_oc=AdpSmO6C45JmLTC-73XXVk6QB_P2KEJa17iq8xX0Dzs_DwsAaSiepv8ev7cQ5TXByJ4&_nc_zt=23&_nc_ht=scontent.fceb2-2.fna&_nc_gid=OqvnqEpTIhlaVUaEhPOAWQ&_nc_ss=7a3a8&oh=00_AfzI4fPhWuvUmFewtKhSvQ-Z_EwmXecrM5yTpa8cvK6ZYg&oe=69D0ECE6"
+  "https://scontent.fceb8-1.fna.fbcdn.net/v/t39.30808-6/502714154_1095311095952416_5004365439819000423_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=dd6889&_nc_eui2=AeFrwX1jHHyYXIapF7dzjVBuc022KtjKIz9zTbYq2MojPyAdhAZr08DT6iyOgPkJELsLv_XDfq8fAatJkiBIVEGr&_nc_ohc=7wXZjiQIo-sQ7kNvwHhfLRy&_nc_oc=AdonrIC_PAGHZAuEKv_qry0fQBIOdQ27ZWEpB0LscGW_dz_Yw2ss2ouFr27r10h7b2I&_nc_zt=23&_nc_ht=scontent.fceb8-1.fna&_nc_gid=tOyEeAbo5eR-bhdH746ktw&_nc_ss=7a3a8&oh=00_Af3vsICttKZgVJajMIFjao5Kp4NkPQEQujRbADFIOSa2hw&oe=69D8F1C1",
+  "https://scontent.fceb8-1.fna.fbcdn.net/v/t39.30808-6/503433606_1095312132618979_2460287290866783892_n.jpg?_nc_cat=101&ccb=1-7&_nc_sid=dd6889&_nc_eui2=AeGBaNxBClQKN-OsW4le6LS4nfGKa6Qo_nid8YprpCj-eI02UVF3mZCwWNzJh2VAVbMxNWhHB8LMgkx2dXmg3UXj&_nc_ohc=Fw0zyBqpKv0Q7kNvwFtNWM1&_nc_oc=AdrrduQ9NGpQIEZUA6-ArROWjph6mi-nmtEM50QzMnPzjvGElK_eY45qt__w9KNnakc&_nc_zt=23&_nc_ht=scontent.fceb8-1.fna&_nc_gid=k2MeAe9r7WMeSzlkd5jXbw&_nc_ss=7a3a8&oh=00_Af3yWQjc1-thiPTCpBhkkXP0GoGyZ9VQUPeYh5tMuI1IBg&oe=69D9067B"
 ];
 
 const Hero: React.FC = () => {
@@ -110,7 +108,7 @@ const Hero: React.FC = () => {
             
             <h1 className="text-4xl md:text-7xl lg:text-8xl font-black text-white leading-[0.85] mb-8 tracking-tighter drop-shadow-2xl">
               BOHOL'S <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-gold-300">
                 SEAFOOD CAPITAL
               </span>
             </h1>
@@ -119,15 +117,15 @@ const Hero: React.FC = () => {
               <p className="text-xl md:text-2xl text-white/90 font-bold tracking-tight">
                 Home of the late President Carlos P. Garcia
               </p>
-              <div className="h-px w-24 bg-blue-400/50 mx-auto" />
+              <div className="h-px w-24 bg-gold-400/50 mx-auto" />
               <p className="text-lg text-white/80 max-w-2xl mx-auto font-medium leading-relaxed">
                 Experience the bounty of our seas and the warmth of a community built on a legacy of greatness. 
-                Talibon is home to the <span className="text-blue-400 font-black">Danajon Bank</span>, the only documented double barrier reef in the Philippines.
+                Talibon is home to the <span className="text-gold-400 font-black">Danajon Bank</span>, the only documented double barrier reef in the Philippines.
               </p>
             </div>
             
             <div className="flex flex-wrap justify-center gap-4">
-              <button className="px-10 py-5 bg-blue-500 text-white rounded-2xl font-black text-xs tracking-widest hover:bg-blue-600 transition-all shadow-2xl shadow-blue-500/40 flex items-center gap-2 group">
+              <button className="px-10 py-5 bg-gold-400 text-blue-900 rounded-2xl font-black text-xs tracking-widest hover:bg-gold-500 transition-all shadow-2xl shadow-gold-500/40 flex items-center gap-2 group">
                 EXPLORE TALIBON
                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
               </button>

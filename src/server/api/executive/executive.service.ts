@@ -11,8 +11,8 @@ export class ExecutiveService {
 
   getVisionMission() {
     return {
-      vision: "A premier coastal municipality in Bohol with a globally competitive economy and a resilient community.",
-      mission: "To provide efficient and effective public services through sustainable development and participative governance.",
+      vision: "Talibon: The Seafood Capital of Bohol anchoring sustainable tourism, smart urban growth, and digital innovation, empowered by its marine wealth, cultural vibrance, and climate-resilient communities.",
+      mission: "To promote inclusive economic development by sustainably managing marine resources, fostering innovation in governance, enhancing urban infrastructure, and empowering communities through education, culture, and enterprise.",
     };
   }
 

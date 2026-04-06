@@ -70,7 +70,7 @@ export default function About() {
               </div>
               <h2 className="text-3xl md:text-5xl font-black text-gray-900 leading-[1] tracking-tighter">
                 A Legacy of <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Greatness</span>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-gold-400">Greatness</span>
               </h2>
             </div>
 
@@ -87,7 +87,7 @@ export default function About() {
                 <p className="text-gray-900">
                   Together, let us continue to build a brighter, more prosperous future for every Talibongnon.
                 </p>
-                <p className="text-2xl font-black text-blue-600 tracking-tight">
+                <p className="text-2xl font-black text-gold-500 tracking-tight">
                   Dajon kamo sa atong matahum nga Talibon!
                 </p>
               </div>
@@ -174,9 +174,7 @@ export default function About() {
             </div>
             <h3 className="text-3xl font-black tracking-tight">Our Vision</h3>
             <p className="text-blue-50/90 text-lg leading-relaxed font-medium">
-              “To enrich Bohol’s social, economic, cultural, political, and environmental resources 
-              through good governance and effective partnerships with stakeholders for increased 
-              global competitiveness.”
+              “Talibon: The Seafood Capital of Bohol anchoring sustainable tourism, smart urban growth, and digital innovation, empowered by its marine wealth, cultural vibrance, and climate-resilient communities.”
             </p>
             <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-white/5 rounded-full blur-3xl" />
           </motion.div>
@@ -193,9 +191,7 @@ export default function About() {
             </div>
             <h3 className="text-3xl font-black tracking-tight">Our Mission</h3>
             <p className="text-gray-500 text-lg leading-relaxed font-medium">
-              “To enrich Bohol’s social, economic, cultural, political, and environmental resources 
-              through good governance and effective partnerships with stakeholders for increased 
-              global competitiveness.”
+              “To promote inclusive economic development by sustainably managing marine resources, fostering innovation in governance, enhancing urban infrastructure, and empowering communities through education, culture, and enterprise.”
             </p>
             <div className="absolute -bottom-10 -right-10 w-40 h-40 bg-blue-600/5 rounded-full blur-3xl" />
           </motion.div>

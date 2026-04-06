@@ -34,7 +34,7 @@ export default function App() {
               y: [0, 30, 0]
             }}
             transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-48 -left-48 w-[40rem] h-[40rem] bg-blue-400/5 rounded-full blur-[100px]"
+            className="absolute -top-48 -left-48 w-[40rem] h-[40rem] bg-blue-600/5 rounded-full blur-[100px]"
           />
           <motion.div 
             animate={{ 
@@ -44,7 +44,7 @@ export default function App() {
               y: [0, 60, 0]
             }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute top-1/2 -right-48 w-[35rem] h-[35rem] bg-indigo-400/5 rounded-full blur-[100px]"
+            className="absolute top-1/2 -right-48 w-[35rem] h-[35rem] bg-gold-400/5 rounded-full blur-[100px]"
           />
           <motion.div 
             animate={{ 
@@ -53,7 +53,7 @@ export default function App() {
               y: [0, -40, 0]
             }}
             transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-            className="absolute -bottom-48 left-1/4 w-[30rem] h-[30rem] bg-cyan-400/5 rounded-full blur-[100px]"
+            className="absolute -bottom-48 left-1/4 w-[30rem] h-[30rem] bg-blue-400/5 rounded-full blur-[100px]"
           />
         </div>
 
@@ -64,9 +64,9 @@ export default function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           
           {/* About Talibon */}
-          <Route path="/about/profile" element={<ContentPage title="Brief Profile" fetchData={aboutApi.getProfile} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data.content}</p>} />} />
+          <Route path="/about/profile" element={<ContentPage title="Brief Profile" fetchData={aboutApi.getProfile} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium whitespace-pre-line">{data.content}</p>} />} />
           <Route path="/about/seal" element={<OfficialSealPage />} />
-          <Route path="/about/history" element={<ContentPage title="Brief History" fetchData={aboutApi.getHistory} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data.content}</p>} />} />
+          <Route path="/about/history" element={<ContentPage title="Brief History" fetchData={aboutApi.getHistory} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium whitespace-pre-line">{data.content}</p>} />} />
           <Route path="/about/mayors" element={<ContentPage title="List of Mayors" fetchData={aboutApi.getMayors} renderContent={(data) => (
             <div className="space-y-16">
               {Array.isArray(data) && data.length > 0 ? (

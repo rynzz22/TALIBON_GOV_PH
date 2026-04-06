@@ -140,16 +140,16 @@ export default function Navbar() {
             ))}
           </div>
           
-          <div className="hidden md:flex items-center gap-6">
+            <div className="hidden md:flex items-center gap-6">
             <div className="relative group">
               <input 
                 type="text" 
                 placeholder="SEARCH..." 
-                className="bg-blue-50/50 border border-transparent rounded-full py-1.5 pl-10 pr-4 text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-400/20 focus:bg-white focus:border-blue-200 transition-all w-40 group-hover:w-56"
+                className="bg-blue-50/50 border border-transparent rounded-full py-1.5 pl-10 pr-4 text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-gold-400/20 focus:bg-white focus:border-gold-200 transition-all w-40 group-hover:w-56"
               />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-400" size={14} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gold-400" size={14} />
             </div>
-            <button className="flex items-center gap-1.5 text-[10px] font-bold text-blue-400 hover:text-blue-600 transition-colors uppercase tracking-widest">
+            <button className="flex items-center gap-1.5 text-[10px] font-bold text-blue-600 hover:text-gold-500 transition-colors uppercase tracking-widest">
               <Globe size={14} />
               English
               <ChevronDown size={12} />
@@ -177,7 +177,7 @@ export default function Navbar() {
                 />
               </div>
               <div className="hidden sm:block">
-                <p className="text-[9px] font-black text-blue-400 tracking-[0.3em] leading-none mb-1">REPUBLIC OF THE PHILIPPINES</p>
+                <p className="text-[9px] font-black text-gold-400 tracking-[0.3em] leading-none mb-1">REPUBLIC OF THE PHILIPPINES</p>
                 <h1 className="text-lg font-black text-gray-900 leading-none tracking-tight group-hover:text-blue-600 transition-colors">MUNICIPALITY OF TALIBON</h1>
                 <p className="text-[9px] font-bold text-gray-400 tracking-[0.15em] leading-none mt-1">PROVINCE OF BOHOL</p>
               </div>
