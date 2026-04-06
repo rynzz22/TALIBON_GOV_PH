@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { Camera, MapPin, Anchor, Waves } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Tourism() {
   const destinations = [
@@ -9,6 +10,7 @@ export default function Tourism() {
       description: "One of only six double barrier reefs in the world and the only one in Southeast Asia.",
       image: "https://picsum.photos/seed/reef/800/600",
       icon: Anchor,
+      href: "/tourism/spots"
     },
     {
       title: "Talibon Cathedral",
@@ -16,6 +18,7 @@ export default function Tourism() {
       description: "The Most Holy Trinity Cathedral, a beautiful landmark of faith and history.",
       image: "https://picsum.photos/seed/cathedral/800/600",
       icon: Camera,
+      href: "/tourism/spots"
     },
     {
       title: "Islands & Sandbars",
@@ -23,6 +26,7 @@ export default function Tourism() {
       description: "Explore the pristine islands and sandbars scattered across the Danajon Bank.",
       image: "https://picsum.photos/seed/island/800/600",
       icon: Waves,
+      href: "/tourism/spots"
     },
   ];
 
@@ -32,7 +36,7 @@ export default function Tourism() {
         <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
           <div className="max-w-2xl space-y-4">
             <h2 className="text-sm font-bold text-blue-600 uppercase tracking-widest">Visit Talibon</h2>
-            <h3 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+            <h3 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
               Discover the <br />
               <span className="text-blue-600 italic">Hidden Gems</span> of Bohol
             </h3>
@@ -41,45 +45,48 @@ export default function Tourism() {
               offers a unique blend of nature, history, and culture.
             </p>
           </div>
-          <button className="bg-blue-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-blue-700 transition-all shadow-xl hover:shadow-blue-500/20">
-            Tourism Guide
-          </button>
+          <Link to="/tourism/spots">
+            <button className="bg-blue-600 text-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-blue-700 transition-all shadow-xl hover:shadow-blue-500/20">
+              Tourism Guide
+            </button>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
           {destinations.map((dest, index) => (
-            <motion.div
-              key={dest.title}
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className="group cursor-pointer"
-            >
-              <div className="relative aspect-[4/5] rounded-[40px] overflow-hidden mb-8 shadow-2xl shadow-gray-200">
-                <img
-                  src={dest.image}
-                  alt={dest.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  referrerPolicy="no-referrer"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
-                
-                <div className="absolute top-6 right-6 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white">
-                  <dest.icon size={20} />
-                </div>
+            <Link key={dest.title} to={dest.href}>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                className="group cursor-pointer"
+              >
+                <div className="relative aspect-[4/5] rounded-[40px] overflow-hidden mb-8 shadow-2xl shadow-gray-200">
+                  <img
+                    src={dest.image}
+                    alt={dest.title}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
+                  
+                  <div className="absolute top-6 right-6 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white">
+                    <dest.icon size={20} />
+                  </div>
 
-                <div className="absolute bottom-8 left-8 right-8 text-white">
-                  <p className="text-xs font-bold uppercase tracking-widest text-blue-300 mb-2">
-                    {dest.category}
-                  </p>
-                  <h4 className="text-2xl font-bold mb-2">{dest.title}</h4>
-                  <p className="text-sm text-white/80 font-light leading-relaxed line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    {dest.description}
-                  </p>
+                  <div className="absolute bottom-8 left-8 right-8 text-white">
+                    <p className="text-xs font-bold uppercase tracking-widest text-blue-300 mb-2">
+                      {dest.category}
+                    </p>
+                    <h4 className="text-2xl font-bold mb-2">{dest.title}</h4>
+                    <p className="text-sm text-white/80 font-light leading-relaxed line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                      {dest.description}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            </Link>
           ))}
         </div>
 

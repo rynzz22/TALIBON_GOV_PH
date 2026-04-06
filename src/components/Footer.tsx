@@ -30,12 +30,12 @@ export default function Footer() {
   ];
 
   return (
-    <footer id="contact" className="bg-gray-900 text-white pt-24 pb-12 overflow-hidden relative">
+    <footer id="contact" className="bg-gray-900 text-white pt-16 pb-8 overflow-hidden relative">
       {/* Decorative Ocean Elements */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-cyan-400 to-blue-600" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           {/* Branding & Contact */}
           <div className="space-y-8">
             <div className="flex items-center gap-4">

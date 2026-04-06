@@ -4,6 +4,7 @@
  */
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { motion } from "motion/react";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import ContentPage from "./pages/ContentPage";
@@ -22,9 +23,43 @@ import { aboutApi, executiveApi, legislativeApi, newsApi, transparencyApi, touri
 export default function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-white font-sans selection:bg-blue-100 selection:text-blue-900">
-        <Navbar />
-        <Routes>
+      <div className="min-h-screen bg-white font-sans selection:bg-blue-100 selection:text-blue-900 relative overflow-hidden">
+        {/* Global Liquid UI Background Elements */}
+        <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+          <motion.div 
+            animate={{ 
+              scale: [1, 1.2, 1],
+              rotate: [0, 90, 0],
+              x: [0, 50, 0],
+              y: [0, 30, 0]
+            }}
+            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+            className="absolute -top-48 -left-48 w-[40rem] h-[40rem] bg-blue-400/5 rounded-full blur-[100px]"
+          />
+          <motion.div 
+            animate={{ 
+              scale: [1, 1.1, 1],
+              rotate: [0, -45, 0],
+              x: [0, -30, 0],
+              y: [0, 60, 0]
+            }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute top-1/2 -right-48 w-[35rem] h-[35rem] bg-indigo-400/5 rounded-full blur-[100px]"
+          />
+          <motion.div 
+            animate={{ 
+              scale: [1, 1.3, 1],
+              x: [0, 40, 0],
+              y: [0, -40, 0]
+            }}
+            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+            className="absolute -bottom-48 left-1/4 w-[30rem] h-[30rem] bg-cyan-400/5 rounded-full blur-[100px]"
+          />
+        </div>
+
+        <div className="relative z-10">
+          <Navbar />
+          <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/admin" element={<AdminDashboard />} />
           
@@ -457,6 +492,7 @@ export default function App() {
           <Route path="/forms/building" element={<BuildingPermitPage />} />
           <Route path="/forms/zoning" element={<ZoningClearancePage />} />
         </Routes>
+        </div>
         <Footer />
       </div>
     </Router>

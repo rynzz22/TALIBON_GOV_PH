@@ -20,7 +20,7 @@ const Hero: React.FC = () => {
   }, []);
 
   return (
-    <section id="home" className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+    <section id="home" className="relative min-h-screen flex items-center pt-32 md:pt-44 overflow-hidden">
       {/* Background Slideshow */}
       <div className="absolute inset-0 z-0">
         <AnimatePresence mode="wait">
@@ -108,7 +108,7 @@ const Hero: React.FC = () => {
               DISCOVER THE COASTAL GEM
             </div>
             
-            <h1 className="text-6xl md:text-8xl lg:text-9xl font-black text-white leading-[0.85] mb-8 tracking-tighter drop-shadow-2xl">
+            <h1 className="text-4xl md:text-7xl lg:text-8xl font-black text-white leading-[0.85] mb-8 tracking-tighter drop-shadow-2xl">
               BOHOL'S <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">
                 SEAFOOD CAPITAL

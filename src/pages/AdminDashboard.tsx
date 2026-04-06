@@ -220,7 +220,7 @@ const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-32 pb-20">
+    <div className="min-h-screen bg-gray-50 pt-32 md:pt-44 pb-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8 mb-12">
@@ -229,7 +229,7 @@ const AdminDashboard: React.FC = () => {
               <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-500/20">
                 <ShieldCheck size={24} />
               </div>
-              <h1 className="text-4xl font-black text-gray-900 tracking-tight uppercase">Admin Dashboard</h1>
+              <h1 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight uppercase">Admin Dashboard</h1>
             </div>
             <div className="flex items-center gap-2 text-gray-400 font-bold text-sm tracking-widest">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />

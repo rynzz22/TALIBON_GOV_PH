@@ -68,7 +68,7 @@ export default function About() {
                 <Quote size={14} />
                 <span>Welcome Message</span>
               </div>
-              <h2 className="text-5xl md:text-7xl font-black text-gray-900 leading-[1] tracking-tighter">
+              <h2 className="text-3xl md:text-5xl font-black text-gray-900 leading-[1] tracking-tighter">
                 A Legacy of <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">Greatness</span>
               </h2>
@@ -78,8 +78,8 @@ export default function About() {
               <div className="absolute -left-6 top-0 text-blue-50 -z-10">
                 <Quote size={100} fill="currentColor" />
               </div>
-              <div className="space-y-8 text-xl text-gray-500 leading-relaxed font-medium">
-                <p className="first-letter:text-6xl first-letter:font-black first-letter:text-blue-600 first-letter:mr-4 first-letter:float-left">
+              <div className="space-y-8 text-lg text-gray-500 leading-relaxed font-medium">
+                <p className="first-letter:text-5xl first-letter:font-black first-letter:text-blue-600 first-letter:mr-4 first-letter:float-left">
                   As the home of the late President Carlos P. Garcia, we carry a legacy of greatness, 
                   and as Bohol’s Seafood Capital, we invite you to experience the bounty of our seas 
                   and the warmth of our community.
@@ -87,7 +87,7 @@ export default function About() {
                 <p className="text-gray-900">
                   Together, let us continue to build a brighter, more prosperous future for every Talibongnon.
                 </p>
-                <p className="text-3xl font-black text-blue-600 tracking-tight">
+                <p className="text-2xl font-black text-blue-600 tracking-tight">
                   Dajon kamo sa atong matahum nga Talibon!
                 </p>
               </div>
@@ -126,7 +126,7 @@ export default function About() {
                 <History size={28} />
               </div>
               <div>
-                <h3 className="text-4xl font-black text-gray-900 tracking-tight">History of Talibon</h3>
+                <h3 className="text-3xl font-black text-gray-900 tracking-tight">History of Talibon</h3>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-1">A Legacy Through Time</p>
               </div>
             </div>
@@ -172,8 +172,8 @@ export default function About() {
             <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
               <Eye size={32} />
             </div>
-            <h3 className="text-4xl font-black tracking-tight">Our Vision</h3>
-            <p className="text-blue-50/90 text-xl leading-relaxed font-medium">
+            <h3 className="text-3xl font-black tracking-tight">Our Vision</h3>
+            <p className="text-blue-50/90 text-lg leading-relaxed font-medium">
               “To enrich Bohol’s social, economic, cultural, political, and environmental resources 
               through good governance and effective partnerships with stakeholders for increased 
               global competitiveness.”
@@ -191,8 +191,8 @@ export default function About() {
             <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">
               <Target size={32} />
             </div>
-            <h3 className="text-4xl font-black tracking-tight">Our Mission</h3>
-            <p className="text-gray-500 text-xl leading-relaxed font-medium">
+            <h3 className="text-3xl font-black tracking-tight">Our Mission</h3>
+            <p className="text-gray-500 text-lg leading-relaxed font-medium">
               “To enrich Bohol’s social, economic, cultural, political, and environmental resources 
               through good governance and effective partnerships with stakeholders for increased 
               global competitiveness.”

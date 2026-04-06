@@ -107,9 +107,10 @@ export default function Navbar() {
   ];
 
   const officialLogos = [
-    { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Seal_of_the_Philippines.svg/1200px-Seal_of_the_Philippines.svg.png", alt: "Republic of the Philippines" },
-    { src: "https://www.foi.gov.ph/assets/images/foi-logo.png", alt: "Freedom of Information" },
-    { src: "https://www.dbm.gov.ph/images/transparency_seal.png", alt: "Transparency Seal" },
+    { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Bagong_Pilipinas_logo.png/1920px-Bagong_Pilipinas_logo.png?_=20260215155959", alt: "Bagong Pilipinas" },
+    { src: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Seal_of_the_Philippines.svg/1280px-Seal_of_the_Philippines.svg.png?_=20180708013622", alt: "Republika ng Pilipinas" },
+    { src: "https://ncda.gov.ph/wp-content/uploads/2023/06/freedom-of-information-logo.jpg", alt: "Freedom of Information" },
+    { src: "https://upload.wikimedia.org/wikipedia/en/thumb/0/0d/Philippine_Transparency_Seal.svg/960px-Philippine_Transparency_Seal.svg.png?_=20231028065532", alt: "Transparency Seal" },
   ];
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -127,9 +128,16 @@ export default function Navbar() {
       <div className={`bg-white/90 backdrop-blur-md border-b border-blue-50 transition-all duration-500 ${isScrolled ? 'h-0 opacity-0 overflow-hidden' : 'h-14 opacity-100'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex justify-between items-center">
           <div className="flex items-center gap-6">
-            <div className="h-8 w-16 bg-blue-50 rounded border border-blue-100 flex items-center justify-center text-[8px] font-black text-blue-200">PH SEAL</div>
-            <div className="h-8 w-16 bg-blue-50 rounded border border-blue-100 flex items-center justify-center text-[8px] font-black text-blue-200">FOI</div>
-            <div className="h-8 w-16 bg-blue-50 rounded border border-blue-100 flex items-center justify-center text-[8px] font-black text-blue-200">TS</div>
+            {officialLogos.map((logo, idx) => (
+              <div key={idx} className="h-10 w-20 flex items-center justify-center overflow-hidden">
+                <img 
+                  src={logo.src} 
+                  alt={logo.alt} 
+                  className="h-full w-full object-contain"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+            ))}
           </div>
           
           <div className="hidden md:flex items-center gap-6">
@@ -328,9 +336,16 @@ export default function Navbar() {
 
               <div className="p-8 bg-blue-950 space-y-6">
                 <div className="flex justify-center gap-8">
-                  <div className="h-8 w-16 bg-white/10 rounded border border-white/20 flex items-center justify-center text-[8px] font-black text-white/40">PH</div>
-                  <div className="h-8 w-16 bg-white/10 rounded border border-white/20 flex items-center justify-center text-[8px] font-black text-white/40">FOI</div>
-                  <div className="h-8 w-16 bg-white/10 rounded border border-white/20 flex items-center justify-center text-[8px] font-black text-white/40">TS</div>
+                  {officialLogos.map((logo, idx) => (
+                    <div key={idx} className="h-10 w-20 flex items-center justify-center overflow-hidden">
+                      <img 
+                        src={logo.src} 
+                        alt={logo.alt} 
+                        className="h-full w-full object-contain brightness-0 invert opacity-50"
+                        referrerPolicy="no-referrer"
+                      />
+                    </div>
+                  ))}
                 </div>
                 <button className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg shadow-xl">
                   GOVERNMENT PORTAL

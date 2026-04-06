@@ -47,7 +47,7 @@ const BuildingPermitPage: React.FC = () => {
   ];
 
   return (
-    <div className="pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
+    <div className="pt-32 md:pt-44 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -62,7 +62,7 @@ const BuildingPermitPage: React.FC = () => {
           </div>
           
           <div className="relative z-10">
-            <h1 className="text-4xl md:text-6xl font-black text-white uppercase tracking-tight mb-6">
+            <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tight mb-6">
               Building Permit
             </h1>
             <p className="text-blue-100 text-lg md:text-xl font-bold uppercase tracking-[0.3em] opacity-80">

@@ -208,9 +208,9 @@ const ResolutionsPage: React.FC = () => {
   );
 
   return (
-    <div className="pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
+    <div className="pt-32 md:pt-44 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
       <div className="mb-16">
-        <h1 className="text-6xl md:text-8xl font-black text-gray-900 uppercase tracking-tighter leading-none mb-8">
+        <h1 className="text-4xl md:text-6xl font-black text-gray-900 uppercase tracking-tighter leading-none mb-8">
           Resolutions
         </h1>
         <p className="text-xl text-gray-500 font-medium max-w-3xl">

@@ -6,14 +6,14 @@ const FullDisclosurePage: React.FC = () => {
   const imageUrl = "https://talibon.gov.ph/wp-content/themes/yootheme/cache/e8/RegistrationCert_page-0001-e8213d59.webp";
 
   return (
-    <div className="pt-32 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
+    <div className="pt-32 md:pt-44 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         <div className="mb-16">
-          <h1 className="text-6xl md:text-8xl font-black text-gray-900 uppercase tracking-tighter leading-none mb-8">
+          <h1 className="text-4xl md:text-6xl font-black text-gray-900 uppercase tracking-tighter leading-none mb-8">
             Full Disclosure
           </h1>
           <div className="flex items-center gap-4 p-4 bg-blue-50 rounded-2xl border border-blue-100 inline-flex">
