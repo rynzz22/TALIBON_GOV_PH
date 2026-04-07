@@ -5,22 +5,17 @@ service cloud.firestore {
     // Assumed Data Model
     // ===============================================================
     //
-    // Collection: ordinances
-    // Fields:
-    //   - id: string (required)
-    //   - title: string (required, < 500 chars)
-    //   - year: string (required, e.g., "2024", "2025")
-    //   - fileUrl: string (required, valid URL)
-    //   - fileName: string (optional)
-    //   - fileSize: string (optional)
-    //   - createdAt: timestamp (required)
-    //   - authorUid: string (required)
+    // Collection: news
+    // Fields: title (string), content (string), category (string), imageUrl (string), date (string), author (string), createdAt (timestamp)
     //
-    // Collection: admins
-    // Fields:
-    //   - uid: string (required)
-    //   - email: string (required, valid email)
-    //   - role: string (required, "admin")
+    // Collection: resolutions
+    // Fields: no (string), date (string), author (string), title (string), fileUrl (string)
+    //
+    // Collection: officials
+    // Fields: name (string), role (string), level (number), order (number)
+    //
+    // Collection: users
+    // Fields: email (string), role (string), uid (string)
     //
     // ===============================================================
 
@@ -31,40 +26,84 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
     function isAdmin() {
       return isAuthenticated() &&
-        (exists(/databases/$(database)/documents/admins/$(request.auth.uid)) ||
+        (exists(/databases/$(database)/documents/users/$(request.auth.uid)) && 
+         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
          (request.auth.token.email == "labradarenz@gmail.com" && request.auth.token.email_verified == true));
     }
 
-    function isValidOrdinance(data) {
-      return data.keys().hasAll(['title', 'year', 'fileUrl', 'createdAt', 'authorUid']) &&
-             data.title is string && data.title.size() > 0 && data.title.size() < 500 &&
-             data.year is string && data.year.matches("^\\d{4}$") &&
-             data.fileUrl is string && data.fileUrl.matches("^https://.*") &&
-             data.createdAt is timestamp &&
-             data.authorUid == request.auth.uid;
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    function isValidString(field, min, max) {
+      return request.resource.data[field] is string && 
+             request.resource.data[field].size() >= min && 
+             request.resource.data[field].size() <= max;
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+    function isValidNews() {
+      return hasRequiredFields(['title', 'content', 'category', 'date']) &&
+             isValidString('title', 1, 200) &&
+             isValidString('content', 1, 10000) &&
+             request.resource.data.category in ['ARTICLE', 'ADVISORY', 'UPDATE', 'NOTICE'];
+    }
+
+    function isValidResolution() {
+      return hasRequiredFields(['no', 'date', 'title']) &&
+             isValidString('no', 1, 20) &&
+             isValidString('title', 1, 500);
+    }
+
+    function isValidOfficial() {
+      return hasRequiredFields(['name', 'role', 'level']) &&
+             isValidString('name', 1, 100) &&
+             isValidString('role', 1, 100) &&
+             request.resource.data.level is number;
     }
 
     // ===============================================================
     // Rules
     // ===============================================================
 
-    match /ordinances/{ordinanceId} {
-      // Publicly readable
+    match /news/{newsId} {
       allow read: if true;
-      // Only admins can create/update/delete
-      allow create: if isAdmin() && isValidOrdinance(request.resource.data);
-      allow update: if isAdmin() && isValidOrdinance(request.resource.data) &&
-                      request.resource.data.authorUid == resource.data.authorUid;
+      allow create, update: if isAdmin() && isValidNews();
       allow delete: if isAdmin();
     }
 
-    match /admins/{adminId} {
-      // Admins can read admin list
-      allow read: if isAdmin();
-      // Only the default admin or existing admins can add new admins
-      allow write: if isAdmin();
+    match /resolutions/{resId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidResolution();
+      allow delete: if isAdmin();
+    }
+
+    match /officials/{offId} {
+      allow read: if true;
+      allow create, update: if isAdmin() && isValidOfficial();
+      allow delete: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create, update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /test/connection {
+      allow read: if true;
     }
   }
 }

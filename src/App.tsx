@@ -16,14 +16,17 @@ import FullDisclosurePage from "./pages/FullDisclosurePage";
 import BusinessPermitPage from "./pages/BusinessPermitPage";
 import BuildingPermitPage from "./pages/BuildingPermitPage";
 import ZoningClearancePage from "./pages/ZoningClearancePage";
+import OrganizationalChartPage from "./pages/OrganizationalChartPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import Footer from "./components/Footer";
 import { aboutApi, executiveApi, legislativeApi, newsApi, transparencyApi, tourismApi, formsApi } from "./services/api";
+import { FirebaseProvider } from "./contexts/AuthContext";
 
 export default function App() {
   return (
-    <Router>
-      <div className="min-h-screen bg-white font-sans selection:bg-blue-100 selection:text-blue-900 relative overflow-hidden">
+    <FirebaseProvider>
+      <Router>
+        <div className="min-h-screen bg-white font-sans selection:bg-blue-100 selection:text-blue-900 relative overflow-hidden">
         {/* Global Liquid UI Background Elements */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
           <motion.div 
@@ -234,18 +237,7 @@ export default function App() {
               </div>
             </div>
           )} />} />
-          <Route path="/executive/chart" element={<ContentPage title="Organizational Chart" fetchData={executiveApi.getChart} renderContent={(data) => (
-            <div className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {Array.isArray(data.structure) && data.structure.map((item: any, idx: number) => (
-                  <div key={`${item.role}-${idx}`} className="p-8 bg-blue-600 text-white rounded-3xl shadow-xl">
-                    <p className="text-xs font-black uppercase tracking-widest mb-2 opacity-80">{item.role}</p>
-                    <h3 className="text-2xl font-black">{item.name}</h3>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )} />} />
+          <Route path="/executive/chart" element={<OrganizationalChartPage />} />
           <Route path="/executive/directory" element={<ContentPage title="Directory of Departments" fetchData={executiveApi.getDirectory} renderContent={(data) => (
             <div className="space-y-4">
               {Array.isArray(data) && data.length > 0 ? (
@@ -495,7 +487,8 @@ export default function App() {
         </div>
         <Footer />
       </div>
-    </Router>
+      </Router>
+    </FirebaseProvider>
   );
 }
 

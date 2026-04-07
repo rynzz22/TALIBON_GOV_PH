@@ -103,7 +103,7 @@ const Hero: React.FC = () => {
           >
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md text-white text-[10px] font-black tracking-[0.2em] mb-8 shadow-xl border border-white/20">
               <Waves size={14} />
-              DISCOVER TALIBON
+              DISCOVER THE COASTAL GEM
             </div>
             
             <h1 className="text-4xl md:text-7xl lg:text-8xl font-black text-white leading-[0.85] mb-8 tracking-tighter drop-shadow-2xl">
