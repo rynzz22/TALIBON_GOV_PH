@@ -3,10 +3,13 @@ import { Menu, X, Search, Globe, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
+import { db, handleFirestoreError, OperationType } from "../firebase";
+import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [dynamicNavLinks, setDynamicNavLinks] = useState<any[]>([]);
   const location = useLocation();
 
   useEffect(() => {
@@ -14,15 +17,31 @@ export default function Navbar() {
       setIsScrolled(window.scrollY > 50);
     };
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    
+    const q = query(collection(db, 'navigation'), orderBy('order', 'asc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setDynamicNavLinks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+    }, (error) => {
+      handleFirestoreError(error, OperationType.LIST, 'navigation');
+    });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      unsubscribe();
+    };
   }, []);
+
+  const getSubLinks = (sectionName: string, defaultLinks: any[]) => {
+    const dynamicLinks = dynamicNavLinks.filter(l => l.section === sectionName);
+    return dynamicLinks.length > 0 ? dynamicLinks : defaultLinks;
+  };
 
   const navLinks = [
     { name: "HOME", href: "/", isHash: false },
     { 
       name: "ABOUT TALIBON", 
       href: "#",
-      subLinks: [
+      subLinks: getSubLinks("ABOUT", [
         { name: "BRIEF PROFILE", href: "/about/profile", isHash: false },
         { name: "OFFICIAL SEAL", href: "/about/seal", isHash: false },
         { name: "BRIEF HISTORY", href: "/about/history", isHash: false },
@@ -36,33 +55,33 @@ export default function Navbar() {
         { name: "GOVERNMENT SERVICES", href: "https://talibon-citizen-stg.multisyscorp.io/e-services", isHash: false, isExternal: true },
         { name: "TALIBON HYMN", href: "/about/hymn", isHash: false },
         { name: "OFFICIAL FACEBOOK PAGE", href: "https://web.facebook.com/TalibonOfficialPage?_rdc=1&_rdr#", isHash: false, isExternal: true },
-      ]
+      ])
     },
     { 
       name: "EXECUTIVE", 
       href: "#",
-      subLinks: [
+      subLinks: getSubLinks("EXECUTIVE", [
         { name: "MANDATE", href: "/executive/mandate", isHash: false },
         { name: "VISION-MISSION", href: "/executive/vision-mission", isHash: false },
         { name: "ORGANIZATIONAL CHART", href: "/executive/chart", isHash: false },
         { name: "DIRECTORY OF DEPARTMENTS", href: "/executive/directory", isHash: false },
         { name: "TALIBON GAD-IMS", href: "/executive/gad-ims", isHash: false },
-      ]
+      ])
     },
     { 
       name: "LEGISLATIVE", 
       href: "#",
-      subLinks: [
+      subLinks: getSubLinks("LEGISLATIVE", [
         { name: "MANDATE", href: "/legislative/mandate", isHash: false },
         { name: "ORGANIZATIONAL STRUCTURE", href: "/legislative/structure", isHash: false },
         { name: "ENACTED ORDINANCES", href: "/legislative/ordinances", isHash: false },
         { name: "RESOLUTIONS", href: "/legislative/resolutions", isHash: false },
-      ]
+      ])
     },
     { 
       name: "NEWS", 
       href: "#",
-      subLinks: [
+      subLinks: getSubLinks("NEWS", [
         { name: "ARTICLES", href: "/news/articles", isHash: false },
         { name: "PUBLIC ADVISORIES", href: "/news/advisories", isHash: false },
         { name: "DISASTER PREPAREDNESS", href: "/news/disaster", isHash: false },
@@ -71,12 +90,12 @@ export default function Navbar() {
         { name: "COMMUNITY", href: "/news/community", isHash: false },
         { name: "PUBLIC NOTICES", href: "/news/notices", isHash: false },
         { name: "DOWNLOADABLE FORMS", href: "/news/forms", isHash: false },
-      ]
+      ])
     },
     { 
       name: "TRANSPARENCY", 
       href: "#",
-      subLinks: [
+      subLinks: getSubLinks("TRANSPARENCY", [
         { name: "CITIZEN CHARTER", href: "/transparency/charter", isHash: false },
         { name: "FULL DISCLOSURE POLICY", href: "/transparency/disclosure", isHash: false },
         { name: "INFRASTRUCTURE PROJECTS", href: "/transparency/infrastructure", isHash: false },
@@ -84,25 +103,25 @@ export default function Navbar() {
         { name: "EXECUTIVE ORDERS", href: "/transparency/orders", isHash: false },
         { name: "BUDGET AND FINANCES", href: "/transparency/budget", isHash: false },
         { name: "BIDDINGS", href: "/transparency/biddings", isHash: false },
-      ]
+      ])
     },
     { 
       name: "TOURISM", 
       href: "#",
-      subLinks: [
+      subLinks: getSubLinks("TOURISM", [
         { name: "TOURIST SPOTS", href: "/tourism/spots", isHash: false },
         { name: "FESTIVITIES", href: "/tourism/festivities", isHash: false },
         { name: "LOCAL DELICACIES", href: "/tourism/delicacies", isHash: false },
-      ]
+      ])
     },
     { 
       name: "DOWNLOADABLE FORMS", 
       href: "#",
-      subLinks: [
+      subLinks: getSubLinks("FORMS", [
         { name: "BUSINESS PERMIT", href: "/forms/business", isHash: false },
         { name: "BUILDING PERMIT", href: "/forms/building", isHash: false },
         { name: "ZONING CLEARANCE", href: "/forms/zoning", isHash: false },
-      ]
+      ])
     },
   ];
 
@@ -114,6 +133,7 @@ export default function Navbar() {
   ];
 
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [mobileSubMenu, setMobileSubMenu] = useState<string | null>(null);
 
   const scrollToTop = (e: React.MouseEvent) => {
     if (location.pathname === "/") {
@@ -192,26 +212,29 @@ export default function Navbar() {
                   onMouseEnter={() => link.subLinks && setActiveDropdown(link.name)}
                   onMouseLeave={() => setActiveDropdown(null)}
                 >
-                  {link.isHash ? (
-                    <HashLink
-                      smooth
-                      to={link.href}
+                  {link.subLinks ? (
+                    <button
                       className={`px-3 py-2 text-[10px] font-black tracking-widest transition-all rounded-xl flex items-center gap-1 ${
                         activeDropdown === link.name ? 'text-blue-600 bg-blue-50' : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50/50'
                       }`}
                     >
                       {link.name}
-                      {link.subLinks && <ChevronDown size={12} className={`transition-transform duration-300 ${activeDropdown === link.name ? 'rotate-180' : ''}`} />}
+                      <ChevronDown size={12} className={`transition-transform duration-300 ${activeDropdown === link.name ? 'rotate-180' : ''}`} />
+                    </button>
+                  ) : link.isHash ? (
+                    <HashLink
+                      smooth
+                      to={link.href}
+                      className="px-3 py-2 text-[10px] font-black tracking-widest text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 transition-all rounded-xl"
+                    >
+                      {link.name}
                     </HashLink>
                   ) : (
                     <Link
                       to={link.href}
-                      className={`px-3 py-2 text-[10px] font-black tracking-widest transition-all rounded-xl flex items-center gap-1 ${
-                        activeDropdown === link.name ? 'text-blue-600 bg-blue-50' : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50/50'
-                      }`}
+                      className="px-3 py-2 text-[10px] font-black tracking-widest text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 transition-all rounded-xl"
                     >
                       {link.name}
-                      {link.subLinks && <ChevronDown size={12} className={`transition-transform duration-300 ${activeDropdown === link.name ? 'rotate-180' : ''}`} />}
                     </Link>
                   )}
 
@@ -223,7 +246,7 @@ export default function Navbar() {
                           initial={{ opacity: 0, y: 10, scale: 0.95 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute top-full left-0 mt-2 w-64 bg-white rounded-3xl shadow-2xl shadow-blue-900/10 border border-blue-50 p-3 overflow-hidden"
+                          className="absolute top-full left-0 mt-2 w-72 bg-white rounded-[2rem] shadow-2xl shadow-blue-900/10 border border-blue-50 p-4 overflow-hidden"
                         >
                           <div className="grid grid-cols-1 gap-1">
                             {link.subLinks.map((sub) => (
@@ -233,26 +256,29 @@ export default function Navbar() {
                                   href={sub.href}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="px-4 py-3 text-[10px] font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all tracking-wider"
+                                  className="px-5 py-3.5 text-[10px] font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all tracking-wider flex items-center justify-between group/sub"
                                 >
                                   {sub.name}
+                                  <ChevronDown size={12} className="-rotate-90 opacity-0 group-hover/sub:opacity-100 transition-all" />
                                 </a>
                               ) : sub.isHash ? (
                                 <HashLink
                                   smooth
                                   key={sub.name}
                                   to={sub.href}
-                                  className="px-4 py-3 text-[10px] font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all tracking-wider"
+                                  className="px-5 py-3.5 text-[10px] font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all tracking-wider flex items-center justify-between group/sub"
                                 >
                                   {sub.name}
+                                  <ChevronDown size={12} className="-rotate-90 opacity-0 group-hover/sub:opacity-100 transition-all" />
                                 </HashLink>
                               ) : (
                                 <Link
                                   key={sub.name}
                                   to={sub.href}
-                                  className="px-4 py-3 text-[10px] font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all tracking-wider"
+                                  className="px-5 py-3.5 text-[10px] font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all tracking-wider flex items-center justify-between group/sub"
                                 >
                                   {sub.name}
+                                  <ChevronDown size={12} className="-rotate-90 opacity-0 group-hover/sub:opacity-100 transition-all" />
                                 </Link>
                               )
                             ))}
@@ -311,26 +337,81 @@ export default function Navbar() {
               
               <div className="flex-1 overflow-y-auto p-6 space-y-2">
                 {navLinks.map((link) => (
-                  link.isHash ? (
-                    <HashLink
-                      smooth
-                      key={link.name}
-                      to={link.href}
-                      onClick={() => setIsOpen(false)}
-                      className="block py-4 text-xl font-black text-white border-b border-blue-800/50 hover:text-blue-300 transition-colors"
-                    >
-                      {link.name}
-                    </HashLink>
-                  ) : (
-                    <Link
-                      key={link.name}
-                      to={link.href}
-                      onClick={() => setIsOpen(false)}
-                      className="block py-4 text-xl font-black text-white border-b border-blue-800/50 hover:text-blue-300 transition-colors"
-                    >
-                      {link.name}
-                    </Link>
-                  )
+                  <div key={link.name} className="border-b border-blue-800/50">
+                    {link.subLinks ? (
+                      <div>
+                        <button
+                          onClick={() => setMobileSubMenu(mobileSubMenu === link.name ? null : link.name)}
+                          className="w-full flex justify-between items-center py-4 text-xl font-black text-white hover:text-blue-300 transition-colors"
+                        >
+                          {link.name}
+                          <ChevronDown size={20} className={`transition-transform duration-300 ${mobileSubMenu === link.name ? 'rotate-180' : ''}`} />
+                        </button>
+                        <AnimatePresence>
+                          {mobileSubMenu === link.name && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden bg-blue-950/50 rounded-2xl mb-4"
+                            >
+                              <div className="p-4 space-y-4">
+                                {link.subLinks.map((sub) => (
+                                  sub.isExternal ? (
+                                    <a
+                                      key={sub.name}
+                                      href={sub.href}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="block text-sm font-bold text-blue-200 hover:text-white transition-colors"
+                                    >
+                                      {sub.name}
+                                    </a>
+                                  ) : sub.isHash ? (
+                                    <HashLink
+                                      smooth
+                                      key={sub.name}
+                                      to={sub.href}
+                                      onClick={() => setIsOpen(false)}
+                                      className="block text-sm font-bold text-blue-200 hover:text-white transition-colors"
+                                    >
+                                      {sub.name}
+                                    </HashLink>
+                                  ) : (
+                                    <Link
+                                      key={sub.name}
+                                      to={sub.href}
+                                      onClick={() => setIsOpen(false)}
+                                      className="block text-sm font-bold text-blue-200 hover:text-white transition-colors"
+                                    >
+                                      {sub.name}
+                                    </Link>
+                                  )
+                                ))}
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    ) : link.isHash ? (
+                      <HashLink
+                        smooth
+                        to={link.href}
+                        onClick={() => setIsOpen(false)}
+                        className="block py-4 text-xl font-black text-white hover:text-blue-300 transition-colors"
+                      >
+                        {link.name}
+                      </HashLink>
+                    ) : (
+                      <Link
+                        to={link.href}
+                        onClick={() => setIsOpen(false)}
+                        className="block py-4 text-xl font-black text-white hover:text-blue-300 transition-colors"
+                      >
+                        {link.name}
+                      </Link>
+                    )}
+                  </div>
                 ))}
               </div>
 

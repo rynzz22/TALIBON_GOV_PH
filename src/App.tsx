@@ -17,6 +17,8 @@ import BusinessPermitPage from "./pages/BusinessPermitPage";
 import BuildingPermitPage from "./pages/BuildingPermitPage";
 import ZoningClearancePage from "./pages/ZoningClearancePage";
 import OrganizationalChartPage from "./pages/OrganizationalChartPage";
+import NewsCategoryPage from "./pages/NewsCategoryPage";
+import NewsDetailPage from "./pages/NewsDetailPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import Footer from "./components/Footer";
 import { aboutApi, executiveApi, legislativeApi, newsApi, transparencyApi, tourismApi, formsApi } from "./services/api";
@@ -120,18 +122,41 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {Array.isArray(data) && data.length > 0 ? (
                 data.map((dept: any, idx: number) => (
-                  <div key={`${dept.name}-${idx}`} className="p-8 bg-white border border-gray-100 rounded-3xl shadow-sm hover:shadow-xl hover:shadow-blue-900/5 transition-all group">
+                  <motion.div 
+                    key={`${dept.name}-${idx}`} 
+                    whileHover="hover"
+                    initial="initial"
+                    className="p-8 bg-white border border-gray-100 rounded-3xl shadow-sm hover:shadow-xl hover:shadow-blue-900/5 transition-all group"
+                  >
                     <div className="flex justify-between items-start mb-6">
-                      <div>
-                        <h3 className="text-2xl font-black text-gray-900 group-hover:text-blue-600 transition-colors">{String(dept.name)}</h3>
-                        <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">{String(dept.officialName)}</p>
+                      <div className="flex items-center gap-4">
+                        {dept.logoUrl && (
+                          <motion.div 
+                            variants={{
+                              initial: { scale: 1, rotate: 0 },
+                              hover: { scale: 1.1, rotate: 5, transition: { type: "spring", stiffness: 300, damping: 15 } }
+                            }}
+                            className="w-16 h-16 bg-gray-50 rounded-2xl p-2 border border-gray-100 flex-shrink-0"
+                          >
+                            <img 
+                              src={dept.logoUrl} 
+                              alt={`${dept.name} Logo`} 
+                              className="w-full h-full object-contain"
+                              referrerPolicy="no-referrer"
+                            />
+                          </motion.div>
+                        )}
+                        <div>
+                          <h3 className="text-2xl font-black text-gray-900 group-hover:text-blue-600 transition-colors">{String(dept.name)}</h3>
+                          <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">{String(dept.officialName)}</p>
+                        </div>
                       </div>
                       <span className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100">
                         {String(dept.type)}
                       </span>
                     </div>
                     <p className="text-gray-600 font-medium leading-relaxed">{String(dept?.description || "")}</p>
-                  </div>
+                  </motion.div>
                 ))
               ) : (
                 <div className="col-span-full text-center py-12 text-gray-500 font-bold">
@@ -274,101 +299,8 @@ export default function App() {
           <Route path="/legislative/resolutions" element={<ResolutionsPage />} />
 
           {/* News */}
-          <Route path="/news/articles" element={<ContentPage title="News Articles" fetchData={newsApi.getArticles} renderContent={(data) => (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {Array.isArray(data) && data.map((article: any, idx: number) => (
-                <div key={`${article.id}-${idx}`} className="group cursor-pointer">
-                  <div className="aspect-video bg-gray-100 rounded-3xl mb-6 overflow-hidden border border-gray-100 shadow-sm">
-                    <img src={`https://picsum.photos/seed/news${article.id}/800/600`} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" referrerPolicy="no-referrer" />
-                  </div>
-                  <p className="text-xs font-black text-blue-600 uppercase tracking-widest mb-2">{String(article.date)}</p>
-                  <h3 className="text-2xl font-black text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">{String(article.title)}</h3>
-                  <p className="text-gray-600 font-medium line-clamp-2">{String(article.content)}</p>
-                </div>
-              ))}
-            </div>
-          )} />} />
-          <Route path="/news/advisories" element={<ContentPage title="Public Advisories" fetchData={newsApi.getAdvisories} renderContent={(data) => (
-            <div className="space-y-6">
-              {Array.isArray(data) && data.map((adv: any, idx: number) => (
-                <div key={`${adv.id}-${idx}`} className="p-8 bg-amber-50 rounded-3xl border border-amber-100">
-                  <p className="text-xs font-black text-amber-600 uppercase tracking-widest mb-2">{String(adv.date)}</p>
-                  <h3 className="text-2xl font-black text-gray-900 mb-4">{String(adv.title)}</h3>
-                  <p className="text-lg text-gray-600 font-medium">{String(adv.content)}</p>
-                </div>
-              ))}
-            </div>
-          )} />} />
-          <Route path="/news/disaster" element={<ContentPage title="Disaster Preparedness" fetchData={newsApi.getDisasterPreparedness} renderContent={(data) => (
-            <div className="space-y-12">
-              <div className="p-8 bg-blue-50 rounded-3xl border border-blue-100">
-                <p className="text-xl text-gray-700 leading-relaxed font-medium">{data.content}</p>
-              </div>
-              
-              <div>
-                <h3 className="text-2xl font-black text-gray-900 mb-8 uppercase tracking-tight">Emergency Hotlines</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {Array.isArray(data.hotlines) && data.hotlines.map((hotline: any, idx: number) => (
-                    <div key={`${hotline.name}-${idx}`} className="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm flex flex-col justify-center items-center text-center group hover:border-blue-600 transition-all">
-                      <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-2">{String(hotline.name)}</p>
-                      <p className="text-2xl font-black text-gray-900 group-hover:text-blue-600 transition-colors">{String(hotline.number)}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="p-8 bg-gray-900 text-white rounded-[2.5rem] shadow-2xl">
-                  <h3 className="text-xl font-black uppercase tracking-widest text-blue-400 mb-6">Official Email</h3>
-                  <p className="text-3xl font-black tracking-tight">{data.socials?.email}</p>
-                </div>
-                <div className="p-8 bg-blue-600 text-white rounded-[2.5rem] shadow-2xl">
-                  <h3 className="text-xl font-black uppercase tracking-widest text-blue-100 mb-6">Office of the Mayor</h3>
-                  <p className="text-3xl font-black tracking-tight">{data.socials?.mayorOffice}</p>
-                </div>
-              </div>
-            </div>
-          )} />} />
-          <Route path="/news/updates" element={<ContentPage title="LGU Updates" fetchData={newsApi.getUpdates} renderContent={(data) => (
-            <div className="space-y-6">
-              {Array.isArray(data) && data.map((update: any) => (
-                <div key={update.id} className="p-8 bg-white border border-gray-100 rounded-3xl shadow-sm">
-                  <p className="text-xs font-black text-blue-600 uppercase tracking-widest mb-2">{update.date}</p>
-                  <h3 className="text-2xl font-black text-gray-900">{update.title}</h3>
-                </div>
-              ))}
-            </div>
-          )} />} />
-          <Route path="/news/gallery" element={<ContentPage title="Gallery" fetchData={newsApi.getGallery} renderContent={(data) => (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.isArray(data) && data.map((item: any) => (
-                <div key={item.id} className="aspect-square bg-gray-100 rounded-3xl overflow-hidden border border-gray-100 shadow-sm group">
-                  <img src={item.url} alt={item.caption} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
-                </div>
-              ))}
-            </div>
-          )} />} />
-          <Route path="/news/community" element={<ContentPage title="Community News" fetchData={newsApi.getCommunity} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data.content}</p>} />} />
-          <Route path="/news/notices" element={<ContentPage title="Public Notices" fetchData={newsApi.getPublicNotices} renderContent={(data) => (
-            <div className="space-y-6">
-              {Array.isArray(data) && data.map((notice: any) => (
-                <div key={notice.id} className="p-8 bg-white border border-gray-100 rounded-3xl shadow-sm">
-                  <p className="text-xs font-black text-blue-600 uppercase tracking-widest mb-2">{notice.date}</p>
-                  <h3 className="text-2xl font-black text-gray-900">{notice.title}</h3>
-                </div>
-              ))}
-            </div>
-          )} />} />
-          <Route path="/news/forms" element={<ContentPage title="Downloadable Forms" fetchData={newsApi.getDownloadable} renderContent={(data) => (
-            <div className="space-y-4">
-              {Array.isArray(data) && data.map((form: any) => (
-                <a key={form.id} href={form.url} className="flex items-center justify-between p-6 bg-blue-50 border border-blue-100 rounded-2xl hover:bg-blue-100 transition-all">
-                  <span className="font-black text-gray-900 uppercase tracking-tight">{form.title}</span>
-                  <span className="text-xs font-black text-blue-600">DOWNLOAD</span>
-                </a>
-              ))}
-            </div>
-          )} />} />
+          <Route path="/news/view/:id" element={<NewsDetailPage />} />
+          <Route path="/news/:category" element={<NewsCategoryPage />} />
 
           {/* Transparency */}
           <Route path="/transparency/charter" element={<CitizenCharterPage />} />

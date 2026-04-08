@@ -4,6 +4,29 @@ import { User, Users, Loader2 } from 'lucide-react';
 import { db, handleFirestoreError, OperationType } from '../firebase';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 
+const DEPARTMENT_LOGOS: Record<string, string> = {
+  "Office Of Municipal Agriculturist": "http://talibon.gov.ph/wp-content/uploads/2025/10/1.png",
+  "Municipal Treasury Office": "http://talibon.gov.ph/wp-content/uploads/2025/10/10.png",
+  "Municipal Planning And Development Office": "http://talibon.gov.ph/wp-content/uploads/2025/10/7.png",
+  "Municipal Accounting Office": "http://talibon.gov.ph/wp-content/uploads/2025/10/3.png",
+  "Municipal Economic Development & Investment Promotions Office": "http://talibon.gov.ph/wp-content/uploads/2025/10/3.png",
+  "Municipal Public Employment Office": "http://talibon.gov.ph/wp-content/uploads/2025/10/5.png",
+  "Municipal Social Welfare And Development Office": "http://talibon.gov.ph/wp-content/uploads/2025/10/8.png",
+  "Municipal Market Administration Office": "http://talibon.gov.ph/wp-content/uploads/2025/10/6.png",
+  "Talibon Traffic Management Unit": "http://talibon.gov.ph/wp-content/uploads/2025/10/9.png",
+  "Municipal Internal Auditing Unit": "http://talibon.gov.ph/wp-content/uploads/2025/10/4.png",
+  "Municipal General Services Office": "https://talibon.gov.ph/wp-content/uploads/2022/01/General-Services.png",
+  "Municipal Human Resource Management Office": "https://talibon.gov.ph/wp-content/uploads/2022/01/HRMO.png",
+  "Office Of The Municipal Civil Registrar": "https://talibon.gov.ph/wp-content/uploads/2022/01/LCR.png",
+  "Municipal Assessor's Office": "https://talibon.gov.ph/wp-content/uploads/2022/01/Assessor.png",
+  "Municipal Budget Office": "https://talibon.gov.ph/wp-content/uploads/2022/01/Budget-Office.png",
+  "Municipal Engineering Office": "https://talibon.gov.ph/wp-content/uploads/2022/01/Engineering-Office.png",
+  "Municipal Health Office": "https://talibon.gov.ph/wp-content/uploads/2022/01/Health-Office.png",
+  "Municipal Disaster Risk Reduction And Management Office": "https://talibon.gov.ph/wp-content/uploads/2022/01/DRRMO.png",
+  "Municipal Information Technology Office": "https://talibon.gov.ph/wp-content/uploads/2022/01/ITO.png",
+  "Municipal Tourism Office": "https://talibon.gov.ph/wp-content/uploads/2022/01/Tourism-Office.png",
+};
+
 const OrganizationalChartPage: React.FC = () => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -150,24 +173,40 @@ const OrganizationalChartPage: React.FC = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-12">
               {data.departments.map((dept: any, idx: number) => (
-                <motion.div 
-                  key={`${dept.role}-${idx}`}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.4 + idx * 0.05 }}
-                  className="flex flex-col items-center relative"
-                >
-                  {/* Vertical connector to horizontal line */}
-                  <div className="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-1 h-12 bg-gray-200 -translate-y-12" />
-                  
-                  <div className="p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-xl hover:border-blue-100 transition-all text-center w-full group h-full flex flex-col items-center justify-center">
-                    <div className="w-12 h-12 bg-gray-50 rounded-full mx-auto mb-3 border border-gray-100 flex items-center justify-center overflow-hidden group-hover:bg-blue-50 transition-colors">
-                      <User className="w-6 h-6 text-gray-300 group-hover:text-blue-400 transition-colors" />
+                  <motion.div 
+                    key={`${dept.role}-${idx}`}
+                    initial="initial"
+                    whileHover="hover"
+                    animate="initial"
+                    transition={{ delay: 0.4 + idx * 0.05 }}
+                    className="flex flex-col items-center relative"
+                  >
+                    {/* Vertical connector to horizontal line */}
+                    <div className="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-1 h-12 bg-gray-200 -translate-y-12" />
+                    
+                    <div className="p-5 bg-white border border-gray-100 rounded-2xl shadow-sm hover:shadow-xl hover:border-blue-100 transition-all text-center w-full group h-full flex flex-col items-center justify-center">
+                      <motion.div 
+                        variants={{
+                          initial: { scale: 1, rotate: 0 },
+                          hover: { scale: 1.15, rotate: -5, transition: { type: "spring", stiffness: 400, damping: 10 } }
+                        }}
+                        className="w-12 h-12 bg-gray-50 rounded-full mx-auto mb-3 border border-gray-100 flex items-center justify-center overflow-hidden group-hover:bg-blue-50 transition-colors"
+                      >
+                        {DEPARTMENT_LOGOS[dept.role] ? (
+                          <img 
+                            src={DEPARTMENT_LOGOS[dept.role]} 
+                            alt={`${dept.role} Logo`} 
+                            className="w-full h-full object-contain p-1"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <User className="w-6 h-6 text-gray-300 group-hover:text-blue-400 transition-colors" />
+                        )}
+                      </motion.div>
+                      <h5 className="text-sm font-black text-gray-900 mb-1 leading-tight">{dept.name}</h5>
+                      <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 group-hover:text-blue-600 transition-colors">{dept.role}</p>
                     </div>
-                    <h5 className="text-sm font-black text-gray-900 mb-1 leading-tight">{dept.name}</h5>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-gray-400 group-hover:text-blue-600 transition-colors">{dept.role}</p>
-                  </div>
-                </motion.div>
+                  </motion.div>
               ))}
             </div>
           </div>
