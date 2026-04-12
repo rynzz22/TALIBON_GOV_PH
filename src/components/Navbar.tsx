@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
-import { Menu, X, Search, Globe, ChevronDown } from "lucide-react";
+import { Menu, X, Globe, ChevronDown, ArrowUpRight, Phone, Mail, MapPin } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
@@ -115,7 +115,7 @@ export default function Navbar() {
       ])
     },
     { 
-      name: "DOWNLOADABLE FORMS", 
+      name: "FORMS", 
       href: "#",
       subLinks: getSubLinks("FORMS", [
         { name: "BUSINESS PERMIT", href: "/forms/business", isHash: false },
@@ -144,167 +144,116 @@ export default function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50">
-      {/* Top Tier: Utility & Official Logos */}
-      <div className={`bg-white/90 backdrop-blur-md border-b border-blue-50 transition-all duration-500 ${isScrolled ? 'h-0 opacity-0 overflow-hidden' : 'h-14 opacity-100'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex justify-between items-center">
+      {/* Top Bar */}
+      <div className="bg-brand-primary text-white py-2 hidden md:block">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center text-[10px] font-bold tracking-widest uppercase">
           <div className="flex items-center gap-6">
-            {officialLogos.map((logo, idx) => (
-              <div key={idx} className="h-10 w-20 flex items-center justify-center overflow-hidden">
-                <img 
-                  src={logo.src} 
-                  alt={logo.alt} 
-                  className="h-full w-full object-contain"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
-            ))}
+            <span className="flex items-center gap-2"><Globe size={12} className="text-brand-accent" /> Republic of the Philippines</span>
+            <span className="flex items-center gap-2"><MapPin size={12} className="text-brand-accent" /> Talibon, Bohol</span>
           </div>
-          
-            <div className="hidden md:flex items-center gap-6">
-            <div className="relative group">
-              <input 
-                type="text" 
-                placeholder="SEARCH..." 
-                className="bg-blue-50/50 border border-transparent rounded-full py-1.5 pl-10 pr-4 text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-gold-400/20 focus:bg-white focus:border-gold-200 transition-all w-40 group-hover:w-56"
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gold-400" size={14} />
-            </div>
-            <button className="flex items-center gap-1.5 text-[10px] font-bold text-blue-600 hover:text-gold-500 transition-colors uppercase tracking-widest">
-              <Globe size={14} />
-              English
-              <ChevronDown size={12} />
-            </button>
+          <div className="flex items-center gap-6">
+            <a href="tel:0384222895" className="hover:text-brand-accent transition-colors flex items-center gap-2"><Phone size={12} className="text-brand-accent" /> (038) 422-2895</a>
+            <a href="mailto:talibonofficial@gmail.com" className="hover:text-brand-accent transition-colors flex items-center gap-2"><Mail size={12} className="text-brand-accent" /> talibonofficial@gmail.com</a>
           </div>
         </div>
       </div>
 
-      {/* Bottom Tier: Main Navigation */}
-      <nav className={`transition-all duration-500 ${isScrolled ? 'bg-white/95 shadow-lg shadow-blue-900/5 py-2' : 'bg-white py-4'} border-b border-blue-50 backdrop-blur-xl`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo & Branding */}
-            <Link 
-              to="/" 
-              onClick={scrollToTop}
-              className="flex items-center gap-4 group cursor-pointer"
-            >
-              <div className="w-14 h-14 bg-white rounded-2xl p-1 shadow-lg shadow-blue-500/10 group-hover:scale-105 transition-transform border border-blue-50">
-                <img 
-                  src="http://talibon.gov.ph/wp-content/uploads/2025/09/Talibon-Official-Seal-v4-2003-to-2023-.png" 
-                  alt="Talibon Official Seal" 
-                  className="w-full h-full object-contain"
-                  referrerPolicy="no-referrer"
-                />
-              </div>
-              <div className="hidden sm:block">
-                <p className="text-[9px] font-black text-gold-400 tracking-[0.3em] leading-none mb-1">REPUBLIC OF THE PHILIPPINES</p>
-                <h1 className="text-lg font-black text-gray-900 leading-none tracking-tight group-hover:text-blue-600 transition-colors">MUNICIPALITY OF TALIBON</h1>
-                <p className="text-[9px] font-bold text-gray-400 tracking-[0.15em] leading-none mt-1">PROVINCE OF BOHOL</p>
-              </div>
-            </Link>
-
-            {/* Desktop Nav Links */}
-            <div className="hidden lg:flex items-center gap-1">
-              {navLinks.map((link) => (
-                <div 
-                  key={link.name} 
-                  className="relative group/nav"
-                  onMouseEnter={() => link.subLinks && setActiveDropdown(link.name)}
-                  onMouseLeave={() => setActiveDropdown(null)}
-                >
-                  {link.subLinks ? (
-                    <button
-                      className={`px-3 py-2 text-[10px] font-black tracking-widest transition-all rounded-xl flex items-center gap-1 ${
-                        activeDropdown === link.name ? 'text-blue-600 bg-blue-50' : 'text-gray-500 hover:text-blue-600 hover:bg-blue-50/50'
-                      }`}
-                    >
-                      {link.name}
-                      <ChevronDown size={12} className={`transition-transform duration-300 ${activeDropdown === link.name ? 'rotate-180' : ''}`} />
-                    </button>
-                  ) : link.isHash ? (
-                    <HashLink
-                      smooth
-                      to={link.href}
-                      className="px-3 py-2 text-[10px] font-black tracking-widest text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 transition-all rounded-xl"
-                    >
-                      {link.name}
-                    </HashLink>
-                  ) : (
-                    <Link
-                      to={link.href}
-                      className="px-3 py-2 text-[10px] font-black tracking-widest text-gray-500 hover:text-blue-600 hover:bg-blue-50/50 transition-all rounded-xl"
-                    >
-                      {link.name}
-                    </Link>
-                  )}
-
-                  {/* Dropdown Menu */}
-                  {link.subLinks && (
-                    <AnimatePresence>
-                      {activeDropdown === link.name && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                          className="absolute top-full left-0 mt-2 w-72 bg-white rounded-[2rem] shadow-2xl shadow-blue-900/10 border border-blue-50 p-4 overflow-hidden"
-                        >
-                          <div className="grid grid-cols-1 gap-1">
-                            {link.subLinks.map((sub) => (
-                              sub.isExternal ? (
-                                <a
-                                  key={sub.name}
-                                  href={sub.href}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="px-5 py-3.5 text-[10px] font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all tracking-wider flex items-center justify-between group/sub"
-                                >
-                                  {sub.name}
-                                  <ChevronDown size={12} className="-rotate-90 opacity-0 group-hover/sub:opacity-100 transition-all" />
-                                </a>
-                              ) : sub.isHash ? (
-                                <HashLink
-                                  smooth
-                                  key={sub.name}
-                                  to={sub.href}
-                                  className="px-5 py-3.5 text-[10px] font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all tracking-wider flex items-center justify-between group/sub"
-                                >
-                                  {sub.name}
-                                  <ChevronDown size={12} className="-rotate-90 opacity-0 group-hover/sub:opacity-100 transition-all" />
-                                </HashLink>
-                              ) : (
-                                <Link
-                                  key={sub.name}
-                                  to={sub.href}
-                                  className="px-5 py-3.5 text-[10px] font-bold text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-2xl transition-all tracking-wider flex items-center justify-between group/sub"
-                                >
-                                  {sub.name}
-                                  <ChevronDown size={12} className="-rotate-90 opacity-0 group-hover/sub:opacity-100 transition-all" />
-                                </Link>
-                              )
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  )}
-                </div>
-              ))}
+      {/* Main Navigation */}
+      <nav className="flex justify-center px-4 pt-6">
+        <motion.div 
+          initial={{ y: -20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className={`w-full max-w-7xl px-6 h-20 glass-panel rounded-[2rem] flex justify-between items-center transition-all duration-500 ${isScrolled ? 'h-16 mt-2' : ''}`}
+        >
+          {/* Logo & Branding */}
+          <Link 
+            to="/" 
+            onClick={scrollToTop}
+            className="flex items-center gap-3 group cursor-pointer"
+          >
+            <div className="w-10 h-10 transition-transform group-hover:scale-110 duration-500">
+              <img 
+                src="http://talibon.gov.ph/wp-content/uploads/2025/09/Talibon-Official-Seal-v4-2003-to-2023-.png" 
+                alt="Talibon Official Seal" 
+                className="w-full h-full object-contain"
+                referrerPolicy="no-referrer"
+              />
             </div>
+            <div className="hidden sm:block">
+              <h1 className="text-lg font-extrabold text-brand-primary leading-none tracking-tight group-hover:text-brand-accent transition-colors font-display">TALIBON</h1>
+              <p className="text-[8px] font-bold text-brand-muted tracking-[0.2em] leading-none mt-0.5 uppercase">Municipal Government</p>
+            </div>
+          </Link>
 
-            {/* Mobile Actions */}
-            <div className="lg:hidden flex items-center gap-3">
-              <button className="text-gray-400 p-2 hover:bg-blue-50 rounded-xl transition-colors">
-                <Search size={22} />
-              </button>
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="text-gray-900 p-2 hover:bg-blue-50 rounded-xl transition-colors"
+          {/* Desktop Nav Links */}
+          <div className="hidden lg:flex items-center gap-1">
+            {navLinks.map((link) => (
+              <div 
+                key={link.name} 
+                className="relative group/nav"
+                onMouseEnter={() => link.subLinks && setActiveDropdown(link.name)}
+                onMouseLeave={() => setActiveDropdown(null)}
               >
-                {isOpen ? <X size={26} /> : <Menu size={26} />}
-              </button>
-            </div>
+                {link.subLinks ? (
+                  <button
+                    className={`px-4 py-2 text-xs font-bold tracking-widest transition-all flex items-center gap-1 rounded-full ${
+                      activeDropdown === link.name ? 'text-brand-primary bg-brand-primary/5' : 'text-brand-text hover:text-brand-primary hover:bg-brand-primary/5'
+                    }`}
+                  >
+                    {link.name}
+                    <ChevronDown size={10} className={`transition-transform duration-300 ${activeDropdown === link.name ? 'rotate-180' : ''}`} />
+                  </button>
+                ) : (
+                  <Link
+                    to={link.href}
+                    className="px-4 py-2 text-xs font-bold tracking-widest text-brand-text hover:text-brand-primary hover:bg-brand-primary/5 rounded-full transition-all"
+                  >
+                    {link.name}
+                  </Link>
+                )}
+
+                {/* Dropdown Menu */}
+                {link.subLinks && (
+                  <AnimatePresence>
+                    {activeDropdown === link.name && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute top-full left-0 mt-2 w-72 bg-white/90 backdrop-blur-3xl border border-white/30 p-2 shadow-2xl rounded-3xl overflow-hidden"
+                      >
+                        <div className="grid grid-cols-1 gap-1">
+                          {link.subLinks.map((sub) => (
+                            <Link
+                              key={sub.name}
+                              to={sub.href}
+                              target={sub.isExternal ? "_blank" : undefined}
+                              rel={sub.isExternal ? "noopener noreferrer" : undefined}
+                              className="px-4 py-3 text-xs font-bold text-brand-text hover:text-brand-primary hover:bg-brand-primary/5 rounded-2xl transition-all tracking-widest flex items-center justify-between group/sub"
+                            >
+                              {sub.name}
+                              <ArrowUpRight size={14} className="opacity-0 group-hover/sub:opacity-100 transition-all text-brand-accent" />
+                            </Link>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                )}
+              </div>
+            ))}
           </div>
-        </div>
+
+          {/* Mobile Actions */}
+          <div className="lg:hidden flex items-center gap-3">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="text-brand-primary p-2 rounded-2xl bg-brand-primary/5 hover:bg-brand-primary/10 transition-colors"
+            >
+              {isOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
+        </motion.div>
       </nav>
 
       {/* Mobile Menu Overlay */}
@@ -314,13 +263,12 @@ export default function Navbar() {
             initial={{ opacity: 0, x: "100%" }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-0 z-[60] bg-blue-900 lg:hidden"
+            className="fixed inset-0 z-[60] bg-white lg:hidden"
           >
             <div className="flex flex-col h-full">
-              <div className="flex justify-between items-center p-6 border-b border-blue-800">
+              <div className="flex justify-between items-center p-6 border-b border-brand-border">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-white rounded-full p-1 flex items-center justify-center">
+                  <div className="w-12 h-12">
                     <img 
                       src="http://talibon.gov.ph/wp-content/uploads/2025/09/Talibon-Official-Seal-v4-2003-to-2023-.png" 
                       alt="Talibon Seal" 
@@ -328,24 +276,24 @@ export default function Navbar() {
                       referrerPolicy="no-referrer"
                     />
                   </div>
-                  <span className="text-white font-bold tracking-tight">TALIBON LGU</span>
+                  <span className="text-brand-primary font-black tracking-tight uppercase font-display">TALIBON</span>
                 </div>
-                <button onClick={() => setIsOpen(false)} className="text-white p-2">
-                  <X size={32} />
+                <button onClick={() => setIsOpen(false)} className="text-brand-primary p-2 bg-brand-primary/5 rounded-xl">
+                  <X size={24} />
                 </button>
               </div>
               
               <div className="flex-1 overflow-y-auto p-6 space-y-2">
                 {navLinks.map((link) => (
-                  <div key={link.name} className="border-b border-blue-800/50">
+                  <div key={link.name} className="border-b border-brand-border/50">
                     {link.subLinks ? (
                       <div>
                         <button
                           onClick={() => setMobileSubMenu(mobileSubMenu === link.name ? null : link.name)}
-                          className="w-full flex justify-between items-center py-4 text-xl font-black text-white hover:text-blue-300 transition-colors"
+                          className="w-full flex justify-between items-center py-4 text-sm font-extrabold text-brand-text hover:text-brand-primary transition-colors uppercase tracking-widest"
                         >
                           {link.name}
-                          <ChevronDown size={20} className={`transition-transform duration-300 ${mobileSubMenu === link.name ? 'rotate-180' : ''}`} />
+                          <ChevronDown size={18} className={`transition-transform duration-300 ${mobileSubMenu === link.name ? 'rotate-180' : ''}`} />
                         </button>
                         <AnimatePresence>
                           {mobileSubMenu === link.name && (
@@ -353,60 +301,31 @@ export default function Navbar() {
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: "auto", opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
-                              className="overflow-hidden bg-blue-950/50 rounded-2xl mb-4"
+                              className="overflow-hidden bg-white/90 backdrop-blur-3xl border border-brand-primary/10 rounded-2xl mb-4"
                             >
                               <div className="p-4 space-y-4">
                                 {link.subLinks.map((sub) => (
-                                  sub.isExternal ? (
-                                    <a
-                                      key={sub.name}
-                                      href={sub.href}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="block text-sm font-bold text-blue-200 hover:text-white transition-colors"
-                                    >
-                                      {sub.name}
-                                    </a>
-                                  ) : sub.isHash ? (
-                                    <HashLink
-                                      smooth
-                                      key={sub.name}
-                                      to={sub.href}
-                                      onClick={() => setIsOpen(false)}
-                                      className="block text-sm font-bold text-blue-200 hover:text-white transition-colors"
-                                    >
-                                      {sub.name}
-                                    </HashLink>
-                                  ) : (
-                                    <Link
-                                      key={sub.name}
-                                      to={sub.href}
-                                      onClick={() => setIsOpen(false)}
-                                      className="block text-sm font-bold text-blue-200 hover:text-white transition-colors"
-                                    >
-                                      {sub.name}
-                                    </Link>
-                                  )
+                                  <Link
+                                    key={sub.name}
+                                    to={sub.href}
+                                    target={sub.isExternal ? "_blank" : undefined}
+                                    rel={sub.isExternal ? "noopener noreferrer" : undefined}
+                                    onClick={() => setIsOpen(false)}
+                                    className="block text-xs font-bold text-brand-text hover:text-brand-primary transition-colors tracking-widest uppercase"
+                                  >
+                                    {sub.name}
+                                  </Link>
                                 ))}
                               </div>
                             </motion.div>
                           )}
                         </AnimatePresence>
                       </div>
-                    ) : link.isHash ? (
-                      <HashLink
-                        smooth
-                        to={link.href}
-                        onClick={() => setIsOpen(false)}
-                        className="block py-4 text-xl font-black text-white hover:text-blue-300 transition-colors"
-                      >
-                        {link.name}
-                      </HashLink>
                     ) : (
                       <Link
                         to={link.href}
                         onClick={() => setIsOpen(false)}
-                        className="block py-4 text-xl font-black text-white hover:text-blue-300 transition-colors"
+                        className="block py-4 text-sm font-extrabold text-brand-text hover:text-brand-primary transition-colors uppercase tracking-widest"
                       >
                         {link.name}
                       </Link>
@@ -415,22 +334,15 @@ export default function Navbar() {
                 ))}
               </div>
 
-              <div className="p-8 bg-blue-950 space-y-6">
-                <div className="flex justify-center gap-8">
-                  {officialLogos.map((logo, idx) => (
-                    <div key={idx} className="h-10 w-20 flex items-center justify-center overflow-hidden">
-                      <img 
-                        src={logo.src} 
-                        alt={logo.alt} 
-                        className="h-full w-full object-contain brightness-0 invert opacity-50"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                  ))}
-                </div>
-                <button className="w-full bg-blue-600 text-white py-4 rounded-2xl font-bold text-lg shadow-xl">
-                  GOVERNMENT PORTAL
-                </button>
+              <div className="p-8 bg-brand-bg">
+                <a 
+                  href="https://talibon-citizen-stg.multisyscorp.io/e-services"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-brand-primary text-white py-4 rounded-2xl font-black tracking-widest uppercase shadow-xl shadow-brand-primary/20 flex items-center justify-center gap-2"
+                >
+                  GOVERNMENT PORTAL <ArrowUpRight size={18} />
+                </a>
               </div>
             </div>
           </motion.div>
@@ -438,5 +350,6 @@ export default function Navbar() {
       </AnimatePresence>
     </header>
   );
+
 }
 

@@ -45,7 +45,7 @@ const MayorsPage: React.FC = () => {
     },
     {
       title: "Municipal Presidents",
-      subtitle: "Jones Law / Insular Government / Commonwealth",
+      subtitle: "Jones Law / Commonwealth",
       period: "1912 to 1946",
       mayors: [
         { name: "Policronio Garcia, Sr.", term: "1912-1916" },
@@ -109,11 +109,25 @@ const MayorsPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-white pt-32 pb-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-brand-bg pt-32 pb-24 relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
+        <motion.div 
+          animate={{ 
+            scale: [1, 1.2, 1],
+            rotate: [0, 90, 0],
+            x: [0, 50, 0],
+            y: [0, 30, 0]
+          }}
+          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+          className="absolute -top-24 -left-24 w-[40rem] h-[40rem] bg-brand-primary/5 rounded-full blur-[120px]"
+        />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <Link 
           to="/" 
-          className="inline-flex items-center gap-2 text-blue-600 font-black text-[10px] tracking-widest uppercase mb-12 hover:gap-4 transition-all"
+          className="inline-flex items-center gap-2 text-brand-primary font-bold text-[10px] tracking-widest uppercase mb-12 hover:gap-4 transition-all"
         >
           <ArrowLeft size={16} />
           Back to Home
@@ -125,15 +139,15 @@ const MayorsPage: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-600 px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border border-blue-100 mb-8">
+            <div className="inline-flex items-center gap-2 bg-white text-brand-primary px-5 py-2 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] border border-brand-border mb-8 shadow-sm">
               <Landmark size={14} />
               <span>Leadership Timeline</span>
             </div>
-            <h1 className="text-6xl md:text-8xl font-black text-gray-900 leading-[0.85] tracking-tighter mb-8">
+            <h1 className="text-6xl md:text-8xl font-extrabold text-brand-text leading-[0.85] tracking-tighter mb-8 font-display">
               MAYORS OF <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">TALIBON</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-primary to-brand-secondary">TALIBON</span>
             </h1>
-            <p className="text-xl text-gray-500 font-medium leading-relaxed max-w-2xl">
+            <p className="text-xl text-brand-muted font-medium leading-relaxed max-w-2xl">
               Honoring the leaders who shaped the history and progress of our beloved municipality through different eras of our nation's history.
             </p>
           </motion.div>
@@ -152,12 +166,12 @@ const MayorsPage: React.FC = () => {
               <div className="flex flex-col lg:flex-row gap-12">
                 <div className="lg:w-1/3">
                   <div className="sticky top-40 space-y-4">
-                    <div className="text-blue-600 font-black text-[10px] tracking-[0.3em] uppercase">{era.period}</div>
-                    <h2 className="text-3xl font-black text-gray-900 tracking-tight leading-tight">
+                    <div className="text-brand-primary font-bold text-[10px] tracking-[0.3em] uppercase">{era.period}</div>
+                    <h2 className="text-3xl font-extrabold text-brand-text tracking-tight leading-tight font-display">
                       {era.title} <br />
-                      <span className="text-blue-500 text-lg font-bold">{era.subtitle}</span>
+                      <span className="text-brand-primary text-lg font-bold">{era.subtitle}</span>
                     </h2>
-                    <div className="w-12 h-1 bg-blue-600 rounded-full" />
+                    <div className="w-12 h-1.5 bg-brand-secondary rounded-full" />
                   </div>
                 </div>
 
@@ -166,18 +180,18 @@ const MayorsPage: React.FC = () => {
                     {era.mayors.map((mayor, mIdx) => (
                       <div 
                         key={mIdx}
-                        className="p-6 bg-gray-50 rounded-3xl border border-gray-100 hover:border-blue-200 hover:bg-white hover:shadow-xl hover:shadow-blue-900/5 transition-all group"
+                        className="pro-card p-6 hover:border-brand-primary/30 transition-all group"
                       >
                         <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-black text-gray-900 group-hover:text-blue-600 transition-colors">{mayor.name}</h3>
-                          <Users size={16} className="text-gray-300 group-hover:text-blue-400 transition-colors" />
+                          <h3 className="font-extrabold text-brand-text group-hover:text-brand-primary transition-colors font-display">{mayor.name}</h3>
+                          <Users size={16} className="text-brand-muted/30 group-hover:text-brand-primary transition-colors" />
                         </div>
-                        <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+                        <div className="flex items-center gap-2 text-[10px] font-bold text-brand-muted uppercase tracking-widest">
                           <Calendar size={12} />
                           {mayor.term || "Term Not Recorded"}
                         </div>
                         {mayor.note && (
-                          <div className="mt-3 text-[10px] font-black text-blue-400 uppercase tracking-widest bg-blue-50 px-3 py-1 rounded-full w-fit">
+                          <div className="mt-3 text-[10px] font-bold text-brand-primary uppercase tracking-widest bg-brand-primary/5 px-3 py-1 rounded-full w-fit border border-brand-primary/10">
                             {mayor.note}
                           </div>
                         )}
@@ -186,35 +200,26 @@ const MayorsPage: React.FC = () => {
                   </div>
 
                   {/* Commentary for specific eras */}
-                  {eraIdx === 1 && (
-                    <div className="mt-12 p-8 bg-blue-50 rounded-[2.5rem] border border-blue-100 relative overflow-hidden">
-                      <div className="absolute top-4 right-4 text-blue-100">
-                        <Quote size={64} fill="currentColor" />
+                  {(eraIdx === 1 || eraIdx === 4) && (
+                    <div className="mt-12 p-10 bg-brand-primary/5 rounded-[2.5rem] border border-brand-primary/10 relative overflow-hidden">
+                      <div className="absolute -top-4 -right-4 text-brand-primary/10">
+                        <Quote size={120} fill="currentColor" />
                       </div>
-                      <h4 className="text-xs font-black text-blue-600 uppercase tracking-widest mb-4 relative z-10">Historical Commentary</h4>
-                      <div className="text-sm text-gray-600 leading-relaxed space-y-4 relative z-10 font-medium">
-                        <p>
-                          Recent research by Prof. Emmanuel Luis A. Romanillos reveals that Talibon became a separate municipality from Inabanga in 1733, with Nicolas Calagan elected as its first mayor. This finding, based on primary sources, contrasted with the existing ordinance that officially recognizes Talibon’s founding year as April 22, 1854.
-                        </p>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Apawan, Y. A. (2024)</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {eraIdx === 4 && (
-                    <div className="mt-12 p-8 bg-blue-50 rounded-[2.5rem] border border-blue-100 relative overflow-hidden">
-                      <div className="absolute top-4 right-4 text-blue-100">
-                        <Quote size={64} fill="currentColor" />
-                      </div>
-                      <h4 className="text-xs font-black text-blue-600 uppercase tracking-widest mb-4 relative z-10">WWII Historical Events</h4>
-                      <div className="text-sm text-gray-600 leading-relaxed space-y-4 relative z-10 font-medium">
-                        <p>
-                          On April 13, 1942, Japanese soldiers invaded Talibon. They forced the townspeople to form a new government under Atty. Maximino C. Boiser, Sr. From 1942 to 1944, Boiser acted as the de facto mayor while Mayor Garcia represented the Commonwealth government-in-exile.
-                        </p>
-                        <p>
-                          Boiser was later unfairly tried and executed in 1943. Historian Gregorio C. Eronico argued that Boiser was a misunderstood patriot who sacrificed himself to save the town from further harm.
-                        </p>
-                        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Apawan, Y. A. (2024)</p>
+                      <h4 className="text-xs font-bold text-brand-primary uppercase tracking-widest mb-6 relative z-10 flex items-center gap-2">
+                        <History size={14} />
+                        Historical Commentary
+                      </h4>
+                      <div className="text-sm text-brand-text/80 leading-relaxed space-y-4 relative z-10 font-medium">
+                        {eraIdx === 1 ? (
+                          <p>
+                            Recent research by Prof. Emmanuel Luis A. Romanillos reveals that Talibon became a separate municipality from Inabanga in 1733, with Nicolas Calagan elected as its first mayor. This finding, based on primary sources, contrasted with the existing ordinance that officially recognizes Talibon’s founding year as April 22, 1854.
+                          </p>
+                        ) : (
+                          <p>
+                            On April 13, 1942, Japanese soldiers invaded Talibon. They forced the townspeople to form a new government under Atty. Maximino C. Boiser, Sr. From 1942 to 1944, Boiser acted as the de facto mayor while Mayor Garcia represented the Commonwealth government-in-exile.
+                          </p>
+                        )}
+                        <p className="text-[10px] font-bold text-brand-muted uppercase tracking-widest pt-4 border-t border-brand-primary/10">Apawan, Y. A. (2024)</p>
                       </div>
                     </div>
                   )}

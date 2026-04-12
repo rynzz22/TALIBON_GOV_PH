@@ -34,31 +34,28 @@ export default function Events() {
 
   if (loading) {
     return (
-      <section id="events" className="py-24 bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
+      <section id="events" className="py-32 bg-white flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-brand-primary animate-spin" />
       </section>
     );
   }
 
   if (news.length === 0) {
-    return null; // Or show a default message
+    return null;
   }
 
   return (
-    <section id="events" className="py-24 bg-gray-50">
+    <section id="events" className="py-32 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
-          <h2 className="text-sm font-bold text-blue-600 uppercase tracking-widest">Stay Updated</h2>
-          <h3 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
-            Latest News <br />
-            <span className="text-gray-400">& Announcements</span>
-          </h3>
-          <p className="text-lg text-gray-600 font-light leading-relaxed">
+        <div className="text-center mb-20">
+          <span className="section-label">Stay Updated</span>
+          <h2 className="section-title">Latest News</h2>
+          <p className="text-brand-muted font-medium text-lg max-w-2xl mx-auto">
             Don't miss out on the latest happenings in Talibon. Stay informed about our community and government updates.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {news.map((item, index) => (
             <Link key={item.id} to={`/news/view/${item.id}`}>
               <motion.div
@@ -66,42 +63,37 @@ export default function Events() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
-                className="group bg-white rounded-[40px] overflow-hidden border border-gray-100 hover:border-blue-200 hover:shadow-2xl hover:shadow-blue-500/5 transition-all h-full"
+                className="group space-y-6"
               >
-                <div className="aspect-video relative overflow-hidden">
+                <div className="aspect-[16/10] relative overflow-hidden rounded-[2.5rem] shadow-xl">
                   <img
                     src={item.imageUrl || "https://picsum.photos/seed/news/800/600"}
                     alt={item.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-4 py-2 rounded-2xl text-center shadow-lg">
-                    <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">
+                  <div className="absolute top-6 left-6 bg-white px-4 py-2 rounded-2xl shadow-lg">
+                    <p className="text-[10px] font-bold text-brand-primary uppercase tracking-widest">
                       {new Date(item.date).toLocaleDateString('en-US', { month: 'short' })}
                     </p>
-                    <p className="text-xl font-black text-gray-900 leading-none">
+                    <p className="text-2xl font-extrabold text-brand-text leading-none">
                       {new Date(item.date).getDate()}
                     </p>
                   </div>
                 </div>
 
-                <div className="p-8 space-y-6">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-[10px] font-black uppercase tracking-widest">
-                        {item.category}
-                      </span>
-                    </div>
-                    <h4 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2">
-                      {item.title}
-                    </h4>
-                    <p className="text-gray-600 font-light leading-relaxed line-clamp-2">
-                      {item.summary}
-                    </p>
-                  </div>
-
-                  <div className="w-full py-4 rounded-2xl bg-gray-50 text-gray-900 font-bold flex items-center justify-center gap-2 group-hover:bg-blue-600 group-hover:text-white transition-all">
-                    Read More <ArrowRight size={18} />
+                <div className="space-y-4 px-2">
+                  <span className="text-[10px] font-bold text-brand-primary uppercase tracking-[0.2em]">
+                    {item.category}
+                  </span>
+                  <h4 className="text-2xl font-bold text-brand-text group-hover:text-brand-primary transition-colors font-display tracking-tight leading-tight">
+                    {item.title}
+                  </h4>
+                  <p className="text-brand-muted font-medium leading-relaxed line-clamp-2">
+                    {item.summary}
+                  </p>
+                  <div className="pt-4 flex items-center gap-2 text-[10px] font-bold text-brand-text uppercase tracking-widest group-hover:gap-4 transition-all">
+                    Read Story <ArrowRight size={14} />
                   </div>
                 </div>
               </motion.div>
@@ -109,9 +101,9 @@ export default function Events() {
           ))}
         </div>
 
-        <div className="mt-16 text-center">
-          <Link to="/news/updates" className="text-blue-600 font-bold flex items-center gap-2 mx-auto hover:gap-3 transition-all w-fit">
-            View All Updates <ArrowRight size={20} />
+        <div className="mt-24 text-center">
+          <Link to="/news/updates" className="minimal-button-outline inline-flex">
+            View All Updates
           </Link>
         </div>
       </div>

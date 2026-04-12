@@ -23,43 +23,16 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Footer from "./components/Footer";
 import { aboutApi, executiveApi, legislativeApi, newsApi, transparencyApi, tourismApi, formsApi } from "./services/api";
 import { FirebaseProvider } from "./contexts/AuthContext";
+import { Eye, Target, Quote } from "lucide-react";
 
 export default function App() {
   return (
     <FirebaseProvider>
       <Router>
-        <div className="min-h-screen bg-white font-sans selection:bg-blue-100 selection:text-blue-900 relative overflow-hidden">
-        {/* Global Liquid UI Background Elements */}
+        <div className="min-h-screen bg-white font-sans selection:bg-brand-primary selection:text-white relative overflow-hidden">
+        {/* Minimal Background */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-          <motion.div 
-            animate={{ 
-              scale: [1, 1.2, 1],
-              rotate: [0, 90, 0],
-              x: [0, 50, 0],
-              y: [0, 30, 0]
-            }}
-            transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-48 -left-48 w-[40rem] h-[40rem] bg-blue-600/5 rounded-full blur-[100px]"
-          />
-          <motion.div 
-            animate={{ 
-              scale: [1, 1.1, 1],
-              rotate: [0, -45, 0],
-              x: [0, -30, 0],
-              y: [0, 60, 0]
-            }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute top-1/2 -right-48 w-[35rem] h-[35rem] bg-gold-400/5 rounded-full blur-[100px]"
-          />
-          <motion.div 
-            animate={{ 
-              scale: [1, 1.3, 1],
-              x: [0, 40, 0],
-              y: [0, -40, 0]
-            }}
-            transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-            className="absolute -bottom-48 left-1/4 w-[30rem] h-[30rem] bg-blue-400/5 rounded-full blur-[100px]"
-          />
+          <div className="absolute top-0 left-0 w-full h-full opacity-[0.2]" style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '64px 64px' }} />
         </div>
 
         <div className="relative z-10">
@@ -69,26 +42,26 @@ export default function App() {
           <Route path="/admin" element={<AdminDashboard />} />
           
           {/* About Talibon */}
-          <Route path="/about/profile" element={<ContentPage title="Brief Profile" fetchData={aboutApi.getProfile} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium whitespace-pre-line">{data.content}</p>} />} />
+          <Route path="/about/profile" element={<ContentPage title="Brief Profile" fetchData={aboutApi.getProfile} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium whitespace-pre-line">{data.content}</p>} />} />
           <Route path="/about/seal" element={<OfficialSealPage />} />
-          <Route path="/about/history" element={<ContentPage title="Brief History" fetchData={aboutApi.getHistory} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium whitespace-pre-line">{data.content}</p>} />} />
+          <Route path="/about/history" element={<ContentPage title="Brief History" fetchData={aboutApi.getHistory} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium whitespace-pre-line">{data.content}</p>} />} />
           <Route path="/about/mayors" element={<ContentPage title="List of Mayors" fetchData={aboutApi.getMayors} renderContent={(data) => (
-            <div className="space-y-16">
+            <div className="space-y-12">
               {Array.isArray(data) && data.length > 0 ? (
                 data.map((section: any, idx: number) => (
-                  <div key={idx} className="space-y-8">
-                    <div className="border-b-4 border-blue-600 pb-4">
-                      <h2 className="text-3xl font-black text-gray-900 uppercase tracking-tighter leading-none">
+                  <div key={idx} className="space-y-6">
+                    <div className="border-b-2 border-brand-primary/20 pb-4">
+                      <h2 className="text-3xl font-extrabold text-brand-text font-display">
                         {section.section}
                       </h2>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {section.mayors.map((mayor: any, mIdx: number) => (
-                        <div key={mIdx} className="p-6 bg-white border-2 border-gray-100 rounded-2xl shadow-sm hover:border-blue-200 transition-all group">
-                          <h3 className="text-xl font-black text-gray-900 group-hover:text-blue-600 transition-colors">{mayor.name}</h3>
+                        <div key={mIdx} className="civic-card p-6 group">
+                          <h3 className="text-xl font-bold text-brand-text group-hover:text-brand-primary transition-colors">{mayor.name}</h3>
                           {mayor.term && (
-                            <p className="text-sm font-bold text-blue-600 uppercase tracking-widest mt-2">
+                            <p className="text-xs font-bold text-brand-primary uppercase tracking-widest mt-2 bg-brand-primary/5 inline-block px-2 py-1 rounded">
                               TERM: {mayor.term}
                             </p>
                           )}
@@ -97,14 +70,15 @@ export default function App() {
                     </div>
 
                     {section.commentary && (
-                      <div className="p-8 bg-amber-50 border-l-8 border-amber-400 rounded-r-3xl space-y-4">
-                        <p className="text-xs font-black text-amber-800 uppercase tracking-widest">
+                      <div className="p-8 bg-brand-primary/5 border-l-4 border-brand-primary rounded-r-2xl relative overflow-hidden group">
+                        <Quote size={48} className="absolute -top-4 -left-4 text-brand-primary/10" />
+                        <p className="text-xs font-bold text-brand-primary uppercase tracking-widest mb-4">
                           Historical Commentary
                         </p>
-                        <p className="text-lg text-amber-900 font-medium leading-relaxed italic">
-                          {section.commentary.content}
+                        <p className="text-xl text-brand-text font-medium leading-relaxed italic">
+                          "{section.commentary.content}"
                         </p>
-                        <p className="text-sm font-bold text-amber-700 text-right">
+                        <p className="text-sm font-bold text-brand-muted text-right mt-6">
                           — {section.commentary.source}
                         </p>
                       </div>
@@ -112,54 +86,46 @@ export default function App() {
                   </div>
                 ))
               ) : (
-                <div className="text-center py-12 text-gray-500 font-bold">
+                <div className="text-center py-24 text-brand-muted font-bold uppercase tracking-widest">
                   No data available.
                 </div>
               )}
             </div>
           )} />} />
           <Route path="/about/departments" element={<ContentPage title="Departments" fetchData={aboutApi.getDepartments} renderContent={(data) => (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {Array.isArray(data) && data.length > 0 ? (
                 data.map((dept: any, idx: number) => (
                   <motion.div 
                     key={`${dept.name}-${idx}`} 
-                    whileHover="hover"
-                    initial="initial"
-                    className="p-8 bg-white border border-gray-100 rounded-3xl shadow-sm hover:shadow-xl hover:shadow-blue-900/5 transition-all group"
+                    className="civic-card p-8 group"
                   >
                     <div className="flex justify-between items-start mb-6">
                       <div className="flex items-center gap-4">
                         {dept.logoUrl && (
-                          <motion.div 
-                            variants={{
-                              initial: { scale: 1, rotate: 0 },
-                              hover: { scale: 1.1, rotate: 5, transition: { type: "spring", stiffness: 300, damping: 15 } }
-                            }}
-                            className="w-16 h-16 bg-gray-50 rounded-2xl p-2 border border-gray-100 flex-shrink-0"
-                          >
+                          <div className="w-16 h-16 bg-white rounded-xl border border-brand-border p-2 shadow-sm group-hover:shadow-md transition-all">
                             <img 
                               src={dept.logoUrl} 
                               alt={`${dept.name} Logo`} 
                               className="w-full h-full object-contain"
                               referrerPolicy="no-referrer"
                             />
-                          </motion.div>
+                          </div>
                         )}
                         <div>
-                          <h3 className="text-2xl font-black text-gray-900 group-hover:text-blue-600 transition-colors">{String(dept.name)}</h3>
-                          <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">{String(dept.officialName)}</p>
+                          <h3 className="text-xl font-bold text-brand-text group-hover:text-brand-primary transition-colors leading-tight">{String(dept.name)}</h3>
+                          <p className="text-[10px] font-bold text-brand-muted uppercase tracking-widest mt-1">{String(dept.officialName)}</p>
                         </div>
                       </div>
-                      <span className="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest border border-blue-100">
+                      <span className="px-3 py-1 bg-brand-primary/10 text-brand-primary text-[10px] font-bold rounded-full uppercase tracking-widest">
                         {String(dept.type)}
                       </span>
                     </div>
-                    <p className="text-gray-600 font-medium leading-relaxed">{String(dept?.description || "")}</p>
+                    <p className="text-brand-muted text-sm leading-relaxed">{String(dept?.description || "")}</p>
                   </motion.div>
                 ))
               ) : (
-                <div className="col-span-full text-center py-12 text-gray-500 font-bold">
+                <div className="col-span-full text-center py-24 text-brand-muted font-bold uppercase tracking-widest">
                   No departments found.
                 </div>
               )}
@@ -169,21 +135,21 @@ export default function App() {
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {Array.isArray(data) && data.length > 0 ? (
                 data.map((brgy: string, idx: number) => (
-                  <div key={`${brgy}-${idx}`} className="p-4 bg-gray-50 rounded-xl border border-gray-100 text-center font-black text-gray-700 uppercase tracking-widest text-xs">
+                  <div key={`${brgy}-${idx}`} className="civic-card p-4 text-center font-bold text-brand-text uppercase tracking-widest text-[10px] hover:bg-brand-primary/5 hover:border-brand-primary transition-all">
                     {String(brgy)}
                   </div>
                 ))
               ) : (
-                <div className="col-span-full text-center py-12 text-gray-500 font-bold">
+                <div className="col-span-full text-center py-24 text-brand-muted font-bold uppercase tracking-widest">
                   No barangays found.
                 </div>
               )}
             </div>
           )} />} />
-          <Route path="/about/demographics" element={<ContentPage title="Demographics" fetchData={aboutApi.getDemographics} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data?.content}</p>} />} />
+          <Route path="/about/demographics" element={<ContentPage title="Demographics" fetchData={aboutApi.getDemographics} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium">{data?.content}</p>} />} />
           <Route path="/about/location" element={<ContentPage title="Location" fetchData={aboutApi.getLocation} renderContent={(data) => (
-            <div className="space-y-12">
-              <div className="relative aspect-video bg-gray-100 rounded-[3rem] overflow-hidden border-4 border-white shadow-2xl group">
+            <div className="space-y-8">
+              <div className="relative aspect-video bg-brand-surface rounded-3xl border-4 border-white shadow-xl overflow-hidden group">
                 <iframe
                   width="100%"
                   height="100%"
@@ -196,8 +162,8 @@ export default function App() {
                 {/* Custom Logo Pin Overlay */}
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
                   <div className="relative">
-                    <div className="absolute inset-0 bg-blue-600 rounded-full blur-xl opacity-20 animate-pulse scale-150" />
-                    <div className="relative w-20 h-20 md:w-24 md:h-24 bg-white rounded-full p-2 shadow-2xl border-4 border-blue-600 transform hover:scale-110 transition-transform duration-500">
+                    <div className="absolute inset-0 bg-brand-primary rounded-full blur-xl opacity-20 animate-pulse scale-150" />
+                    <div className="relative w-20 h-20 bg-white rounded-full border-4 border-brand-primary p-3 shadow-lg">
                       <img 
                         src={data.logoUrl} 
                         alt="Talibon Logo" 
@@ -205,43 +171,41 @@ export default function App() {
                         referrerPolicy="no-referrer"
                       />
                     </div>
-                    {/* Pin tail */}
-                    <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-t-[20px] border-t-blue-600" />
                   </div>
                 </div>
               </div>
               
-              <div className="p-8 bg-blue-50 rounded-[2.5rem] border border-blue-100">
-                <p className="text-xl text-gray-700 leading-relaxed font-medium">{data?.description}</p>
+              <div className="p-8 bg-brand-primary/5 rounded-2xl border border-brand-primary/10">
+                <p className="text-lg text-brand-muted leading-relaxed font-medium">{data?.description}</p>
               </div>
             </div>
           )} />} />
           <Route path="/about/vicinity" element={<ContentPage title="Vicinity Map" fetchData={aboutApi.getVicinityMap} renderContent={(data) => (
             <div className="space-y-8">
-              <div className="aspect-video bg-gray-50 rounded-[3rem] overflow-hidden border border-gray-100 shadow-2xl flex items-center justify-center">
+              <div className="aspect-video bg-brand-surface rounded-3xl border-4 border-white shadow-xl overflow-hidden flex items-center justify-center">
                 <img src={data.url} alt={data.title} className="w-full h-full object-contain" referrerPolicy="no-referrer" />
               </div>
-              <p className="text-xl text-gray-700 leading-relaxed font-medium">{data?.description}</p>
+              <p className="text-lg text-brand-muted leading-relaxed font-medium">{data?.description}</p>
             </div>
           )} />} />
-          <Route path="/about/industry" element={<ContentPage title="Industry" fetchData={aboutApi.getIndustry} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium whitespace-pre-line">{data.content}</p>} />} />
+          <Route path="/about/industry" element={<ContentPage title="Industry" fetchData={aboutApi.getIndustry} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium whitespace-pre-line">{data.content}</p>} />} />
           <Route path="/about/services" element={<ContentPage title="Government Services" fetchData={aboutApi.getServices} renderContent={(data) => (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {Array.isArray(data) && data.map((service: any, idx: number) => (
-                <div key={`${service.name}-${idx}`} className="p-8 bg-white border border-gray-100 rounded-3xl shadow-sm">
-                  <h3 className="text-2xl font-black text-gray-900 mb-4">{String(service.name)}</h3>
-                  <p className="text-lg text-gray-600 font-medium">{String(service?.description || "")}</p>
+                <div key={`${service.name}-${idx}`} className="civic-card p-8 group">
+                  <h3 className="text-xl font-bold text-brand-text mb-4 group-hover:text-brand-primary transition-colors">{String(service.name)}</h3>
+                  <p className="text-brand-muted text-sm leading-relaxed">{String(service?.description || "")}</p>
                 </div>
               ))}
             </div>
           )} />} />
           <Route path="/about/hymn" element={<ContentPage title="Talibon Hymn" fetchData={aboutApi.getHymn} renderContent={(data) => (
             <div className="max-w-4xl mx-auto">
-              <div className="bg-white p-4 md:p-8 rounded-[3rem] shadow-2xl border border-gray-100 overflow-hidden">
+              <div className="bg-white rounded-3xl border-4 border-white shadow-2xl p-8 overflow-hidden">
                 <img 
                   src={data.imageUrl} 
                   alt="Talibon Hymn Lyrics" 
-                  className="w-full h-auto rounded-2xl"
+                  className="w-full h-auto rounded-xl"
                   referrerPolicy="no-referrer"
                 />
               </div>
@@ -249,47 +213,49 @@ export default function App() {
           )} />} />
 
           {/* Executive */}
-          <Route path="/executive/mandate" element={<ContentPage title="Executive Mandate" fetchData={executiveApi.getMandate} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data.content}</p>} />} />
+          <Route path="/executive/mandate" element={<ContentPage title="Executive Mandate" fetchData={executiveApi.getMandate} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium">{data.content}</p>} />} />
           <Route path="/executive/vision-mission" element={<ContentPage title="Vision & Mission" fetchData={executiveApi.getVisionMission} renderContent={(data) => (
             <div className="space-y-12">
-              <div>
-                <h3 className="text-2xl font-black text-blue-600 mb-4 uppercase tracking-widest">Vision</h3>
-                <p className="text-xl text-gray-700 leading-relaxed font-medium italic">"{data.vision}"</p>
+              <div className="p-10 civic-card bg-brand-primary/5 border-l-8 border-brand-primary relative overflow-hidden">
+                <Eye size={48} className="absolute -top-4 -left-4 text-brand-primary/10" />
+                <h3 className="text-xs font-extrabold text-brand-primary mb-6 uppercase tracking-[0.3em]">Vision</h3>
+                <p className="text-2xl text-brand-text font-bold leading-tight italic">"{data.vision}"</p>
               </div>
-              <div>
-                <h3 className="text-2xl font-black text-blue-600 mb-4 uppercase tracking-widest">Mission</h3>
-                <p className="text-xl text-gray-700 leading-relaxed font-medium italic">"{data.mission}"</p>
+              <div className="p-10 civic-card bg-brand-accent/5 border-l-8 border-brand-accent relative overflow-hidden">
+                <Target size={48} className="absolute -top-4 -left-4 text-brand-accent/10" />
+                <h3 className="text-xs font-extrabold text-brand-accent mb-6 uppercase tracking-[0.3em]">Mission</h3>
+                <p className="text-2xl text-brand-text font-bold leading-tight italic">"{data.mission}"</p>
               </div>
             </div>
           )} />} />
           <Route path="/executive/chart" element={<OrganizationalChartPage />} />
           <Route path="/executive/directory" element={<ContentPage title="Directory of Departments" fetchData={executiveApi.getDirectory} renderContent={(data) => (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-4">
               {Array.isArray(data) && data.length > 0 ? (
                 data.map((dept: any, idx: number) => (
-                  <div key={`${dept.department}-${idx}`} className="flex justify-between items-center p-6 bg-white border border-gray-100 rounded-2xl shadow-sm">
-                    <h3 className="text-xl font-black text-gray-900">{dept.department}</h3>
-                    <p className="text-lg font-bold text-blue-600">{dept.contact}</p>
+                  <div key={`${dept.department}-${idx}`} className="flex justify-between items-center p-6 civic-card group">
+                    <h3 className="text-lg font-bold text-brand-text group-hover:text-brand-primary transition-colors">{dept.department}</h3>
+                    <p className="text-lg font-bold text-brand-primary">{dept.contact}</p>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-12 text-gray-500 font-bold">
+                <div className="text-center py-24 text-brand-muted font-bold uppercase tracking-widest">
                   No directory entries found.
                 </div>
               )}
             </div>
           )} />} />
-          <Route path="/executive/gad-ims" element={<ContentPage title="Talibon GAD-IMS" fetchData={executiveApi.getGadIms} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data.content}</p>} />} />
+          <Route path="/executive/gad-ims" element={<ContentPage title="Talibon GAD-IMS" fetchData={executiveApi.getGadIms} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium">{data.content}</p>} />} />
 
           {/* Legislative */}
-          <Route path="/legislative/mandate" element={<ContentPage title="Legislative Mandate" fetchData={legislativeApi.getMandate} renderContent={(data) => <p className="text-xl text-gray-700 leading-relaxed font-medium">{data.content}</p>} />} />
+          <Route path="/legislative/mandate" element={<ContentPage title="Legislative Mandate" fetchData={legislativeApi.getMandate} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium">{data.content}</p>} />} />
           <Route path="/legislative/structure" element={<ContentPage title="Organizational Structure" fetchData={legislativeApi.getStructure} renderContent={(data) => (
             <div className="max-w-5xl mx-auto">
-              <div className="bg-white p-4 md:p-8 rounded-[3rem] shadow-2xl border border-gray-100 overflow-hidden">
+              <div className="bg-white rounded-3xl border-4 border-white shadow-2xl p-8 overflow-hidden">
                 <img 
                   src={data.imageUrl} 
                   alt="Legislative Organizational Structure" 
-                  className="w-full h-auto rounded-2xl shadow-sm"
+                  className="w-full h-auto rounded-xl"
                   referrerPolicy="no-referrer"
                 />
               </div>
@@ -306,62 +272,65 @@ export default function App() {
           <Route path="/transparency/charter" element={<CitizenCharterPage />} />
           <Route path="/transparency/disclosure" element={<FullDisclosurePage />} />
           <Route path="/transparency/infrastructure" element={<ContentPage title="Infrastructure Projects" fetchData={transparencyApi.getInfrastructure} renderContent={(data) => (
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-4">
               {Array.isArray(data) && data.map((project: any, idx: number) => (
-                <div key={`${project.id}-${idx}`} className="p-8 bg-white border border-gray-100 rounded-3xl shadow-sm">
+                <div key={`${project.id}-${idx}`} className="civic-card p-8 group">
                   <div className="flex justify-between items-start mb-4">
-                    <h3 className="text-2xl font-black text-gray-900">{String(project.title)}</h3>
-                    <span className="px-4 py-1 bg-blue-50 text-blue-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+                    <h3 className="text-xl font-black text-brand-text group-hover:text-brand-primary transition-colors font-display uppercase tracking-tight">{String(project.title)}</h3>
+                    <span className="px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-full text-[10px] font-black uppercase tracking-[0.2em]">
                       {String(project.status)}
                     </span>
                   </div>
-                  <p className="text-lg font-bold text-gray-400">BUDGET: {String(project.budget)}</p>
+                  <p className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em]">BUDGET: <span className="text-brand-primary">{String(project.budget)}</span></p>
                 </div>
               ))}
             </div>
           )} />} />
           <Route path="/transparency/finance" element={<ContentPage title="Finance Reports" fetchData={transparencyApi.getFinanceReports} renderContent={(data) => (
-            <div className="space-y-4">
+            <div className="grid grid-cols-1 gap-4">
               {Array.isArray(data) && data.map((report: any, idx: number) => (
-                <a key={`${report.id}-${idx}`} href={report.url} className="flex items-center justify-between p-6 bg-gray-50 border border-gray-100 rounded-2xl hover:bg-gray-100 transition-all">
-                  <span className="font-black text-gray-900 uppercase tracking-tight">{String(report.title)}</span>
-                  <span className="text-xs font-black text-blue-600">VIEW REPORT</span>
+                <a key={`${report.id}-${idx}`} href={report.url} className="flex items-center justify-between p-6 civic-card group hover:bg-brand-primary/5 transition-all duration-300">
+                  <span className="text-lg font-black text-brand-text group-hover:text-brand-primary transition-colors font-display uppercase tracking-tight">{String(report.title)}</span>
+                  <span className="text-[10px] font-black text-brand-primary uppercase tracking-[0.2em] bg-brand-primary/10 px-4 py-2 rounded-full">VIEW REPORT</span>
                 </a>
               ))}
             </div>
           )} />} />
           <Route path="/transparency/orders" element={<ContentPage title="Executive Orders" fetchData={transparencyApi.getExecutiveOrders} renderContent={(data) => (
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-4">
               {Array.isArray(data) && data.map((order: any, idx: number) => (
-                <div key={`${order.id}-${idx}`} className="p-8 bg-white border border-gray-100 rounded-3xl shadow-sm">
-                  <p className="text-xs font-black text-blue-600 uppercase tracking-widest mb-2">{String(order.date)}</p>
-                  <h3 className="text-2xl font-black text-gray-900">{String(order.title)}</h3>
+                <div key={`${order.id}-${idx}`} className="civic-card p-8 group">
+                  <p className="text-[10px] font-black text-brand-primary uppercase tracking-[0.2em] mb-2">{String(order.date)}</p>
+                  <h3 className="text-xl font-black text-brand-text group-hover:text-brand-primary transition-colors font-display uppercase tracking-tight">{String(order.title)}</h3>
                 </div>
               ))}
             </div>
           )} />} />
           <Route path="/transparency/budget" element={<ContentPage title="Budget and Finances" fetchData={transparencyApi.getBudget} renderContent={(data) => (
             <div className="space-y-12">
-              <div className="p-8 bg-blue-600 text-white rounded-[2.5rem] shadow-2xl">
-                <h3 className="text-xl font-black uppercase tracking-widest text-blue-100 mb-4">Annual Budget</h3>
-                <p className="text-5xl font-black tracking-tighter">{String(data.annualBudget)}</p>
+              <div className="p-12 bg-brand-primary text-white rounded-[2.5rem] shadow-2xl shadow-brand-primary/30 relative overflow-hidden group">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.4em] mb-4 opacity-80">Annual Budget</h3>
+                <p className="text-6xl font-black tracking-tighter leading-none font-display uppercase">{String(data.annualBudget)}</p>
+                <span className="absolute -bottom-8 -right-8 text-9xl font-black text-white/10 select-none pointer-events-none group-hover:scale-110 transition-transform duration-700">
+                  PHP
+                </span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {Array.isArray(data.breakdown) && data.breakdown.map((item: any, idx: number) => (
-                  <div key={`${item.category}-${idx}`} className="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm">
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">{String(item.category)}</p>
-                    <p className="text-2xl font-black text-gray-900">{String(item.amount)}</p>
+                  <div key={`${item.category}-${idx}`} className="civic-card p-8 group hover:-translate-y-1">
+                    <p className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mb-2 group-hover:text-brand-primary transition-colors">{String(item.category)}</p>
+                    <p className="text-2xl font-black text-brand-text font-display uppercase">{String(item.amount)}</p>
                   </div>
                 ))}
               </div>
             </div>
           )} />} />
           <Route path="/transparency/biddings" element={<ContentPage title="Biddings" fetchData={transparencyApi.getBiddings} renderContent={(data) => (
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-4">
               {Array.isArray(data) && data.map((bid: any, idx: number) => (
-                <div key={`${bid.id}-${idx}`} className="p-8 bg-white border border-gray-100 rounded-3xl shadow-sm">
-                  <h3 className="text-2xl font-black text-gray-900 mb-4">{String(bid.title)}</h3>
-                  <p className="text-lg font-bold text-blue-600 uppercase tracking-widest">DEADLINE: {String(bid.deadline)}</p>
+                <div key={`${bid.id}-${idx}`} className="civic-card p-8 group">
+                  <h3 className="text-xl font-black text-brand-text group-hover:text-brand-primary transition-colors mb-4 font-display uppercase tracking-tight">{String(bid.title)}</h3>
+                  <p className="text-[10px] font-black text-brand-primary uppercase tracking-[0.2em] bg-brand-primary/10 px-4 py-2 rounded-full inline-block">DEADLINE: {String(bid.deadline)}</p>
                 </div>
               ))}
             </div>
@@ -369,29 +338,31 @@ export default function App() {
 
           {/* Tourism */}
           <Route path="/tourism/spots" element={<ContentPage title="Tourist Spots" fetchData={tourismApi.getSpots} renderContent={(data) => (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {Array.isArray(data) && data.map((spot: any, idx: number) => (
                 <div key={`${spot.id}-${idx}`} className="group">
-                  <div className="aspect-square bg-gray-100 rounded-[3rem] mb-8 overflow-hidden border border-gray-100 shadow-2xl shadow-blue-900/10">
-                    <img src={`https://picsum.photos/seed/spot${spot.id}/800/800`} alt={spot.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" referrerPolicy="no-referrer" />
+                  <div className="aspect-square bg-brand-surface rounded-[2.5rem] mb-6 overflow-hidden border-4 border-white shadow-2xl relative">
+                    <img src={`https://picsum.photos/seed/spot${spot.id}/800/800`} alt={spot.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" referrerPolicy="no-referrer" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </div>
-                  <h3 className="text-3xl font-black text-gray-900 mb-4 uppercase tracking-tighter">{String(spot.name)}</h3>
-                  <p className="text-lg text-gray-600 font-medium leading-relaxed">{String(spot?.description || "")}</p>
+                  <h3 className="text-2xl font-black text-brand-text mb-3 group-hover:text-brand-primary transition-colors font-display uppercase tracking-tight">{String(spot.name)}</h3>
+                  <p className="text-brand-muted text-sm font-medium leading-relaxed">{String(spot?.description || "")}</p>
                 </div>
               ))}
             </div>
           )} />} />
           <Route path="/tourism/festivities" element={<ContentPage title="Festivities" fetchData={tourismApi.getFestivities} renderContent={(data) => (
-            <div className="space-y-12">
+            <div className="space-y-16">
               {Array.isArray(data) && data.map((fest: any, idx: number) => (
-                <div key={`${fest.name}-${idx}`} className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                  <div className="aspect-square bg-gray-100 rounded-[3rem] overflow-hidden border border-gray-100 shadow-2xl">
-                    <img src={`https://picsum.photos/seed/${fest.name}/800/800`} alt={fest.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <div key={`${fest.name}-${idx}`} className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center group">
+                  <div className="aspect-square bg-brand-surface rounded-[3rem] overflow-hidden border-4 border-white shadow-2xl relative">
+                    <img src={`https://picsum.photos/seed/${fest.name}/800/800`} alt={fest.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" referrerPolicy="no-referrer" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   </div>
-                  <div>
-                    <p className="text-xs font-black text-blue-600 uppercase tracking-widest mb-4">{fest.date}</p>
-                    <h3 className="text-4xl font-black text-gray-900 mb-6">{fest.name}</h3>
-                    <p className="text-xl text-gray-700 leading-relaxed font-medium">{fest?.description}</p>
+                  <div className="space-y-6">
+                    <p className="text-[10px] font-black text-brand-primary uppercase tracking-[0.3em] bg-brand-primary/10 px-4 py-2 rounded-full inline-block">{fest.date}</p>
+                    <h3 className="text-4xl font-black text-brand-text group-hover:text-brand-primary transition-colors font-display uppercase tracking-tight leading-none">{fest.name}</h3>
+                    <p className="text-lg text-brand-muted leading-relaxed font-medium">{fest?.description}</p>
                   </div>
                 </div>
               ))}
@@ -400,12 +371,12 @@ export default function App() {
           <Route path="/tourism/delicacies" element={<ContentPage title="Local Delicacies" fetchData={tourismApi.getDelicacies} renderContent={(data) => (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {Array.isArray(data) && data.map((item: any, idx: number) => (
-                <div key={`${item.name}-${idx}`} className="p-8 bg-white border border-gray-100 rounded-[2.5rem] shadow-sm hover:shadow-xl transition-shadow">
-                  <div className="aspect-square bg-gray-50 rounded-3xl mb-6 overflow-hidden">
-                    <img src={`https://picsum.photos/seed/${item.name}/400/400`} alt={item.name} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                <div key={`${item.name}-${idx}`} className="civic-card p-8 group hover:-translate-y-2">
+                  <div className="aspect-square bg-brand-bg rounded-[2rem] mb-6 overflow-hidden border-2 border-brand-primary/5 shadow-inner">
+                    <img src={`https://picsum.photos/seed/${item.name}/400/400`} alt={item.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" referrerPolicy="no-referrer" />
                   </div>
-                  <h3 className="text-2xl font-black text-gray-900 mb-4">{item.name}</h3>
-                  <p className="text-gray-600 font-medium">{item?.description}</p>
+                  <h3 className="text-xl font-black text-brand-text mb-3 group-hover:text-brand-primary transition-colors font-display uppercase tracking-tight">{item.name}</h3>
+                  <p className="text-brand-muted text-sm font-medium leading-relaxed line-clamp-3">{item?.description}</p>
                 </div>
               ))}
             </div>
