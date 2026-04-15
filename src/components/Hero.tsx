@@ -24,7 +24,7 @@ const Hero: React.FC = () => {
       </div>
 
       {/* Minimal Content Overlay */}
-      <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6">
+      <div className="relative z-10 h-full flex flex-col justify-center items-center text-center px-6 pb-24">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}

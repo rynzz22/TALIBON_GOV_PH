@@ -3,8 +3,6 @@ import { motion, AnimatePresence } from "motion/react";
 import { MessageSquare, X, Send, Bot, User, Loader2, Sparkles } from "lucide-react";
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 export default function GeminiAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: "user" | "bot"; text: string }[]>([
@@ -29,6 +27,12 @@ export default function GeminiAssistant() {
     setIsLoading(true);
 
     try {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error("Gemini API Key is not configured.");
+      }
+
+      const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: userMessage,
@@ -46,8 +50,11 @@ export default function GeminiAssistant() {
       const botResponse = response.text || "I'm sorry, I couldn't process that request. Please try again.";
       setMessages(prev => [...prev, { role: "bot", text: botResponse }]);
     } catch (error) {
-      console.error("Gemini Error:", error);
-      setMessages(prev => [...prev, { role: "bot", text: "I'm having trouble connecting right now. Please try again later." }]);
+      console.error("Gemini Assistant Error:", error);
+      const errorMessage = error instanceof Error && error.message.includes("Key") 
+        ? "The AI assistant is currently unavailable due to a configuration issue. Please try again later."
+        : "I'm having trouble connecting right now. Please try again later.";
+      setMessages(prev => [...prev, { role: "bot", text: errorMessage }]);
     } finally {
       setIsLoading(false);
     }

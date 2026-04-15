@@ -19,9 +19,11 @@ export default function Home() {
   return (
     <main>
       <Hero />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 relative z-20">
-        <WeatherWidget />
-      </div>
+      <section className="py-12 bg-white dark:bg-dark-bg relative z-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <WeatherWidget />
+        </div>
+      </section>
       <QuickAccess />
       <About />
       <ServiceNavigator />
