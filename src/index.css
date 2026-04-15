@@ -14,7 +14,15 @@
   --color-brand-border: #F1F5F9;
   --color-brand-text: #0F172A;
   --color-brand-muted: #64748B;
+
+  --color-dark-bg: #020617;
+  --color-dark-surface: #0F172A;
+  --color-dark-border: #1E293B;
+  --color-dark-text: #F8FAFC;
+  --color-dark-muted: #94A3B8;
 }
+
+@variant dark (&:where(.dark, .dark *));
 
 @layer base {
   html {
@@ -22,7 +30,11 @@
   }
   
   body {
-    @apply bg-brand-bg text-brand-text antialiased selection:bg-brand-primary/10 selection:text-brand-primary;
+    @apply bg-brand-bg text-brand-text antialiased selection:bg-brand-primary/10 selection:text-brand-primary transition-colors duration-500;
+  }
+
+  .dark body {
+    @apply bg-dark-bg text-dark-text;
   }
 
   /* Custom Scrollbar - Minimal */
@@ -46,7 +58,7 @@
 
 @layer components {
   .minimal-card {
-    @apply bg-brand-surface rounded-[2.5rem] transition-all duration-500 hover:bg-white hover:shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)];
+    @apply bg-brand-surface rounded-[2.5rem] transition-all duration-500 hover:bg-white hover:shadow-[0_32px_64px_-12px_rgba(0,0,0,0.08)] dark:bg-dark-surface dark:hover:bg-dark-surface/80 dark:border dark:border-dark-border;
   }
   
   .minimal-button-primary {
@@ -54,19 +66,19 @@
   }
   
   .minimal-button-outline {
-    @apply px-8 py-4 border border-brand-primary/20 text-brand-primary font-bold text-xs tracking-widest rounded-2xl hover:bg-brand-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-3 uppercase;
+    @apply px-8 py-4 border border-brand-primary/20 text-brand-primary font-bold text-xs tracking-widest rounded-2xl hover:bg-brand-primary hover:text-white transition-all duration-300 flex items-center justify-center gap-3 uppercase dark:border-dark-border dark:text-dark-text dark:hover:bg-brand-primary;
   }
   
   .glass-panel {
-    @apply bg-white/85 backdrop-blur-3xl border border-white/30 shadow-2xl shadow-black/5;
+    @apply bg-white/85 backdrop-blur-3xl border border-white/30 shadow-2xl shadow-black/5 dark:bg-dark-bg/80 dark:border-dark-border;
   }
 
   .section-label {
-    @apply text-[10px] font-bold uppercase tracking-[0.4em] text-brand-primary/60 mb-6 block;
+    @apply text-[10px] font-bold uppercase tracking-[0.4em] text-brand-primary/60 mb-6 block dark:text-brand-secondary/60;
   }
 
   .section-title {
-    @apply text-4xl lg:text-6xl font-extrabold text-brand-text tracking-tight mb-8 font-display;
+    @apply text-4xl lg:text-6xl font-extrabold text-brand-text tracking-tight mb-8 font-display dark:text-dark-text;
   }
 }
 

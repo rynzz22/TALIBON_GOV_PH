@@ -31,10 +31,12 @@ const Hero: React.FC = () => {
           transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
           className="max-w-5xl"
         >
-          <div className="flex items-center justify-center gap-4 mb-12">
-            <div className="w-12 h-[1px] bg-white/30" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-white/60">The Seafood Capital of Bohol</span>
-            <div className="w-12 h-[1px] bg-white/30" />
+          <div className="flex flex-col items-center justify-center gap-4 mb-12">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-[1px] bg-white/30" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.5em] text-brand-secondary">Abante Talibon!</span>
+              <div className="w-12 h-[1px] bg-white/30" />
+            </div>
           </div>
 
           <h1 className="text-7xl md:text-9xl font-extrabold text-white leading-[0.9] tracking-tighter mb-12 font-display">
@@ -64,6 +66,11 @@ const Hero: React.FC = () => {
             </Link>
           </div>
         </motion.div>
+      </div>
+
+      {/* Background Text - Embossment */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[30vw] font-black text-white/[0.03] select-none pointer-events-none leading-none font-display tracking-tighter">
+        TALIBON
       </div>
 
       {/* Scroll Indicator */}

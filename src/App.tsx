@@ -21,6 +21,7 @@ import NewsCategoryPage from "./pages/NewsCategoryPage";
 import NewsDetailPage from "./pages/NewsDetailPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import Footer from "./components/Footer";
+import GeminiAssistant from "./components/GeminiAssistant";
 import { aboutApi, executiveApi, legislativeApi, newsApi, transparencyApi, tourismApi, formsApi } from "./services/api";
 import { FirebaseProvider } from "./contexts/AuthContext";
 import { Eye, Target, Quote } from "lucide-react";
@@ -389,6 +390,7 @@ export default function App() {
         </Routes>
         </div>
         <Footer />
+        <GeminiAssistant />
       </div>
       </Router>
     </FirebaseProvider>

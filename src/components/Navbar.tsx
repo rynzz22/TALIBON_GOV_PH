@@ -1,23 +1,32 @@
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "motion/react";
 import { Menu, X, Globe, ChevronDown, ArrowUpRight, Phone, Mail, MapPin } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
 import { db, handleFirestoreError, OperationType } from "../firebase";
 import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const [dynamicNavLinks, setDynamicNavLinks] = useState<any[]>([]);
   const location = useLocation();
+  
+  const { scrollY } = useScroll();
+  const [hidden, setHidden] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setIsScrolled(latest > 50);
+    const previous = scrollY.getPrevious() ?? 0;
+    if (latest > previous && latest > 150) {
+      setHidden(true);
+    } else {
+      setHidden(false);
+    }
+  });
 
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", handleScroll);
-    
     const q = query(collection(db, 'navigation'), orderBy('order', 'asc'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setDynamicNavLinks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
@@ -26,7 +35,6 @@ export default function Navbar() {
     });
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
       unsubscribe();
     };
   }, []);
@@ -143,27 +151,46 @@ export default function Navbar() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50">
+    <motion.header 
+      variants={{
+        visible: { y: 0, opacity: 1 },
+        hidden: { y: -100, opacity: 0 },
+      }}
+      animate={hidden ? "hidden" : "visible"}
+      transition={{ duration: 0.35, ease: "easeInOut" }}
+      className="fixed top-0 left-0 right-0 z-50 pointer-events-none"
+    >
       {/* Top Bar */}
-      <div className="bg-brand-primary text-white py-2 hidden md:block">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center text-[10px] font-bold tracking-widest uppercase">
-          <div className="flex items-center gap-6">
-            <span className="flex items-center gap-2"><Globe size={12} className="text-brand-accent" /> Republic of the Philippines</span>
-            <span className="flex items-center gap-2"><MapPin size={12} className="text-brand-accent" /> Talibon, Bohol</span>
-          </div>
-          <div className="flex items-center gap-6">
-            <a href="tel:0384222895" className="hover:text-brand-accent transition-colors flex items-center gap-2"><Phone size={12} className="text-brand-accent" /> (038) 422-2895</a>
-            <a href="mailto:talibonofficial@gmail.com" className="hover:text-brand-accent transition-colors flex items-center gap-2"><Mail size={12} className="text-brand-accent" /> talibonofficial@gmail.com</a>
-          </div>
-        </div>
-      </div>
+      <AnimatePresence>
+        {!isScrolled && (
+          <motion.div 
+            initial={{ height: "auto", opacity: 1 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="bg-brand-primary text-white py-2 hidden md:block pointer-events-auto overflow-hidden"
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center text-[10px] font-bold tracking-widest uppercase">
+              <div className="flex items-center gap-6">
+                <span className="flex items-center gap-2"><Globe size={12} className="text-brand-accent" /> Republic of the Philippines</span>
+                <span className="flex items-center gap-2"><MapPin size={12} className="text-brand-accent" /> Talibon, Bohol</span>
+              </div>
+              <div className="flex items-center gap-6">
+                <a href="tel:0384222895" className="hover:text-brand-accent transition-colors flex items-center gap-2"><Phone size={12} className="text-brand-accent" /> (038) 422-2895</a>
+                <a href="mailto:talibonofficial@gmail.com" className="hover:text-brand-accent transition-colors flex items-center gap-2"><Mail size={12} className="text-brand-accent" /> talibonofficial@gmail.com</a>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main Navigation */}
-      <nav className="flex justify-center px-4 pt-6">
-        <motion.div 
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className={`w-full max-w-7xl px-6 h-20 glass-panel rounded-[2rem] flex justify-between items-center transition-all duration-500 ${isScrolled ? 'h-16 mt-2' : ''}`}
+      <nav className={`flex justify-center px-4 transition-all duration-500 pointer-events-auto ${isScrolled ? 'pt-2' : 'pt-6'}`}>
+        <div 
+          className={`w-full max-w-7xl px-6 flex justify-between items-center transition-all duration-500 ${
+            isScrolled 
+              ? 'h-16 glass-panel rounded-2xl shadow-xl bg-white/95 dark:bg-dark-surface/95' 
+              : 'h-20 glass-panel rounded-[2rem]'
+          }`}
         >
           {/* Logo & Branding */}
           <Link 
@@ -244,8 +271,30 @@ export default function Navbar() {
             ))}
           </div>
 
+          {/* Desktop Actions */}
+          <div className="hidden lg:flex items-center gap-4">
+            <ThemeToggle />
+            <a 
+              href="https://talibon-citizen-stg.multisyscorp.io/e-services"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-2.5 bg-brand-primary text-white text-[10px] font-bold tracking-widest rounded-full hover:bg-brand-accent transition-all duration-300 uppercase shadow-lg shadow-brand-primary/20 flex items-center gap-2"
+            >
+              Pay Online <ArrowUpRight size={14} />
+            </a>
+          </div>
+
           {/* Mobile Actions */}
           <div className="lg:hidden flex items-center gap-3">
+            <ThemeToggle />
+            <a 
+              href="https://talibon-citizen-stg.multisyscorp.io/e-services"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-brand-primary text-white text-[8px] font-bold tracking-widest rounded-full hover:bg-brand-accent transition-all duration-300 uppercase shadow-lg shadow-brand-primary/20"
+            >
+              Pay Online
+            </a>
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="text-brand-primary p-2 rounded-2xl bg-brand-primary/5 hover:bg-brand-primary/10 transition-colors"
@@ -253,7 +302,7 @@ export default function Navbar() {
               {isOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
-        </motion.div>
+        </div>
       </nav>
 
       {/* Mobile Menu Overlay */}
@@ -348,8 +397,7 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </motion.header>
   );
-
 }
 

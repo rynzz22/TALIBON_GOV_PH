@@ -41,7 +41,7 @@ export default function Footer() {
             </p>
             <div className="flex gap-4">
               {[Facebook, Twitter, Instagram].map((Icon, i) => (
-                <a key={i} href="#" className="w-10 h-10 rounded-2xl bg-brand-surface border border-brand-border flex items-center justify-center hover:bg-brand-primary hover:text-white transition-all">
+                <a key={i} href="#" className="w-10 h-10 rounded-full bg-brand-surface border border-brand-border flex items-center justify-center hover:bg-brand-primary hover:text-white transition-all text-brand-primary">
                   <Icon size={18} />
                 </a>
               ))}
@@ -50,31 +50,31 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <span className="text-[10px] font-bold tracking-[0.4em] uppercase mb-8 block text-brand-primary/60">Contact Us</span>
+            <span className="text-[10px] font-bold tracking-[0.4em] uppercase mb-8 block text-brand-primary">Contact Us</span>
             <div className="space-y-6">
               <div className="flex items-start gap-4">
                 <MapPin size={18} className="text-brand-primary mt-1" />
-                <p className="text-sm font-medium text-brand-text">Municipal Hall, Poblacion, Talibon, Bohol, 6325</p>
+                <p className="text-sm font-medium text-brand-text leading-relaxed">Municipal Hall, Poblacion, Talibon, Bohol, 6325</p>
               </div>
               <div className="flex items-center gap-4">
                 <Phone size={18} className="text-brand-primary" />
-                <p className="text-sm font-medium text-brand-text">(038) 422-2895</p>
+                <p className="text-sm font-medium text-brand-text leading-relaxed">(038) 422-2895</p>
               </div>
               <div className="flex items-center gap-4">
                 <Mail size={18} className="text-brand-primary" />
-                <p className="text-sm font-medium text-brand-text">talibonofficial@gmail.com</p>
+                <p className="text-sm font-medium text-brand-text leading-relaxed">talibonofficial@gmail.com</p>
               </div>
             </div>
           </div>
 
           {/* Hotlines */}
           <div>
-            <span className="text-[10px] font-bold tracking-[0.4em] uppercase mb-8 block text-brand-primary/60">Emergency</span>
+            <span className="text-[10px] font-bold tracking-[0.4em] uppercase mb-8 block text-brand-primary">Emergency</span>
             <div className="space-y-4">
               {hotlines.map((hotline, i) => (
                 <div key={i} className="flex justify-between items-center group">
-                  <span className="text-xs font-bold text-brand-muted group-hover:text-brand-text transition-colors uppercase">{hotline.name}</span>
-                  <span className="text-xs font-bold text-brand-accent">{hotline.number}</span>
+                  <span className="text-xs font-bold text-brand-muted group-hover:text-brand-text transition-colors uppercase tracking-widest">{hotline.name}</span>
+                  <span className="text-xs font-bold text-brand-accent tracking-widest">{hotline.number}</span>
                 </div>
               ))}
             </div>
@@ -82,7 +82,7 @@ export default function Footer() {
 
           {/* Gov Links */}
           <div>
-            <span className="text-[10px] font-bold tracking-[0.4em] uppercase mb-8 block text-brand-primary/60">Government</span>
+            <span className="text-[10px] font-bold tracking-[0.4em] uppercase mb-8 block text-brand-primary">Government</span>
             <div className="space-y-4">
               {govLinks.map((link, i) => (
                 <a key={i} href={link.href} className="flex items-center gap-2 text-xs font-bold text-brand-muted hover:text-brand-primary transition-colors uppercase tracking-widest group">
@@ -111,8 +111,8 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* Background Text */}
-      <div className="absolute bottom-0 right-0 text-[20rem] font-extrabold text-brand-primary/5 select-none pointer-events-none translate-y-1/2 translate-x-1/4 font-display">
+      {/* Background Text - Embossment */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[25vw] font-black text-brand-primary/[0.02] select-none pointer-events-none leading-none font-display tracking-tighter">
         TALIBON
       </div>
     </footer>
