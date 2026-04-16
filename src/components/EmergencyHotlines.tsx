@@ -39,6 +39,10 @@ export default function EmergencyHotlines() {
 
   return (
     <section id="emergency" className="py-32 bg-brand-text relative overflow-hidden">
+      {/* Background Text - Embossment */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[20vw] font-black text-white/[0.02] select-none pointer-events-none leading-none font-display tracking-tighter uppercase whitespace-nowrap">
+        TALIBON
+      </div>
       {/* Decorative background elements */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-brand-accent/10 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/2" />
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-brand-primary/10 rounded-full blur-[120px] translate-y-1/2 -translate-x-1/2" />

@@ -42,9 +42,14 @@ export default function Location() {
             </div>
 
             <div className="pt-8">
-              <button className="minimal-button-primary inline-flex">
+              <a 
+                href="https://www.google.com/maps/place/Talibon,+Bohol" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="minimal-button-primary inline-flex items-center gap-2"
+              >
                 Find GPS Coordinates <Navigation size={18} />
-              </button>
+              </a>
             </div>
           </motion.div>
 
@@ -54,18 +59,18 @@ export default function Location() {
             viewport={{ once: true }}
             className="relative"
           >
-            <div className="aspect-square rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white">
-              <img 
-                src="https://picsum.photos/seed/talibon-map/800/800" 
-                alt="Talibon Map" 
-                className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
+            <div className="aspect-square rounded-[3rem] overflow-hidden shadow-2xl border-4 border-white dark:border-dark-border bg-brand-surface dark:bg-dark-surface">
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15707.382483838237!2d124.321852028686!3d10.152377484462102!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3307cc27f5e8e8e9%3A0x63359784347716cc!2sTalibon%2C%20Bohol!5e0!3m2!1sen!2sph!4v1713290000000!5m2!1sen!2sph" 
+                width="100%" 
+                height="100%" 
+                style={{ border: 0 }} 
+                allowFullScreen={true} 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Google Maps - Talibon, Bohol"
+                className="brightness-90 dark:invert-[0.9] dark:hue-rotate-180"
               />
-            </div>
-            {/* Minimal Marker */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-              <div className="w-8 h-8 bg-brand-primary rounded-full animate-ping opacity-20" />
-              <div className="absolute top-0 left-0 w-8 h-8 bg-brand-primary rounded-full border-4 border-white shadow-xl" />
             </div>
           </motion.div>
         </div>

@@ -167,9 +167,13 @@ export default function Navbar() {
             initial={{ height: "auto", opacity: 1 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="bg-brand-primary text-white py-2 hidden md:block pointer-events-auto overflow-hidden"
+            className="bg-brand-primary text-white py-2 hidden md:block pointer-events-auto overflow-hidden relative"
           >
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center text-[10px] font-bold tracking-widest uppercase">
+            {/* Background Text - Embossment */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-[0.05] pointer-events-none select-none text-2xl font-black tracking-[1em] uppercase">
+              TALIBON
+            </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center text-[10px] font-bold tracking-widest uppercase relative z-10">
               <div className="flex items-center gap-6">
                 <span className="flex items-center gap-2"><Globe size={12} className="text-brand-accent" /> Republic of the Philippines</span>
                 <span className="flex items-center gap-2"><MapPin size={12} className="text-brand-accent" /> Talibon, Bohol</span>
@@ -188,7 +192,7 @@ export default function Navbar() {
         <div 
           className={`w-full max-w-7xl px-6 flex justify-between items-center transition-all duration-500 ${
             isScrolled 
-              ? 'h-16 glass-panel rounded-2xl shadow-xl bg-white/95 dark:bg-dark-surface/95' 
+              ? 'h-16 glass-panel rounded-2xl shadow-xl bg-white/80 dark:bg-dark-surface/80' 
               : 'h-20 glass-panel rounded-[2rem]'
           }`}
         >
@@ -207,8 +211,8 @@ export default function Navbar() {
               />
             </div>
             <div className="hidden sm:block">
-              <h1 className="text-lg font-extrabold text-brand-primary leading-none tracking-tight group-hover:text-brand-accent transition-colors font-display">TALIBON</h1>
-              <p className="text-[8px] font-bold text-brand-muted tracking-[0.2em] leading-none mt-0.5 uppercase">Municipal Government</p>
+              <h1 className="text-xl font-black text-brand-primary leading-none tracking-tighter group-hover:text-brand-accent transition-colors font-display">TALIBON</h1>
+              <p className="text-[7px] font-black text-brand-muted tracking-[0.3em] leading-none mt-1 uppercase">Municipal Government</p>
             </div>
           </Link>
 
@@ -223,7 +227,7 @@ export default function Navbar() {
               >
                 {link.subLinks ? (
                   <button
-                    className={`px-4 py-2 text-xs font-bold tracking-widest transition-all flex items-center gap-1 rounded-full ${
+                    className={`px-4 py-2 text-[10px] font-extrabold tracking-[0.2em] transition-all flex items-center gap-1 rounded-full font-display ${
                       activeDropdown === link.name ? 'text-brand-primary bg-brand-primary/5' : 'text-brand-text hover:text-brand-primary hover:bg-brand-primary/5'
                     }`}
                   >
@@ -233,7 +237,7 @@ export default function Navbar() {
                 ) : (
                   <Link
                     to={link.href}
-                    className="px-4 py-2 text-xs font-bold tracking-widest text-brand-text hover:text-brand-primary hover:bg-brand-primary/5 rounded-full transition-all"
+                    className="px-4 py-2 text-[10px] font-extrabold tracking-[0.2em] text-brand-text hover:text-brand-primary hover:bg-brand-primary/5 rounded-full transition-all font-display"
                   >
                     {link.name}
                   </Link>
