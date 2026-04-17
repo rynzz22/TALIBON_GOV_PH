@@ -10,6 +10,7 @@ import {
   Mic, Globe
 } from 'lucide-react';
 import MeetingAssistant from '../components/MeetingAssistant';
+import FileUpload from '../components/FileUpload';
 import { 
   collection, addDoc, updateDoc, deleteDoc, doc, 
   getDocs, query, orderBy, Timestamp, onSnapshot 
@@ -561,26 +562,21 @@ const AdminDashboard: React.FC = () => {
                         />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Image URL</label>
-                      <input 
-                        type="url" 
-                        value={newsForm.imageUrl}
-                        onChange={e => setNewsForm({...newsForm, imageUrl: e.target.value})}
-                        className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" 
-                      />
-                    </div>
+                    <FileUpload 
+                      label="Feature Image"
+                      accept="image/*"
+                      folder="news/images"
+                      currentValue={newsForm.imageUrl}
+                      onUploadComplete={(url) => setNewsForm({...newsForm, imageUrl: url})}
+                    />
                     {newsForm.category === 'FORM' && (
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">File URL (Download link for forms)</label>
-                        <input 
-                          type="url" 
-                          required
-                          value={newsForm.fileUrl}
-                          onChange={e => setNewsForm({...newsForm, fileUrl: e.target.value})}
-                          className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" 
-                        />
-                      </div>
+                      <FileUpload 
+                        label="Downloadable Form (PDF/DOC)"
+                        accept=".pdf,.doc,.docx"
+                        folder="news/forms"
+                        currentValue={newsForm.fileUrl}
+                        onUploadComplete={(url) => setNewsForm({...newsForm, fileUrl: url})}
+                      />
                     )}
                     <div className="space-y-2">
                       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Summary (Short description for home page)</label>
@@ -653,15 +649,13 @@ const AdminDashboard: React.FC = () => {
                         className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" 
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">File URL (PDF)</label>
-                      <input 
-                        type="url" 
-                        value={resForm.fileUrl}
-                        onChange={e => setResForm({...resForm, fileUrl: e.target.value})}
-                        className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" 
-                      />
-                    </div>
+                    <FileUpload 
+                      label="Official Resolution Document (PDF)"
+                      accept=".pdf"
+                      folder="resolutions"
+                      currentValue={resForm.fileUrl}
+                      onUploadComplete={(url) => setResForm({...resForm, fileUrl: url})}
+                    />
                     <button type="submit" className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-3">
                       <Save size={18} />
                       {editingId ? 'UPDATE' : 'SAVE'} RESOLUTION
@@ -702,16 +696,13 @@ const AdminDashboard: React.FC = () => {
                         />
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">File URL (PDF)</label>
-                      <input 
-                        type="url" 
-                        required
-                        value={ordForm.fileUrl}
-                        onChange={e => setOrdForm({...ordForm, fileUrl: e.target.value})}
-                        className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" 
-                      />
-                    </div>
+                    <FileUpload 
+                      label="Full Ordinance Document (PDF)"
+                      accept=".pdf"
+                      folder="ordinances"
+                      currentValue={ordForm.fileUrl}
+                      onUploadComplete={(url) => setOrdForm({...ordForm, fileUrl: url})}
+                    />
                     <button type="submit" className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-3">
                       <Save size={18} />
                       {editingId ? 'UPDATE' : 'SAVE'} ORDINANCE

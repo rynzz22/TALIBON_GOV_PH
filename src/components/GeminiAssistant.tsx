@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { MessageSquare, X, Send, Bot, User, Loader2, Sparkles } from "lucide-react";
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI, Type, FunctionDeclaration } from "@google/genai";
+import { citizenCharterData, CharterService } from "../lib/citizenCharterData";
 
 export default function GeminiAssistant() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +19,40 @@ export default function GeminiAssistant() {
     }
   }, [messages]);
 
+  const getCitizenCharterRequirement: FunctionDeclaration = {
+    name: "getCitizenCharterRequirement",
+    description: "Retrieves the requirements, processing time, and office for a specific government service in Talibon.",
+    parameters: {
+      type: Type.OBJECT,
+      properties: {
+        serviceName: {
+          type: Type.STRING,
+          description: "The name of the service (e.g., 'Business Permit', 'Building Permit', 'Mayor's Clearance').",
+          enum: Object.keys(citizenCharterData)
+        }
+      },
+      required: ["serviceName"]
+    }
+  };
+
+  const handleFunctionCall = (name: string, args: any) => {
+    if (name === "getCitizenCharterRequirement") {
+      const service = args.serviceName as CharterService;
+      const data = citizenCharterData[service];
+      if (data) {
+        return {
+          service: service,
+          requirements: data.requirements,
+          processingTime: data.processingTime,
+          office: data.office,
+          status: "success"
+        };
+      }
+      return { status: "not_found", message: "Service not found in the Digital Citizen's Charter." };
+    }
+    return null;
+  };
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -33,21 +68,62 @@ export default function GeminiAssistant() {
       }
 
       const ai = new GoogleGenAI({ apiKey });
-      const response = await ai.models.generateContent({
+      
+      const contents = [
+        ...messages.map(m => ({
+          role: m.role === "user" ? "user" : "model",
+          parts: [{ text: m.text }]
+        })),
+        { role: "user", parts: [{ text: userMessage }] }
+      ];
+
+      // Initial request with tools
+      const firstResponse = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: userMessage,
+        contents: contents,
         config: {
           systemInstruction: `You are the official digital assistant for the Municipality of Talibon, Bohol, Philippines. 
           Your goal is to provide accurate, helpful, and polite information about the LGU's services, tourism, and history.
-          Keep your responses concise and professional. Use "Mabuhay!" as a greeting.
-          If you don't know something specific about a local ordinance not in your training, advise the user to contact the relevant department or visit the Municipal Hall.
+          Use "Mabuhay!" as a greeting.
           Talibon is the "Seafood Capital of Bohol".
-          The current Mayor is Hon. Michael I. Doria.
-          Key services include e-BOSS (Business One-Stop Shop), e-Permits, and e-Clearance.`,
+          The current Mayor is Hon. Janette A. Garcia.
+          You have access to the Digital Citizen's Charter and Google Search.
+          ALWAYS use the getCitizenCharterRequirement tool when asked about specific requirements for local permits or clearances.
+          Use Google Search for real-time weather, sea conditions, or ongoing regional events in Bohol.`,
+          tools: [
+            { googleSearch: {} },
+            { functionDeclarations: [getCitizenCharterRequirement] }
+          ],
+          toolConfig: { includeServerSideToolInvocations: true }
         }
       });
 
-      const botResponse = response.text || "I'm sorry, I couldn't process that request. Please try again.";
+      let finalBotText = firstResponse.text;
+
+      // Check if the model called a function
+      const functionCalls = firstResponse.functionCalls;
+      if (functionCalls && functionCalls.length > 0) {
+        const functionCall = functionCalls[0];
+        const toolResult = handleFunctionCall(functionCall.name, functionCall.args);
+        
+        if (toolResult) {
+          // Second call to incorporate tool results
+          const secondResponse = await ai.models.generateContent({
+            model: "gemini-3-flash-preview",
+            contents: [
+              ...contents,
+              { role: "model", parts: [{ functionCall: functionCall }] },
+              { role: "user", parts: [{ functionResponse: { name: functionCall.name, response: toolResult } }] }
+            ],
+            config: {
+              systemInstruction: `Explain the requirements clearly based on the tool result provided.`,
+            }
+          });
+          finalBotText = secondResponse.text;
+        }
+      }
+
+      const botResponse = finalBotText || "I'm sorry, I couldn't process that request. Please try again.";
       setMessages(prev => [...prev, { role: "bot", text: botResponse }]);
     } catch (error) {
       console.error("Gemini Assistant Error:", error);

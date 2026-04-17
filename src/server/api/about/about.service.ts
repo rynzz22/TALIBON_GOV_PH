@@ -84,6 +84,16 @@ Agriculture and Fishery Modernization Plan 2024-2028. (n.d.). Local Government U
 Business Permit Listing Database (as of 19 August 2024). (n.d.). Local Government Unit of Talibon – Municipal Treasurer’s Office.
 
 Cities and Municipalities Competitiveness Index (CMCI) 2024. (n.d.). Department of Trade and Industry. Retrieved August 27, 2024, from https://cmci.dti.gov.ph/rankings-data.php?unit=1st%20to%202nd%20Class%20Municipalities`,
+      timeline: [
+        { year: "1733", title: "Founding", description: "Talibon became a separate municipality from Inabanga, with Nicolas Calagan elected as its first mayor." },
+        { year: "1854", title: "Official Recognition", description: "The municipality was officially recognized under the Spanish colonial regime." },
+        { year: "1912", title: "American Occupation", description: "Transitioned to Municipal Presidents under the American Insular Government." },
+        { year: "1942", title: "Japanese Occupation", description: "Japanese soldiers invaded Talibon on April 13, 1942. Atty. Maximino C. Boiser, Sr. served as mayor during this period." },
+        { year: "1946", title: "Postwar Era", description: "Reconstruction and transition to Municipal Mayors under the new Philippine Republic." },
+        { year: "1972", title: "Martial Law", description: "Vidal V. Crescencio, Sr. served as mayor during the onset of the Martial Law period." },
+        { year: "2019", title: "Modern Era", description: "Hon. Janette A. Garcia was elected, focusing on modernization and government efficiency." },
+        { year: "2024", title: "Competitiveness", description: "Talibon secured the 17th position among municipalities in the CMCI 2024 by DTI." }
+      ]
     };
   }
 
@@ -191,6 +201,9 @@ Cities and Municipalities Competitiveness Index (CMCI) 2024. (n.d.). Department 
         type: "Development Office",
         description: "Supports farmers through agricultural programs, modernization, and food security projects.",
         logoUrl: "http://talibon.gov.ph/wp-content/uploads/2025/10/1.png",
+        head: "Engr. Melchor B. Evangelista",
+        contact: "+63 38 515 9011",
+        serviceLink: "/forms/business"
       },
       {
         name: "City Treasurer's Office",
@@ -198,76 +211,19 @@ Cities and Municipalities Competitiveness Index (CMCI) 2024. (n.d.). Department 
         type: "Financial Office",
         description: "Manages the city’s financial resources, including revenue collection and disbursements.",
         logoUrl: "http://talibon.gov.ph/wp-content/uploads/2025/10/10.png",
+        head: "Maria Elena C. Garcia",
+        contact: "+63 38 515 9012",
+        serviceLink: "/transparency/finance"
       },
       {
-        name: "City Planning & Development Office",
+        name: "City Planning & Development",
         officialName: "Municipal Planning And Development Office",
         type: "Planning Office",
         description: "Formulates development plans and land-use policies for sustainable city growth.",
         logoUrl: "http://talibon.gov.ph/wp-content/uploads/2025/10/7.png",
-      },
-      {
-        name: "Accounting Office",
-        officialName: "Municipal Accounting Office",
-        type: "Finance",
-        description: "Maintains accurate financial records and ensures accountability in public funds.",
-        logoUrl: "http://talibon.gov.ph/wp-content/uploads/2025/10/3.png",
-      },
-      {
-        name: "Economic Enterprise Office",
-        officialName: "Municipal Economic Development & Investment Promotions Office",
-        type: "Development",
-        description: "Oversees city-run enterprises and ensures sustainable business operations.",
-        logoUrl: "http://talibon.gov.ph/wp-content/uploads/2025/10/3.png",
-      },
-      {
-        name: "Public Employment Service Office",
-        officialName: "Municipal Public Employment Office",
-        type: "Labor Office",
-        description: "Provides employment assistance, job matching, and training opportunities for residents.",
-        logoUrl: "http://talibon.gov.ph/wp-content/uploads/2025/10/5.png",
-      },
-      {
-        name: "Social Welfare",
-        officialName: "Municipal Social Welfare And Development Office",
-        type: "Community Support",
-        description: "Provides assistance and welfare programs for disadvantaged individuals and families.",
-        logoUrl: "http://talibon.gov.ph/wp-content/uploads/2025/10/8.png",
-      },
-      {
-        name: "Market Administration",
-        officialName: "Municipal Market Administration Office",
-        type: "Community Support",
-        description: "Oversees the management, maintenance, and development of the municipal market to ensure organized and efficient services for vendors and consumers.",
-        logoUrl: "http://talibon.gov.ph/wp-content/uploads/2025/10/6.png",
-      },
-      {
-        name: "Traffic Management",
-        officialName: "Talibon Traffic Management Unit",
-        type: "Community Support",
-        description: "Responsible for regulating traffic flow, enforcing road safety policies, and ensuring orderly transportation within the municipality.",
-        logoUrl: "http://talibon.gov.ph/wp-content/uploads/2025/10/9.png",
-      },
-      {
-        name: "Internal Auditing",
-        officialName: "Municipal Internal Auditing Unit",
-        type: "Finance",
-        description: "Conducts internal audits to ensure compliance with regulations and maintains transparency and accountability in municipal operations.",
-        logoUrl: "http://talibon.gov.ph/wp-content/uploads/2025/10/4.png",
-      },
-      {
-        name: "General Services Office (GSO)",
-        officialName: "Municipal General Services Office",
-        type: "Administrative",
-        description: "Manages municipal properties, procurement, and general maintenance services.",
-        logoUrl: "https://talibon.gov.ph/wp-content/uploads/2022/01/General-Services.png",
-      },
-      {
-        name: "Human Resource Management Office (HRMO)",
-        officialName: "Municipal Human Resource Management Office",
-        type: "Administrative",
-        description: "Handles personnel management, recruitment, and employee welfare programs.",
-        logoUrl: "https://talibon.gov.ph/wp-content/uploads/2022/01/HRMO.png",
+        head: "Arch. Jose S. Mumar Jr.",
+        contact: "+63 38 515 9013",
+        serviceLink: "/transparency/infrastructure"
       },
       {
         name: "Local Civil Registrar (LCR)",
@@ -275,20 +231,9 @@ Cities and Municipalities Competitiveness Index (CMCI) 2024. (n.d.). Department 
         type: "Administrative",
         description: "Responsible for the registration of vital events like births, marriages, and deaths.",
         logoUrl: "https://talibon.gov.ph/wp-content/uploads/2022/01/LCR.png",
-      },
-      {
-        name: "Assessor's Office",
-        officialName: "Municipal Assessor's Office",
-        type: "Financial",
-        description: "Manages real property assessments and tax mapping for the municipality.",
-        logoUrl: "https://talibon.gov.ph/wp-content/uploads/2022/01/Assessor.png",
-      },
-      {
-        name: "Budget Office",
-        officialName: "Municipal Budget Office",
-        type: "Finance",
-        description: "Oversees the preparation and execution of the municipal budget.",
-        logoUrl: "https://talibon.gov.ph/wp-content/uploads/2022/01/Budget-Office.png",
+        head: "Atty. Felicisimo A. Tabigue",
+        contact: "+63 38 515 9014",
+        serviceLink: "/transparency/charter"
       },
       {
         name: "Engineering Office",
@@ -296,6 +241,9 @@ Cities and Municipalities Competitiveness Index (CMCI) 2024. (n.d.). Department 
         type: "Infrastructure",
         description: "Plans and supervises public infrastructure projects and building permits.",
         logoUrl: "https://talibon.gov.ph/wp-content/uploads/2022/01/Engineering-Office.png",
+        head: "Engr. Restituto B. Auxtero",
+        contact: "+63 38 515 9015",
+        serviceLink: "/forms/building"
       },
       {
         name: "Health Office",
@@ -303,28 +251,10 @@ Cities and Municipalities Competitiveness Index (CMCI) 2024. (n.d.). Department 
         type: "Health",
         description: "Provides primary healthcare services and implements public health programs.",
         logoUrl: "https://talibon.gov.ph/wp-content/uploads/2022/01/Health-Office.png",
-      },
-      {
-        name: "Disaster Risk Reduction & Management Office (DRRMO)",
-        officialName: "Municipal Disaster Risk Reduction And Management Office",
-        type: "Emergency",
-        description: "Coordinates disaster preparedness, response, and recovery efforts.",
-        logoUrl: "https://talibon.gov.ph/wp-content/uploads/2022/01/DRRMO.png",
-      },
-      {
-        name: "Information Technology Office (ITO)",
-        officialName: "Municipal Information Technology Office",
-        type: "Technical",
-        description: "Manages the municipality's IT infrastructure and digital services.",
-        logoUrl: "https://talibon.gov.ph/wp-content/uploads/2022/01/ITO.png",
-      },
-      {
-        name: "Tourism Office",
-        officialName: "Municipal Tourism Office",
-        type: "Tourism",
-        description: "Promotes local tourist destinations and preserves cultural heritage.",
-        logoUrl: "https://talibon.gov.ph/wp-content/uploads/2022/01/Tourism-Office.png",
-      },
+        head: "Dr. Janette A. Garcia",
+        contact: "+63 38 515 9016",
+        serviceLink: "/about/services"
+      }
     ];
   }
 

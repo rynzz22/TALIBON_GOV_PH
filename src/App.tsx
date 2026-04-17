@@ -24,7 +24,7 @@ import Footer from "./components/Footer";
 import GeminiAssistant from "./components/GeminiAssistant";
 import { aboutApi, executiveApi, legislativeApi, newsApi, transparencyApi, tourismApi, formsApi } from "./services/api";
 import { FirebaseProvider } from "./contexts/AuthContext";
-import { Eye, Target, Quote } from "lucide-react";
+import { Eye, Target, Quote, User, Phone, ExternalLink, Clock, Building2 } from "lucide-react";
 
 export default function App() {
   return (
@@ -45,7 +45,51 @@ export default function App() {
           {/* About Talibon */}
           <Route path="/about/profile" element={<ContentPage title="Brief Profile" fetchData={aboutApi.getProfile} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium whitespace-pre-line">{data.content}</p>} />} />
           <Route path="/about/seal" element={<OfficialSealPage />} />
-          <Route path="/about/history" element={<ContentPage title="Brief History" fetchData={aboutApi.getHistory} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium whitespace-pre-line">{data.content}</p>} />} />
+          <Route path="/about/history" element={<ContentPage title="Brief History" fetchData={aboutApi.getHistory} renderContent={(data) => (
+            <div className="space-y-12">
+              <p className="text-lg text-brand-muted leading-relaxed font-medium whitespace-pre-line bg-brand-primary/5 p-8 rounded-2xl border-l-4 border-brand-primary mb-16">{data.content}</p>
+              
+              <div className="relative max-w-4xl mx-auto pl-8 md:pl-0">
+                {/* Timeline Line */}
+                <div className="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-brand-border md:-translate-x-1/2" />
+                
+                <div className="space-y-24">
+                  {data.timeline?.map((event: any, idx: number) => (
+                    <motion.div 
+                      key={idx}
+                      initial={{ opacity: 0, y: 50 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, margin: "-100px" }}
+                      transition={{ duration: 0.8, delay: idx * 0.1 }}
+                      className={`relative flex flex-col md:flex-row items-center gap-8 ${idx % 2 === 0 ? 'md:flex-row-reverse' : ''}`}
+                    >
+                      {/* Timeline Dot */}
+                      <div className="absolute left-0 md:left-1/2 top-2 md:top-1/2 md:-translate-y-1/2 md:-translate-x-1/2 w-4 h-4 rounded-full bg-brand-primary border-4 border-white shadow-lg z-10" />
+                      
+                      <div className="w-full md:w-1/2 text-right">
+                        <div className={`space-y-2 ${idx % 2 === 0 ? 'md:text-left' : 'md:text-right'} pl-8 md:pl-0`}>
+                          <span className="text-4xl font-black text-brand-primary/20 font-display italic tracking-tighter">
+                            {event.year}
+                          </span>
+                          <h3 className="text-2xl font-black text-brand-text uppercase tracking-tight leading-none group-hover:text-brand-primary transition-colors">
+                            {event.title}
+                          </h3>
+                        </div>
+                      </div>
+                      
+                      <div className="w-full md:w-1/2">
+                        <div className="p-6 bg-white border border-brand-border rounded-2xl shadow-sm hover:shadow-md transition-all group">
+                          <p className="text-sm text-brand-muted leading-relaxed font-medium">
+                            {event.description}
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )} />} />
           <Route path="/about/mayors" element={<ContentPage title="List of Mayors" fetchData={aboutApi.getMayors} renderContent={(data) => (
             <div className="space-y-12">
               {Array.isArray(data) && data.length > 0 ? (
@@ -94,42 +138,87 @@ export default function App() {
             </div>
           )} />} />
           <Route path="/about/departments" element={<ContentPage title="Departments" fetchData={aboutApi.getDepartments} renderContent={(data) => (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {Array.isArray(data) && data.length > 0 ? (
-                data.map((dept: any, idx: number) => (
-                  <motion.div 
-                    key={`${dept.name}-${idx}`} 
-                    className="civic-card p-8 group"
-                  >
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="flex items-center gap-4">
+            <div className="space-y-12">
+              {/* Technical Header */}
+              <div className="grid grid-cols-12 gap-4 border-b border-brand-text/10 pb-4 mb-8">
+                <div className="col-span-12 md:col-span-5">
+                  <span className="text-[10px] font-serif italic text-brand-muted uppercase tracking-widest opacity-60">OFFICE / DEPARTMENT</span>
+                </div>
+                <div className="hidden md:block md:col-span-3">
+                  <span className="text-[10px] font-serif italic text-brand-muted uppercase tracking-widest opacity-60">HEAD OF OFFICE</span>
+                </div>
+                <div className="hidden md:block md:col-span-4">
+                  <span className="text-[10px] font-serif italic text-brand-muted uppercase tracking-widest opacity-60">TECHNICAL DIRECTORY</span>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {Array.isArray(data) && data.length > 0 ? (
+                  data.map((dept: any, idx: number) => (
+                    <motion.div 
+                      key={`${dept.name}-${idx}`} 
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: idx * 0.05 }}
+                      className="group grid grid-cols-12 gap-4 items-center p-6 border border-brand-text/10 rounded-xl hover:bg-brand-text hover:text-white transition-all duration-300 cursor-pointer overflow-hidden relative"
+                    >
+                      {/* Department Info */}
+                      <div className="col-span-12 md:col-span-5 flex items-center gap-6">
                         {dept.logoUrl && (
-                          <div className="w-16 h-16 bg-white rounded-xl border border-brand-border p-2 shadow-sm group-hover:shadow-md transition-all">
+                          <div className="w-16 h-16 bg-white rounded-lg p-2 shadow-inner shrink-0 group-hover:bg-white/10 transition-colors">
                             <img 
                               src={dept.logoUrl} 
-                              alt={`${dept.name} Logo`} 
+                              alt="" 
                               className="w-full h-full object-contain"
                               referrerPolicy="no-referrer"
                             />
                           </div>
                         )}
                         <div>
-                          <h3 className="text-xl font-bold text-brand-text group-hover:text-brand-primary transition-colors leading-tight">{String(dept.name)}</h3>
-                          <p className="text-[10px] font-bold text-brand-muted uppercase tracking-widest mt-1">{String(dept.officialName)}</p>
+                          <h3 className="text-lg font-black uppercase tracking-tight leading-none mb-2">{dept.name}</h3>
+                          <p className="text-[10px] font-mono opacity-60 uppercase tracking-widest leading-tight">{dept.officialName}</p>
                         </div>
                       </div>
-                      <span className="px-3 py-1 bg-brand-primary/10 text-brand-primary text-[10px] font-bold rounded-full uppercase tracking-widest">
-                        {String(dept.type)}
-                      </span>
-                    </div>
-                    <p className="text-brand-muted text-sm leading-relaxed">{String(dept?.description || "")}</p>
-                  </motion.div>
-                ))
-              ) : (
-                <div className="col-span-full text-center py-24 text-brand-muted font-bold uppercase tracking-widest">
-                  No departments found.
-                </div>
-              )}
+
+                      {/* Head of Office */}
+                      <div className="col-span-12 md:col-span-3">
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center group-hover:bg-white/20">
+                            <User size={14} className="group-hover:text-white text-brand-primary" />
+                          </div>
+                          <span className="text-xs font-black uppercase tracking-widest leading-none">
+                            {dept.head || "Office-in-Charge"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Contact & Link */}
+                      <div className="col-span-12 md:col-span-4 flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-2 font-mono text-xs opacity-60">
+                          <Phone size={12} />
+                          {dept.contact || "+63 38 515 9000"}
+                        </div>
+                        
+                        <a 
+                          href={dept.serviceLink || "/about/services"}
+                          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 border border-current rounded-full hover:bg-white hover:text-brand-text transition-all shrink-0"
+                        >
+                          SERVICES <ExternalLink size={10} />
+                        </a>
+                      </div>
+
+                      {/* Background Accents */}
+                      <div className="absolute -right-4 top-1/2 -translate-y-1/2 opacity-[0.03] group-hover:opacity-10 transition-opacity">
+                        <Building2 size={120} />
+                      </div>
+                    </motion.div>
+                  ))
+                ) : (
+                  <div className="text-center py-24 text-brand-muted font-bold uppercase tracking-widest">
+                    No departments found in technical database.
+                  </div>
+                )}
+              </div>
             </div>
           )} />} />
           <Route path="/about/barangays" element={<ContentPage title="Barangays" fetchData={aboutApi.getBarangays} renderContent={(data) => (
