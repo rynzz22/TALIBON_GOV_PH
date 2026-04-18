@@ -41,7 +41,7 @@ export default function Footer() {
             </p>
             <div className="flex gap-4">
               {[Facebook, Twitter, Instagram].map((Icon, i) => (
-                <a key={i} href="#" className="w-10 h-10 rounded-full bg-brand-surface border border-brand-border flex items-center justify-center hover:bg-brand-primary hover:text-white transition-all text-brand-primary">
+                <a key={`social-icon-${i}`} href="#" className="w-10 h-10 rounded-full bg-brand-surface border border-brand-border flex items-center justify-center hover:bg-brand-primary hover:text-white transition-all text-brand-primary">
                   <Icon size={18} />
                 </a>
               ))}
@@ -72,7 +72,7 @@ export default function Footer() {
             <span className="text-[10px] font-bold tracking-[0.4em] uppercase mb-8 block text-brand-primary">Emergency</span>
             <div className="space-y-4">
               {hotlines.map((hotline, i) => (
-                <div key={i} className="flex justify-between items-center group">
+                <div key={`hotline-${i}`} className="flex justify-between items-center group">
                   <span className="text-xs font-bold text-brand-muted group-hover:text-brand-text transition-colors uppercase tracking-widest">{hotline.name}</span>
                   <span className="text-xs font-bold text-brand-accent tracking-widest">{hotline.number}</span>
                 </div>
@@ -85,7 +85,7 @@ export default function Footer() {
             <span className="text-[10px] font-bold tracking-[0.4em] uppercase mb-8 block text-brand-primary">Government</span>
             <div className="space-y-4">
               {govLinks.map((link, i) => (
-                <a key={i} href={link.href} className="flex items-center gap-2 text-xs font-bold text-brand-muted hover:text-brand-primary transition-colors uppercase tracking-widest group">
+                <a key={`gov-link-${i}`} href={link.href} className="flex items-center gap-2 text-xs font-bold text-brand-muted hover:text-brand-primary transition-colors uppercase tracking-widest group">
                   {link.name}
                   <ArrowUpRight size={14} className="opacity-0 group-hover:opacity-100 transition-all" />
                 </a>

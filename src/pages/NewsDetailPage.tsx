@@ -42,7 +42,7 @@ const NewsDetailPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="pt-44 pb-20 flex items-center justify-center min-h-screen bg-brand-bg">
+      <div className="pb-20 flex items-center justify-center min-h-screen bg-brand-bg">
         <Loader2 className="w-12 h-12 text-brand-primary animate-spin" />
       </div>
     );
@@ -50,7 +50,7 @@ const NewsDetailPage: React.FC = () => {
 
   if (!item) {
     return (
-      <div className="pt-44 pb-20 px-4 max-w-7xl mx-auto min-h-screen text-center bg-brand-bg">
+      <div className="pb-20 px-4 max-w-7xl mx-auto min-h-screen text-center bg-brand-bg">
         <h1 className="text-4xl font-extrabold text-brand-text mb-4 font-display">News Not Found</h1>
         <p className="text-brand-muted mb-8 font-medium">The news article you are looking for does not exist or has been removed.</p>
         <button 
@@ -64,7 +64,7 @@ const NewsDetailPage: React.FC = () => {
   }
 
   return (
-    <div className="pt-32 md:pt-44 pb-20 min-h-screen bg-brand-bg relative overflow-hidden">
+    <div className="pb-20 min-h-screen bg-brand-bg relative overflow-hidden">
       {/* Professional UI Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <motion.div 

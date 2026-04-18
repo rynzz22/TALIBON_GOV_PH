@@ -17,7 +17,7 @@ export default function QuickAccess() {
     { name: "Pay Online", icon: CreditCard, href: "https://talibon-citizen-stg.multisyscorp.io/e-services" },
     { name: "Track My Request", icon: Search, href: "https://talibon-citizen-stg.multisyscorp.io/e-services" },
     { name: "Tourism Guide", icon: Map, href: "/tourism/spots" },
-    { name: "Downloadables", icon: Download, href: "/news/forms" },
+    { name: "Downloadables", icon: Download, href: "/downloads" },
     { name: "Citizen's Charter", icon: BookOpen, href: "/transparency/charter" },
   ];
 

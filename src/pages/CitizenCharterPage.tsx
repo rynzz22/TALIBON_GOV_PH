@@ -6,7 +6,7 @@ const CitizenCharterPage: React.FC = () => {
   const pdfUrl = "http://talibon.gov.ph/wp-content/uploads/2026/02/2025-CITIZENS-CHARTER-FINALE.pdf";
 
   return (
-    <div className="pt-32 md:pt-44 pb-20 px-4 md:px-8 max-w-7xl mx-auto bg-brand-bg relative overflow-hidden">
+    <div className="pb-20 px-4 md:px-8 max-w-7xl mx-auto bg-brand-bg relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <motion.div 

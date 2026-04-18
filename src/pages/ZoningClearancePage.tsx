@@ -6,7 +6,7 @@ const ZoningClearancePage: React.FC = () => {
   const pdfUrl = "http://talibon.gov.ph/wp-content/uploads/2025/10/LC-Application-Form.pdf";
 
   return (
-    <div className="pt-32 md:pt-44 pb-20 px-4 md:px-8 max-w-7xl mx-auto">
+    <div className="pb-20 px-4 md:px-8 max-w-7xl mx-auto">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

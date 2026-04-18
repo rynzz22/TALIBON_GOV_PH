@@ -61,7 +61,7 @@ const OrganizationalChartPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="pt-44 pb-20 flex items-center justify-center min-h-screen bg-brand-bg">
+      <div className="pb-20 flex items-center justify-center min-h-screen bg-brand-bg">
         <Loader2 className="w-12 h-12 text-brand-primary animate-spin" />
       </div>
     );
@@ -69,7 +69,7 @@ const OrganizationalChartPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="pt-44 pb-20 px-4 max-w-7xl mx-auto min-h-screen bg-brand-bg">
+      <div className="pb-20 px-4 max-w-7xl mx-auto min-h-screen bg-brand-bg">
         <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl font-bold">
           {error}
         </div>
@@ -78,7 +78,7 @@ const OrganizationalChartPage: React.FC = () => {
   }
 
   return (
-    <div className="pt-32 md:pt-44 pb-20 px-4 md:px-8 max-w-7xl mx-auto min-h-screen bg-white relative overflow-hidden">
+    <div className="pb-20 px-4 md:px-8 max-w-7xl mx-auto min-h-screen bg-white relative overflow-hidden">
       <div className="relative z-10">
         <div className="mb-16">
           <span className="section-label">Executive Structure</span>

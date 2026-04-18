@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { motion } from "motion/react";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -19,18 +19,22 @@ import ZoningClearancePage from "./pages/ZoningClearancePage";
 import OrganizationalChartPage from "./pages/OrganizationalChartPage";
 import NewsCategoryPage from "./pages/NewsCategoryPage";
 import NewsDetailPage from "./pages/NewsDetailPage";
+import DownloadsPage from "./pages/DownloadsPage";
 import AdminDashboard from "./pages/AdminDashboard";
+import GadImsSystem from "./components/GadImsSystem";
 import Footer from "./components/Footer";
 import GeminiAssistant from "./components/GeminiAssistant";
+import ScrollToTop from "./components/ScrollToTop";
 import { aboutApi, executiveApi, legislativeApi, newsApi, transparencyApi, tourismApi, formsApi } from "./services/api";
 import { FirebaseProvider } from "./contexts/AuthContext";
 import { Eye, Target, Quote, User, Phone, ExternalLink, Clock, Building2 } from "lucide-react";
 
-export default function App() {
+function AppLayout() {
+  const location = useLocation();
+  const isHome = location.pathname === "/";
+
   return (
-    <FirebaseProvider>
-      <Router>
-        <div className="min-h-screen bg-white font-sans selection:bg-brand-primary selection:text-white relative overflow-hidden">
+    <div className="min-h-screen bg-white font-sans selection:bg-brand-primary selection:text-white relative overflow-hidden">
         {/* Minimal Background */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute top-0 left-0 w-full h-full opacity-[0.2]" style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '64px 64px' }} />
@@ -38,9 +42,11 @@ export default function App() {
 
         <div className="relative z-10">
           <Navbar />
-          <Routes>
+          <div className={isHome ? "" : "pt-[140px] lg:pt-[204px]"}>
+            <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/downloads" element={<DownloadsPage />} />
           
           {/* About Talibon */}
           <Route path="/about/profile" element={<ContentPage title="Brief Profile" fetchData={aboutApi.getProfile} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium whitespace-pre-line">{data.content}</p>} />} />
@@ -139,82 +145,91 @@ export default function App() {
           )} />} />
           <Route path="/about/departments" element={<ContentPage title="Departments" fetchData={aboutApi.getDepartments} renderContent={(data) => (
             <div className="space-y-12">
-              {/* Technical Header */}
-              <div className="grid grid-cols-12 gap-4 border-b border-brand-text/10 pb-4 mb-8">
-                <div className="col-span-12 md:col-span-5">
-                  <span className="text-[10px] font-serif italic text-brand-muted uppercase tracking-widest opacity-60">OFFICE / DEPARTMENT</span>
-                </div>
-                <div className="hidden md:block md:col-span-3">
-                  <span className="text-[10px] font-serif italic text-brand-muted uppercase tracking-widest opacity-60">HEAD OF OFFICE</span>
-                </div>
-                <div className="hidden md:block md:col-span-4">
-                  <span className="text-[10px] font-serif italic text-brand-muted uppercase tracking-widest opacity-60">TECHNICAL DIRECTORY</span>
-                </div>
-              </div>
-
-              <div className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {Array.isArray(data) && data.length > 0 ? (
-                  data.map((dept: any, idx: number) => (
-                    <motion.div 
-                      key={`${dept.name}-${idx}`} 
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.05 }}
-                      className="group grid grid-cols-12 gap-4 items-center p-6 border border-brand-text/10 rounded-xl hover:bg-brand-text hover:text-white transition-all duration-300 cursor-pointer overflow-hidden relative"
-                    >
-                      {/* Department Info */}
-                      <div className="col-span-12 md:col-span-5 flex items-center gap-6">
-                        {dept.logoUrl && (
-                          <div className="w-16 h-16 bg-white rounded-lg p-2 shadow-inner shrink-0 group-hover:bg-white/10 transition-colors">
-                            <img 
-                              src={dept.logoUrl} 
-                              alt="" 
-                              className="w-full h-full object-contain"
-                              referrerPolicy="no-referrer"
-                            />
+                  data.map((dept: any, idx: number) => {
+                    const isWide = idx === 0 || idx === 3;
+                    return (
+                      <motion.div 
+                        key={`${dept.name}-${idx}`} 
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: idx * 0.05 }}
+                        className={`group relative overflow-hidden bg-white border border-brand-border rounded-3xl p-8 hover:border-brand-primary transition-all duration-500 shadow-sm hover:shadow-2xl hover:-translate-y-1 ${isWide ? 'md:col-span-2' : ''}`}
+                      >
+                        {/* Background Code Decor */}
+                        <div className="absolute top-4 right-4 font-mono text-[8px] opacity-10 group-hover:opacity-30 transition-opacity select-none pointer-events-none uppercase tracking-tighter text-right">
+                          <div className="text-brand-primary">DEPT_ID: {idx.toString().padStart(3, '0')}</div>
+                          <div>MUNICIPAL_CODE: 071221</div>
+                          <div>COORD: 10.15N/124.33E</div>
+                        </div>
+
+                        <div className="relative z-10 h-full flex flex-col">
+                          <div className="flex justify-between items-start mb-6">
+                            {dept.logoUrl && (
+                              <div className="w-16 h-16 bg-white rounded-2xl p-2 shadow-inner group-hover:scale-110 transition-transform duration-500 border border-brand-border">
+                                <img 
+                                  src={dept.logoUrl} 
+                                  alt="" 
+                                  className="w-full h-full object-contain"
+                                  referrerPolicy="no-referrer"
+                                />
+                              </div>
+                            )}
+                            <div className="px-3 py-1 bg-brand-primary/5 text-brand-primary text-[8px] font-black rounded-full border border-brand-primary/10 tracking-[0.2em] uppercase">
+                              {dept.type}
+                            </div>
                           </div>
-                        )}
-                        <div>
-                          <h3 className="text-lg font-black uppercase tracking-tight leading-none mb-2">{dept.name}</h3>
-                          <p className="text-[10px] font-mono opacity-60 uppercase tracking-widest leading-tight">{dept.officialName}</p>
-                        </div>
-                      </div>
 
-                      {/* Head of Office */}
-                      <div className="col-span-12 md:col-span-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-brand-primary/10 flex items-center justify-center group-hover:bg-white/20">
-                            <User size={14} className="group-hover:text-white text-brand-primary" />
+                          <div className="flex-1">
+                            <h3 className="text-2xl font-black text-brand-text uppercase tracking-tight leading-none mb-3 group-hover:text-brand-primary transition-colors">
+                              {dept.name}
+                            </h3>
+                            <p className="text-[10px] font-mono font-bold text-brand-muted uppercase tracking-widest mb-6 border-l-2 border-brand-primary/20 pl-3">
+                              {dept.officialName}
+                            </p>
+                            <p className="text-sm text-brand-muted leading-relaxed mb-8 opacity-80 group-hover:opacity-100 transition-opacity">
+                              {dept.description}
+                            </p>
                           </div>
-                          <span className="text-xs font-black uppercase tracking-widest leading-none">
-                            {dept.head || "Office-in-Charge"}
-                          </span>
-                        </div>
-                      </div>
 
-                      {/* Contact & Link */}
-                      <div className="col-span-12 md:col-span-4 flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-2 font-mono text-xs opacity-60">
-                          <Phone size={12} />
-                          {dept.contact || "+63 38 515 9000"}
-                        </div>
-                        
-                        <a 
-                          href={dept.serviceLink || "/about/services"}
-                          className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] px-4 py-2 border border-current rounded-full hover:bg-white hover:text-brand-text transition-all shrink-0"
-                        >
-                          SERVICES <ExternalLink size={10} />
-                        </a>
-                      </div>
+                          <div className="pt-6 border-t border-brand-border mt-auto">
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-1">
+                                <span className="text-[8px] font-black text-brand-muted uppercase tracking-widest block opacity-60">Director / Head</span>
+                                <div className="flex items-center gap-2 text-xs font-black text-brand-text uppercase tracking-tight group-hover:text-brand-primary transition-colors">
+                                  <User size={12} className="shrink-0" />
+                                  <span className="truncate">{dept.head || "OIC"}</span>
+                                </div>
+                              </div>
+                              <div className="space-y-1">
+                                <span className="text-[8px] font-black text-brand-muted uppercase tracking-widest block opacity-60">Operations</span>
+                                <div className="flex items-center gap-2 text-xs font-black text-brand-text uppercase tracking-tight">
+                                  <Phone size={12} className="shrink-0 text-brand-primary" />
+                                  <span className="truncate">{dept.contact || "-"}</span>
+                                </div>
+                              </div>
+                            </div>
 
-                      {/* Background Accents */}
-                      <div className="absolute -right-4 top-1/2 -translate-y-1/2 opacity-[0.03] group-hover:opacity-10 transition-opacity">
-                        <Building2 size={120} />
-                      </div>
-                    </motion.div>
-                  ))
+                            <a 
+                              href={dept.serviceLink || "/about/services"}
+                              className="mt-6 w-full flex items-center justify-between gap-2 text-[10px] font-black uppercase tracking-[0.2em] px-6 py-4 bg-gray-50 group-hover:bg-brand-text group-hover:text-white rounded-2xl transition-all"
+                            >
+                              ACCESS SERVICES <ExternalLink size={14} />
+                            </a>
+                          </div>
+                        </div>
+
+                        {/* Large Background Icon */}
+                        <div className="absolute -bottom-8 -right-8 opacity-[0.02] group-hover:opacity-[0.05] transition-opacity pointer-events-none select-none">
+                          <Building2 size={200} />
+                        </div>
+                      </motion.div>
+                    );
+                  })
                 ) : (
-                  <div className="text-center py-24 text-brand-muted font-bold uppercase tracking-widest">
+                  <div className="col-span-full text-center py-24 text-brand-muted font-bold uppercase tracking-widest">
                     No departments found in technical database.
                   </div>
                 )}
@@ -335,7 +350,7 @@ export default function App() {
               )}
             </div>
           )} />} />
-          <Route path="/executive/gad-ims" element={<ContentPage title="Talibon GAD-IMS" fetchData={executiveApi.getGadIms} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium">{data.content}</p>} />} />
+          <Route path="/executive/gad-ims" element={<ContentPage title="Talibon GAD-IMS" fetchData={executiveApi.getGadIms} renderContent={(data) => <GadImsSystem data={data} />} />} />
 
           {/* Legislative */}
           <Route path="/legislative/mandate" element={<ContentPage title="Legislative Mandate" fetchData={legislativeApi.getMandate} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium">{data.content}</p>} />} />
@@ -477,10 +492,20 @@ export default function App() {
           <Route path="/forms/building" element={<BuildingPermitPage />} />
           <Route path="/forms/zoning" element={<ZoningClearancePage />} />
         </Routes>
+          </div>
+          <Footer />
+          <GeminiAssistant />
         </div>
-        <Footer />
-        <GeminiAssistant />
       </div>
+  );
+}
+
+export default function App() {
+  return (
+    <FirebaseProvider>
+      <Router>
+        <ScrollToTop />
+        <AppLayout />
       </Router>
     </FirebaseProvider>
   );

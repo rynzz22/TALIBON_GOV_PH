@@ -216,7 +216,7 @@ const NewsCategoryPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="pt-44 pb-20 flex items-center justify-center min-h-screen bg-brand-bg">
+      <div className="pb-20 flex items-center justify-center min-h-screen bg-brand-bg">
         <Loader2 className="w-12 h-12 text-brand-primary animate-spin" />
       </div>
     );
@@ -226,7 +226,7 @@ const NewsCategoryPage: React.FC = () => {
   const isForms = category === 'forms';
 
   return (
-    <div className="pt-32 md:pt-44 pb-20 min-h-screen bg-brand-bg relative overflow-hidden">
+    <div className="pb-20 min-h-screen bg-brand-bg relative overflow-hidden">
       {/* Professional UI Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
         <motion.div 

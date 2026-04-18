@@ -58,7 +58,7 @@ export default function SocialMediaUpdates() {
             <div className="space-y-6">
               {[1, 2].map((i) => (
                 <motion.div
-                  key={i}
+                  key={`social-feed-item-${i}`}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}

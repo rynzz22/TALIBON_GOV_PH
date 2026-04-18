@@ -11,7 +11,7 @@ const OfficialSealPage: React.FC = () => {
   const sealUrl = "http://talibon.gov.ph/wp-content/uploads/2025/09/Talibon-Official-Seal-v4-2003-to-2023-.png";
 
   return (
-    <div className="min-h-screen bg-white pt-32 md:pt-44 pb-24 flex flex-col items-center relative overflow-hidden">
+    <div className="min-h-screen bg-white pb-24 flex flex-col items-center relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
         <div className="mb-16">
           <span className="section-label">Symbolism</span>
