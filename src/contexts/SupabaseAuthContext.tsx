@@ -60,16 +60,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    // Listen for popup messages specifically for AI Studio iframe compatibility
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data?.type === 'SUPABASE_AUTH_SUCCESS') {
+        refreshProfile();
+      }
+    };
+    window.addEventListener('message', handleMessage);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('message', handleMessage);
+    };
   }, []);
 
   const signInWithGoogle = async () => {
-    await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: window.location.origin + "/auth/callback",
+        skipBrowserRedirect: true,
       }
     });
+
+    if (error) {
+      alert("Login Error: " + error.message);
+      return;
+    }
+
+    if (data?.url) {
+      // Direct the provider URL to a popup to bypass iframe blocking (403 errors)
+      window.open(data.url, 'supabase_auth_popup', 'width=600,height=700,top=100,left=100');
+    }
   };
 
   const signOut = async () => {

@@ -1,16 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth, OfficialRole } from "../contexts/SupabaseAuthContext";
 import { BARANGAYS } from "../constants/barangayConfig";
 import { motion } from "motion/react";
-import { Globe, Shield, Lock, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Globe, Shield, Lock, ArrowRight, CheckCircle2, LayoutDashboard } from "lucide-react";
 import { supabase } from "../lib/supabase";
+import { useNavigate } from "react-router-dom";
 
 const Login: React.FC = () => {
   const { user, profile, signInWithGoogle, signOut, refreshProfile } = useAuth();
+  const navigate = useNavigate();
   const [selectedRole, setSelectedRole] = useState<OfficialRole>("barangay_admin");
   const [selectedBarangay, setSelectedBarangay] = useState(BARANGAYS[0].slug);
   const [fullName, setFullName] = useState("");
   const [registrationSuccess, setRegistrationSuccess] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      const timer = setTimeout(() => {
+        navigate("/admin");
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [profile, navigate]);
 
   const handleRegisterProfile = async () => {
     if (!user) return;
@@ -33,20 +44,35 @@ const Login: React.FC = () => {
 
   if (profile) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-brand-bg p-4">
-        <div className="max-w-md w-full minimal-card p-12 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-brand-bg p-4 text-center">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="max-w-md w-full minimal-card p-12"
+        >
           <div className="w-20 h-20 bg-green-50 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 size={40} />
           </div>
           <h2 className="text-3xl font-black mb-2">Authenticated</h2>
           <p className="text-brand-muted font-medium mb-8">
-            Signed in as <span className="text-brand-text font-bold">{profile.full_name}</span>
+            Welcome back, <span className="text-brand-text font-bold">{profile.full_name}</span>.
             <br />
-            Level: <span className="text-brand-primary uppercase font-black tracking-widest text-[10px]">{profile.role.replace('_', ' ')}</span>
-            {profile.barangay_id && <><br />Station: <span className="text-brand-text font-bold uppercase">{profile.barangay_id}</span></>}
+            You are being redirected to the 
+            <span className="text-brand-primary block font-black uppercase tracking-widest text-[10px] mt-1">CMS Control Dashboard</span>
           </p>
-          <button onClick={signOut} className="minimal-button-outline w-full">Sign Out</button>
-        </div>
+          
+          <div className="space-y-4">
+            <button 
+              onClick={() => navigate("/admin")} 
+              className="minimal-button-primary w-full flex items-center justify-center gap-2"
+            >
+              <LayoutDashboard size={18} /> Go to Dashboard Now
+            </button>
+            <button onClick={signOut} className="text-[10px] font-black text-brand-muted uppercase tracking-widest hover:text-red-500 transition-colors">
+              Sign Out
+            </button>
+          </div>
+        </motion.div>
       </div>
     );
   }

@@ -22,6 +22,7 @@ import NewsDetailPage from "./pages/NewsDetailPage";
 import DownloadsPage from "./pages/DownloadsPage";
 import BarangayHome from "./pages/BarangayHome";
 import Login from "./pages/Login";
+import AuthCallback from "./pages/AuthCallback";
 import { BARANGAYS } from "./constants/barangayConfig";
 import AdminDashboard from "./pages/AdminDashboard";
 import GadImsSystem from "./components/GadImsSystem";
@@ -52,6 +53,7 @@ function AppLayout() {
             <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
           <Route path="/brgy/:slug" element={<BarangayHome />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/downloads" element={<DownloadsPage />} />
