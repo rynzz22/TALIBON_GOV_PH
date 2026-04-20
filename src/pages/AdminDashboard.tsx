@@ -1,23 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { db, auth, signInWithGoogle, logout, handleFirestoreError, OperationType } from '../firebase';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, OfficialRole } from '../contexts/SupabaseAuthContext';
+import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   LogIn, LogOut, Upload, Trash2, FileText, CheckCircle, 
   AlertCircle, ShieldCheck, Plus, X, Search, Folder, 
   ChevronRight, Download, Newspaper, Users, Gavel, 
   LayoutDashboard, Edit3, Save, Image as ImageIcon, Calendar,
-  Mic, Globe
+  Mic, Globe, Building2
 } from 'lucide-react';
 import MeetingAssistant from '../components/MeetingAssistant';
 import FileUpload from '../components/FileUpload';
-import { 
-  collection, addDoc, updateDoc, deleteDoc, doc, 
-  getDocs, query, orderBy, Timestamp, onSnapshot 
-} from 'firebase/firestore';
+import { BARANGAYS } from '../constants/barangayConfig';
 
 const AdminDashboard: React.FC = () => {
-  const { user, isAdmin, loading } = useAuth();
+  const { user, profile, loading, signInWithGoogle, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<'news' | 'resolutions' | 'officials' | 'ordinances' | 'meeting-assistant' | 'navigation'>('news');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -35,65 +32,54 @@ const AdminDashboard: React.FC = () => {
   const [newsForm, setNewsForm] = useState({ title: '', content: '', summary: '', category: 'ARTICLE', imageUrl: '', fileUrl: '', date: new Date().toISOString().split('T')[0] });
   const [resForm, setResForm] = useState({ no: '', date: '', author: '', title: '', fileUrl: '' });
   const [offForm, setOffForm] = useState({ name: '', role: '', level: 3, order: 0 });
-  const [ordForm, setOrdForm] = useState({ title: '', year: new Date().getFullYear().toString(), fileUrl: '', fileSize: '2 MB' });
+  const [ordForm, setOrdForm] = useState({ title: '', year: new Date().getFullYear().toString(), fileUrl: '', fileSize: '2 MB', barangay_id: '' });
   const [navForm, setNavForm] = useState({ name: '', href: '', section: 'NEWS', order: 0, isExternal: false, isHash: false });
 
+  // Security Check
+  const canAccessManagement = profile && (profile.role === 'municipal_admin' || profile.role === 'barangay_admin');
+
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!canAccessManagement) return;
 
-    const unsubNews = onSnapshot(query(collection(db, 'news'), orderBy('date', 'desc')), (snapshot) => {
-      setNews(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (err) => {
-      handleFirestoreError(err, OperationType.LIST, 'news');
-    });
+    // Supabase Subscriptions / Fetching
+    const fetchAll = async () => {
+      // News
+      let newsQuery = supabase.from('news').select('*').order('date', { ascending: false });
+      if (profile.role === 'barangay_admin') newsQuery = newsQuery.eq('barangay_id', profile.barangay_id);
+      const { data: newsData } = await newsQuery;
+      if (newsData) setNews(newsData);
 
-    const unsubRes = onSnapshot(query(collection(db, 'resolutions'), orderBy('no', 'desc')), (snapshot) => {
-      setResolutions(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (err) => {
-      handleFirestoreError(err, OperationType.LIST, 'resolutions');
-    });
-
-    const unsubOff = onSnapshot(query(collection(db, 'officials'), orderBy('level', 'asc'), orderBy('order', 'asc')), (snapshot) => {
-      setOfficials(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (err) => {
-      handleFirestoreError(err, OperationType.LIST, 'officials');
-    });
-
-    const unsubOrd = onSnapshot(query(collection(db, 'ordinances'), orderBy('year', 'desc')), (snapshot) => {
-      setOrdinances(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (err) => {
-      handleFirestoreError(err, OperationType.LIST, 'ordinances');
-    });
-
-    const unsubNav = onSnapshot(query(collection(db, 'navigation'), orderBy('section', 'asc'), orderBy('order', 'asc')), (snapshot) => {
-      setNavigation(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (err) => {
-      handleFirestoreError(err, OperationType.LIST, 'navigation');
-    });
-
-    return () => {
-      unsubNews();
-      unsubRes();
-      unsubOff();
-      unsubOrd();
-      unsubNav();
+      // Ordinances
+      let ordQuery = supabase.from('ordinances').select('*').order('year', { ascending: false });
+      if (profile.role === 'barangay_admin') ordQuery = ordQuery.eq('barangay_id', profile.barangay_id);
+      const { data: ordData } = await ordQuery;
+      if (ordData) setOrdinances(ordData);
     };
-  }, [isAdmin]);
+
+    fetchAll();
+  }, [canAccessManagement, profile]);
 
   const handleSaveNews = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const payload = {
+        ...newsForm,
+        barangay_id: profile?.role === 'barangay_admin' ? profile.barangay_id : null,
+        updated_at: new Date().toISOString()
+      };
       if (editingId) {
-        await updateDoc(doc(db, 'news', editingId), { ...newsForm, updatedAt: Timestamp.now() });
-        setSuccess("News updated successfully!");
+        const { error } = await supabase.from('news').update(payload).eq('id', editingId);
+        if (error) throw error;
+        setSuccess("News updated!");
       } else {
-        await addDoc(collection(db, 'news'), { ...newsForm, createdAt: Timestamp.now() });
-        setSuccess("News added successfully!");
+        const { error } = await supabase.from('news').insert([{ ...payload, created_at: new Date().toISOString() }]);
+        if (error) throw error;
+        setSuccess("News added!");
       }
       setIsModalOpen(false);
       resetForms();
-    } catch (err) {
-      handleFirestoreError(err, editingId ? OperationType.UPDATE : OperationType.CREATE, 'news');
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
@@ -101,16 +87,18 @@ const AdminDashboard: React.FC = () => {
     e.preventDefault();
     try {
       if (editingId) {
-        await updateDoc(doc(db, 'resolutions', editingId), resForm);
-        setSuccess("Resolution updated successfully!");
+        const { error } = await supabase.from('resolutions').update(resForm).eq('id', editingId);
+        if (error) throw error;
+        setSuccess("Resolution updated!");
       } else {
-        await addDoc(collection(db, 'resolutions'), resForm);
-        setSuccess("Resolution added successfully!");
+        const { error } = await supabase.from('resolutions').insert([resForm]);
+        if (error) throw error;
+        setSuccess("Resolution added!");
       }
       setIsModalOpen(false);
       resetForms();
-    } catch (err) {
-      handleFirestoreError(err, editingId ? OperationType.UPDATE : OperationType.CREATE, 'resolutions');
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
@@ -118,33 +106,43 @@ const AdminDashboard: React.FC = () => {
     e.preventDefault();
     try {
       if (editingId) {
-        await updateDoc(doc(db, 'officials', editingId), offForm);
-        setSuccess("Official updated successfully!");
+        const { error } = await supabase.from('officials').update(offForm).eq('id', editingId);
+        if (error) throw error;
+        setSuccess("Official updated!");
       } else {
-        await addDoc(collection(db, 'officials'), offForm);
-        setSuccess("Official added successfully!");
+        const { error } = await supabase.from('officials').insert([offForm]);
+        if (error) throw error;
+        setSuccess("Official added!");
       }
       setIsModalOpen(false);
       resetForms();
-    } catch (err) {
-      handleFirestoreError(err, editingId ? OperationType.UPDATE : OperationType.CREATE, 'officials');
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
   const handleSaveOrdinance = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const payload = {
+        ...ordForm,
+        author_uid: user?.id,
+        barangay_id: profile?.role === 'barangay_admin' ? profile.barangay_id : (ordForm.barangay_id || null)
+      };
+
       if (editingId) {
-        await updateDoc(doc(db, 'ordinances', editingId), ordForm);
-        setSuccess("Ordinance updated successfully!");
+        const { error } = await supabase.from('ordinances').update(payload).eq('id', editingId);
+        if (error) throw error;
+        setSuccess("Ordinance updated!");
       } else {
-        await addDoc(collection(db, 'ordinances'), { ...ordForm, createdAt: new Date().toISOString() });
-        setSuccess("Ordinance added successfully!");
+        const { error } = await supabase.from('ordinances').insert([payload]);
+        if (error) throw error;
+        setSuccess("Ordinance added!");
       }
       setIsModalOpen(false);
       resetForms();
-    } catch (err) {
-      handleFirestoreError(err, editingId ? OperationType.UPDATE : OperationType.CREATE, 'ordinances');
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
@@ -152,34 +150,33 @@ const AdminDashboard: React.FC = () => {
     e.preventDefault();
     try {
       if (editingId) {
-        await updateDoc(doc(db, 'navigation', editingId), navForm);
-        setSuccess("Navigation link updated successfully!");
+        const { error } = await supabase.from('navigation').update(navForm).eq('id', editingId);
+        if (error) throw error;
+        setSuccess("Navigation link updated!");
       } else {
-        await addDoc(collection(db, 'navigation'), navForm);
-        setSuccess("Navigation link added successfully!");
+        const { error } = await supabase.from('navigation').insert([navForm]);
+        if (error) throw error;
+        setSuccess("Navigation link added!");
       }
       setIsModalOpen(false);
       resetForms();
-    } catch (err) {
-      handleFirestoreError(err, editingId ? OperationType.UPDATE : OperationType.CREATE, 'navigation');
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
-  const handleDelete = async (collectionName: string, id: string) => {
-    if (!window.confirm("Are you sure you want to delete this item?")) return;
-    try {
-      await deleteDoc(doc(db, collectionName, id));
-      setSuccess("Item deleted successfully!");
-    } catch (err) {
-      handleFirestoreError(err, OperationType.DELETE, collectionName);
-    }
+  const handleDelete = async (table: string, id: string) => {
+    if (!window.confirm("Delete this item?")) return;
+    const { error } = await supabase.from(table).delete().eq('id', id);
+    if (error) setError(error.message);
+    else setSuccess("Deleted successfully");
   };
 
   const resetForms = () => {
     setNewsForm({ title: '', content: '', summary: '', category: 'ARTICLE', imageUrl: '', fileUrl: '', date: new Date().toISOString().split('T')[0] });
     setResForm({ no: '', date: '', author: '', title: '', fileUrl: '' });
     setOffForm({ name: '', role: '', level: 3, order: 0 });
-    setOrdForm({ title: '', year: new Date().getFullYear().toString(), fileUrl: '', fileSize: '2 MB' });
+    setOrdForm({ title: '', year: new Date().getFullYear().toString(), fileUrl: '', fileSize: '2 MB', barangay_id: '' });
     setNavForm({ name: '', href: '', section: 'NEWS', order: 0, isExternal: false, isHash: false });
     setEditingId(null);
   };
@@ -190,7 +187,7 @@ const AdminDashboard: React.FC = () => {
     if (type === 'news') setNewsForm({ title: item.title, content: item.content, summary: item.summary || '', category: item.category, imageUrl: item.imageUrl || '', fileUrl: item.fileUrl || '', date: item.date });
     if (type === 'resolutions') setResForm({ no: item.no, date: item.date, author: item.author || '', title: item.title, fileUrl: item.fileUrl || '' });
     if (type === 'officials') setOffForm({ name: item.name, role: item.role, level: item.level, order: item.order || 0 });
-    if (type === 'ordinances') setOrdForm({ title: item.title, year: item.year, fileUrl: item.fileUrl || '', fileSize: item.fileSize || '2 MB' });
+    if (type === 'ordinances') setOrdForm({ title: item.title, year: item.year, fileUrl: item.fileUrl || '', fileSize: item.fileSize || '2 MB', barangay_id: item.barangay_id || '' });
     if (type === 'navigation') setNavForm({ name: item.name, href: item.href, section: item.section, order: item.order || 0, isExternal: item.isExternal || false, isHash: item.isHash || false });
     setIsModalOpen(true);
   };
@@ -198,12 +195,12 @@ const AdminDashboard: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
+        <div className="w-12 h-12 border-4 border-brand-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  if (!user || !isAdmin) {
+  if (!user || !canAccessManagement) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
         <motion.div 
@@ -224,13 +221,20 @@ const AdminDashboard: React.FC = () => {
             className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs tracking-widest hover:bg-blue-700 transition-all shadow-xl shadow-blue-500/20 flex items-center justify-center gap-3 group"
           >
             <LogIn size={18} className="group-hover:translate-x-1 transition-transform" />
-            SIGN IN WITH GOOGLE
+            REDIRECT TO LOGIN
           </button>
 
-          {!isAdmin && user && (
+          {user && !profile && (
+            <div className="mt-8 p-4 bg-orange-50 text-orange-600 rounded-2xl text-xs font-black uppercase tracking-widest border border-orange-100 flex items-center gap-2">
+              <AlertCircle size={16} />
+              Profile Registration Required
+            </div>
+          )}
+
+          {profile && !canAccessManagement && (
             <div className="mt-8 p-4 bg-red-50 text-red-600 rounded-2xl text-xs font-black uppercase tracking-widest border border-red-100 flex items-center gap-2">
               <AlertCircle size={16} />
-              Access Denied: Not an Admin
+              Access Denied: Restricted Role
             </div>
           )}
         </motion.div>
@@ -250,9 +254,18 @@ const AdminDashboard: React.FC = () => {
               </div>
               <h1 className="text-3xl md:text-4xl font-black text-gray-900 tracking-tight uppercase">CMS Dashboard</h1>
             </div>
-            <div className="flex items-center gap-2 text-gray-400 font-bold text-sm tracking-widest">
+            <div className="flex flex-wrap items-center gap-3 text-gray-400 font-bold text-sm tracking-widest">
               <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-              LOGGED IN AS: <span className="text-blue-600">{user.email}</span>
+              LOGGED IN AS: <span className="text-blue-600">{user?.email}</span>
+              <span className="px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-full text-[10px] uppercase font-black tracking-[0.2em] flex items-center gap-1">
+                {profile?.role === 'municipal_admin' ? <Globe size={10} /> : <Building2 size={10} />}
+                {profile?.role?.replace('_', ' ')}
+              </span>
+              {profile?.barangay_id && (
+                <span className="px-3 py-1 bg-gray-100 text-gray-900 rounded-full text-[10px] uppercase font-black tracking-[0.2em]">
+                  Scope: {profile.barangay_id}
+                </span>
+              )}
             </div>
           </div>
 
@@ -265,7 +278,7 @@ const AdminDashboard: React.FC = () => {
               ADD NEW CONTENT
             </button>
             <button
-              onClick={logout}
+              onClick={signOut}
               className="px-8 py-4 bg-white text-gray-400 rounded-2xl font-black text-xs tracking-widest hover:bg-gray-100 border border-gray-100 transition-all flex items-center gap-2"
             >
               <LogOut size={18} />
@@ -665,15 +678,34 @@ const AdminDashboard: React.FC = () => {
 
                 {activeTab === 'ordinances' && (
                   <form onSubmit={handleSaveOrdinance} className="space-y-6">
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Title</label>
-                      <input 
-                        type="text" 
-                        required
-                        value={ordForm.title}
-                        onChange={e => setOrdForm({...ordForm, title: e.target.value})}
-                        className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" 
-                      />
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Jurisdiction / Scope</label>
+                        <select 
+                          disabled={profile?.role === 'barangay_admin'}
+                          value={profile?.role === 'barangay_admin' ? profile.barangay_id : ordForm.barangay_id}
+                          onChange={e => setOrdForm({...ordForm, barangay_id: e.target.value})}
+                          className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 disabled:opacity-50"
+                        >
+                          <option value="">Municipal / Macro</option>
+                          {BARANGAYS.map(b => (
+                            <option key={b.slug} value={b.slug}>{b.name}</option>
+                          ))}
+                        </select>
+                        <p className="text-[8px] font-black uppercase text-brand-muted tracking-widest px-4">
+                          {profile?.role === 'barangay_admin' ? "Locked to your Barangay" : "Select 'Municipal' for whole-site visibility"}
+                        </p>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Title</label>
+                        <input 
+                          type="text" 
+                          required
+                          value={ordForm.title}
+                          onChange={e => setOrdForm({...ordForm, title: e.target.value})}
+                          className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" 
+                        />
+                      </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">

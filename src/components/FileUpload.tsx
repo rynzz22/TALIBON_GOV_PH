@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { storage } from '../firebase';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { supabase } from '../lib/supabase';
 import { Upload, X, FileText, CheckCircle, Loader2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -48,37 +47,50 @@ const FileUpload: React.FC<FileUploadProps> = ({
     }
   };
 
-  const uploadFile = (file: File) => {
+  const uploadFile = async (file: File) => {
     setError(null);
     setFileName(file.name);
+    setUploadProgress(10); // Start progress
     
     // Check file size (max 5MB for demo)
     if (file.size > 5 * 1024 * 1024) {
       setError("File is too large. Max 5MB allowed.");
+      setUploadProgress(null);
       return;
     }
 
-    const storageRef = ref(storage, `${folder}/${Date.now()}_${file.name}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    try {
+      const fileNameStr = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
+      const filePath = `${folder}/${fileNameStr}`;
 
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress(progress);
-      },
-      (err) => {
-        console.error("Upload error:", err);
-        setError("Upload failed. Please try again.");
-        setUploadProgress(null);
-      },
-      () => {
-        getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
-          onUploadComplete(downloadURL);
-          setUploadProgress(null);
+      setUploadProgress(30);
+
+      const { data, error: uploadError } = await supabase.storage
+        .from('public-assets') // Make sure this bucket is created in Supabase Storage with public access
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false
         });
-      }
-    );
+
+      if (uploadError) throw uploadError;
+
+      setUploadProgress(80);
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('public-assets')
+        .getPublicUrl(filePath);
+
+      setUploadProgress(100);
+      setTimeout(() => {
+        onUploadComplete(publicUrl);
+        setUploadProgress(null);
+      }, 500);
+
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      setError(err.message || "Upload failed. Please try again.");
+      setUploadProgress(null);
+    }
   };
 
   const clearFile = () => {

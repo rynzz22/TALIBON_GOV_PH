@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { db, handleFirestoreError, OperationType } from '../firebase';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, FileText, Download, Folder, Grid, List as ListIcon, ChevronRight } from 'lucide-react';
 
@@ -8,9 +7,10 @@ interface Ordinance {
   id: string;
   title: string;
   year: string;
-  fileUrl: string;
-  fileSize?: string;
-  createdAt: string;
+  file_url: string;
+  file_size?: string;
+  created_at: string;
+  barangay_id?: string;
 }
 
 const EnactedOrdinancesPage: React.FC = () => {
@@ -21,24 +21,44 @@ const EnactedOrdinancesPage: React.FC = () => {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   useEffect(() => {
-    const q = query(collection(db, 'ordinances'), orderBy('year', 'desc'), orderBy('title', 'asc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Ordinance));
-      setOrdinances(docs);
-      
-      // Set initial active year to the latest available if not set
-      if (docs.length > 0 && !activeYear) {
-        const yearsList = Array.from(new Set(docs.map(o => o.year))).sort((a, b) => b.localeCompare(a));
-        setActiveYear(yearsList[0]);
+    const fetchOrdinances = async () => {
+      setLoading(true);
+      // Fetch only macro (municipal) ordinances for the main site
+      const { data, error } = await supabase
+        .from('ordinances')
+        .select('*')
+        .is('barangay_id', null)
+        .order('year', { ascending: false })
+        .order('title', { ascending: true });
+
+      if (error) {
+        console.error("Error fetching ordinances:", error);
+      } else {
+        const docs = data as Ordinance[];
+        setOrdinances(docs);
+        
+        if (docs.length > 0 && !activeYear) {
+          const yearsList = Array.from(new Set(docs.map(o => o.year))).sort((a, b) => b.localeCompare(a));
+          setActiveYear(yearsList[0]);
+        }
       }
       setLoading(false);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'ordinances');
-      setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
-  }, [activeYear]);
+    fetchOrdinances();
+
+    // Setup Realtime subscription
+    const channel = supabase
+      .channel('ordinances-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ordinances' }, () => {
+        fetchOrdinances();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []); // Only on mount
 
   const years = Array.from(new Set(ordinances.map(o => o.year))).sort((a, b) => b.localeCompare(a));
   
@@ -156,14 +176,14 @@ const EnactedOrdinancesPage: React.FC = () => {
                       {ord.title}
                     </h3>
                     <div className="flex items-center justify-center gap-4 text-[10px] font-bold text-brand-muted uppercase tracking-widest">
-                      <span>{ord.fileSize || '2 MB'}</span>
+                      <span>{ord.file_size || '2 MB'}</span>
                       <span className="w-1 h-1 bg-brand-border rounded-full" />
-                      <span>{new Date(ord.createdAt).toLocaleDateString()}</span>
+                      <span>{new Date(ord.created_at).toLocaleDateString()}</span>
                     </div>
                   </div>
 
                   <a
-                    href={ord.fileUrl}
+                    href={ord.file_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className={viewMode === 'grid'

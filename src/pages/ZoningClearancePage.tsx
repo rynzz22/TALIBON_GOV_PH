@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { MapPin, Download, ShieldCheck } from 'lucide-react';
+import { MapPin, Download, ShieldCheck, CreditCard } from 'lucide-react';
+import PaymentButton from '../components/PaymentButton';
 
 const ZoningClearancePage: React.FC = () => {
   const pdfUrl = "http://talibon.gov.ph/wp-content/uploads/2025/10/LC-Application-Form.pdf";
@@ -32,7 +33,7 @@ const ZoningClearancePage: React.FC = () => {
 
         {/* Content Section */}
         <div className="p-8 md:p-20 bg-gray-50/50">
-          <div className="max-w-4xl mx-auto">
+          <div className="max-w-4xl mx-auto space-y-8">
             <motion.div 
               whileHover={{ y: -5 }}
               className="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-blue-900/5 border border-gray-100 flex flex-col md:flex-row items-center gap-8 group"
@@ -59,6 +60,31 @@ const ZoningClearancePage: React.FC = () => {
                 <Download size={20} className="group-hover/btn:translate-y-0.5 transition-transform" />
                 DOWNLOAD PDF
               </a>
+            </motion.div>
+
+            {/* Online Payment Card */}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="bg-white p-8 md:p-12 rounded-[2.5rem] border-2 border-indigo-100 bg-gradient-to-br from-white to-indigo-50/30 flex flex-col md:flex-row items-center gap-8 shadow-sm"
+            >
+              <div className="w-20 h-20 bg-indigo-50 rounded-3xl flex items-center justify-center flex-shrink-0 border border-indigo-100">
+                <CreditCard className="text-indigo-600" size={36} />
+              </div>
+
+              <div className="flex-1 text-center md:text-left">
+                <h3 className="text-2xl font-black text-gray-900 uppercase tracking-tight mb-2">
+                  Online Clearing Fee
+                </h3>
+                <p className="text-gray-500 font-medium">
+                  Conveniently pay your zoning clearance fees online.
+                </p>
+              </div>
+
+              <div className="w-full md:w-72">
+                <PaymentButton itemName="Zoning Clearance Fee" amount={300} />
+              </div>
             </motion.div>
 
             {/* Additional Info */}

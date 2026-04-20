@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Calendar, User, ArrowLeft, Loader2, Share2, Bookmark } from 'lucide-react';
-import { db, handleFirestoreError, OperationType } from '../firebase';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
 
 interface NewsItem {
   id: string;
@@ -11,7 +10,7 @@ interface NewsItem {
   content: string;
   summary: string;
   category: string;
-  imageUrl: string;
+  image_url: string;
   date: string;
   author?: string;
 }
@@ -23,21 +22,24 @@ const NewsDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!id) return;
+    const fetchItem = async () => {
+      if (!id) return;
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('news')
+        .select('*')
+        .eq('id', id)
+        .single();
 
-    const unsubscribe = onSnapshot(doc(db, 'news', id), (snapshot) => {
-      if (snapshot.exists()) {
-        setItem({ id: snapshot.id, ...snapshot.data() } as NewsItem);
+      if (error) {
+        console.error("Error fetching news detail:", error);
       } else {
-        setItem(null);
+        setItem(data as NewsItem);
       }
       setLoading(false);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.GET, `news/${id}`);
-      setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    fetchItem();
   }, [id]);
 
   if (loading) {
@@ -93,7 +95,7 @@ const NewsDetailPage: React.FC = () => {
         <article className="pro-card overflow-hidden">
           <div className="aspect-video relative overflow-hidden">
             <img
-              src={item.imageUrl || `https://picsum.photos/seed/${item.id}/1200/800`}
+              src={item.image_url || `https://picsum.photos/seed/${item.id}/1200/800`}
               alt={item.title}
               className="w-full h-full object-cover"
               referrerPolicy="no-referrer"

@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { Newspaper, Calendar, ArrowRight, Loader2, Search, Filter, Download, Image as ImageIcon, FileText } from 'lucide-react';
-import { db, handleFirestoreError, OperationType } from '../firebase';
-import { collection, query, where, orderBy, onSnapshot } from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
 
 interface NewsItem {
   id: string;
@@ -11,8 +10,8 @@ interface NewsItem {
   content: string;
   summary: string;
   category: string;
-  imageUrl: string;
-  fileUrl?: string;
+  image_url: string;
+  file_url?: string;
   date: string;
 }
 
@@ -45,23 +44,33 @@ const NewsCategoryPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const firestoreCategory = categoryMap[category || ''] || (category?.toUpperCase().replace(/-/g, ' ') || 'ARTICLE');
-    const q = query(
-      collection(db, 'news'),
-      where('category', '==', firestoreCategory),
-      orderBy('date', 'desc')
-    );
+    const fetchNews = async () => {
+      setLoading(true);
+      const firestoreCategory = categoryMap[category || ''] || (category?.toUpperCase().replace(/-/g, ' ') || 'ARTICLE');
+      
+      const { data, error } = await supabase
+        .from('news')
+        .select('*')
+        .eq('category', firestoreCategory)
+        .is('barangay_id', null) // Main site only shows municipal news
+        .order('date', { ascending: false });
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsItem));
-      setNews(data);
+      if (error) {
+        console.error("Error fetching news:", error);
+      } else {
+        setNews(data as NewsItem[]);
+      }
       setLoading(false);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'news');
-      setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    fetchNews();
+
+    const channel = supabase
+      .channel('news-category-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'news' }, () => fetchNews())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, [category]);
 
   const filteredNews = news.filter(item => 
@@ -83,7 +92,7 @@ const NewsCategoryPage: React.FC = () => {
             className="group relative aspect-square bg-white rounded-[2rem] overflow-hidden border border-brand-border shadow-sm hover:shadow-2xl hover:shadow-brand-primary/10 transition-all"
           >
             <img
-              src={item.imageUrl || `https://picsum.photos/seed/${item.id}/800/800`}
+              src={item.image_url || `https://picsum.photos/seed/${item.id}/800/800`}
               alt={item.title}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               referrerPolicy="no-referrer"
@@ -142,7 +151,7 @@ const NewsCategoryPage: React.FC = () => {
                 DETAILS
               </Link>
               <a 
-                href={item.fileUrl}
+                href={item.file_url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="pro-button px-8 py-3 flex items-center gap-2"
@@ -172,7 +181,7 @@ const NewsCategoryPage: React.FC = () => {
           >
             <div className="aspect-video relative overflow-hidden">
               <img
-                src={item.imageUrl || `https://picsum.photos/seed/${item.id}/800/600`}
+                src={item.image_url || `https://picsum.photos/seed/${item.id}/800/600`}
                 alt={item.title}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 referrerPolicy="no-referrer"

@@ -8,6 +8,7 @@ import QuickAccess from "../components/QuickAccess";
 import PopularServices from "../components/PopularServices";
 import EBOSS from "../components/EBOSS";
 import MunicipalOffices from "../components/MunicipalOffices";
+import BarangaySelector from "../components/BarangaySelector";
 import CitizensCharterSection from "../components/CitizensCharterSection";
 import TransparencyGovernance from "../components/TransparencyGovernance";
 import SocialMediaUpdates from "../components/SocialMediaUpdates";
@@ -28,6 +29,7 @@ export default function Home() {
       <About />
       <ServiceNavigator />
       <PopularServices />
+      <BarangaySelector />
       <EBOSS />
       <MunicipalOffices />
       <Services />

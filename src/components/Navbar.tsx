@@ -3,9 +3,9 @@ import { Menu, X, Globe, ChevronDown, ArrowUpRight, Phone, Mail, MapPin, Search,
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
-import { db, handleFirestoreError, OperationType } from "../firebase";
-import { collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import { supabase } from "../lib/supabase";
 import ThemeToggle from "./ThemeToggle";
+import GlobalSearch from "./GlobalSearch";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,6 +15,7 @@ export default function Navbar() {
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
     setIsScrolled(latest > 50);
@@ -23,16 +24,27 @@ export default function Navbar() {
   });
 
   useEffect(() => {
-    const q = query(collection(db, 'navigation'), orderBy('order', 'asc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setDynamicNavLinks(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'navigation');
-    });
-
-    return () => {
-      unsubscribe();
+    const fetchNav = async () => {
+      const { data, error } = await supabase
+        .from('navigation')
+        .select('*')
+        .order('order', { ascending: true });
+      
+      if (error) {
+        console.error("Error fetching navigation:", error);
+      } else {
+        setDynamicNavLinks(data);
+      }
     };
+
+    fetchNav();
+
+    const channel = supabase
+      .channel('nav-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'navigation' }, () => fetchNav())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const getSubLinks = (sectionName: string, defaultLinks: any[]) => {
@@ -230,8 +242,11 @@ export default function Navbar() {
             <div className="hidden sm:flex items-center gap-4">
               <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Bagong_Pilipinas_logo.png/1920px-Bagong_Pilipinas_logo.png" alt="Bagong Pilipinas" className="h-6 sm:h-10" referrerPolicy="no-referrer" />
             </div>
-            <button className="p-2 hover:bg-gray-100 rounded-full text-gray-400 transition-colors">
-              <Search size={20} />
+            <button 
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2 hover:bg-gray-100 rounded-full text-brand-primary transition-all hover:scale-110 active:scale-95 border border-transparent hover:border-brand-primary/10"
+            >
+              <Search size={22} className="stroke-[2.5]" />
             </button>
             <button 
               onClick={() => setIsOpen(!isOpen)}
@@ -338,6 +353,11 @@ export default function Navbar() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <GlobalSearch 
+        isOpen={isSearchOpen} 
+        onClose={() => setIsSearchOpen(false)} 
+      />
     </motion.header>
   );
 }

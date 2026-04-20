@@ -1,79 +1,70 @@
+import { supabase } from "../lib/supabase";
+
 const api = {
-  get: async (url: string) => {
-    const response = await fetch(`/api${url}`);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+  get: async (table: string, slug: string) => {
+    const { data, error } = await supabase
+      .from(table)
+      .select('*')
+      .eq('slug', slug)
+      .single();
+    
+    if (error) {
+      console.warn(`Query failed for ${table}/${slug}:`, error.message);
+      // Return empty structure to prevent crashes if content not yet seeded
+      return { data: { content: "", title: "", timeline: [], breakdown: [] } };
     }
-    const data = await response.json();
-    return { data };
+    return { data: data.body || data };
   },
 };
 
 export const aboutApi = {
-  getProfile: () => api.get("/about/profile"),
-  getSeal: () => api.get("/about/seal"),
-  getHistory: () => api.get("/about/history"),
-  getMayors: () => api.get("/about/mayors"),
-  getDepartments: () => api.get("/about/departments"),
-  getVicinityMap: () => api.get("/about/vicinity-map"),
-  getBarangays: () => api.get("/about/barangays"),
-  getIndustry: () => api.get("/about/industry"),
-  getServices: () => api.get("/about/services"),
-  getHymn: () => api.get("/about/hymn"),
-  getDemographics: () => api.get("/about/demographics"),
-  getLocation: () => api.get("/about/location"),
+  getProfile: () => api.get("content", "about-profile"),
+  getSeal: () => api.get("content", "about-seal"),
+  getHistory: () => api.get("content", "about-history"),
+  getMayors: () => api.get("content", "about-mayors"),
+  getDepartments: () => api.get("content", "about-departments"),
+  getVicinityMap: () => api.get("content", "about-vicinity-map"),
+  getBarangays: () => api.get("content", "about-barangays"),
+  getIndustry: () => api.get("content", "about-industry"),
+  getServices: () => api.get("content", "about-services"),
+  getHymn: () => api.get("content", "about-hymn"),
+  getDemographics: () => api.get("content", "about-demographics"),
+  getLocation: () => api.get("content", "about-location"),
 };
 
 export const executiveApi = {
-  getMandate: () => api.get("/executive/mandate"),
-  getVisionMission: () => api.get("/executive/vision-mission"),
-  getChart: () => api.get("/executive/chart"),
-  getDirectory: () => api.get("/executive/directory"),
-  getGadIms: () => api.get("/executive/gad-ims"),
+  getMandate: () => api.get("content", "executive-mandate"),
+  getVisionMission: () => api.get("content", "executive-vision-mission"),
+  getChart: () => api.get("content", "executive-chart"),
+  getDirectory: () => api.get("content", "executive-directory"),
+  getGadIms: () => api.get("content", "executive-gad-ims"),
 };
 
 export const legislativeApi = {
-  getMandate: () => api.get("/legislative/mandate"),
-  getStructure: () => api.get("/legislative/structure"),
-  getOrdinances: () => api.get("/legislative/ordinances"),
-  getResolutions: () => api.get("/legislative/resolutions"),
-};
-
-export const newsApi = {
-  getArticles: () => api.get("/news/articles"),
-  getAdvisories: () => api.get("/news/advisories"),
-  getDisasterPreparedness: () => api.get("/news/disaster-preparedness"),
-  getUpdates: () => api.get("/news/updates"),
-  getGallery: () => api.get("/news/gallery"),
-  getCommunity: () => api.get("/news/community"),
-  getPublicNotices: () => api.get("/news/public-notices"),
-  getDownloadable: () => api.get("/news/downloadable"),
+  getMandate: () => api.get("content", "legislative-mandate"),
+  getStructure: () => api.get("content", "legislative-structure"),
 };
 
 export const transparencyApi = {
-  getCitizenCharter: () => api.get("/transparency/citizen-charter"),
-  getFullDisclosure: () => api.get("/transparency/full-disclosure"),
-  getInfrastructure: () => api.get("/transparency/infrastructure"),
-  getFinanceReports: () => api.get("/transparency/finance-reports"),
-  getExecutiveOrders: () => api.get("/transparency/executive-orders"),
-  getBudget: () => api.get("/transparency/budget"),
-  getBayanihanGrant: () => api.get("/transparency/bayanihan-grant"),
-  getBiddings: () => api.get("/transparency/biddings"),
-  getOrdinances: () => api.get("/transparency/ordinances"),
-  getSroi: () => api.get("/transparency/sroi"),
+  getCitizenCharter: () => api.get("content", "transparency-citizen-charter"),
+  getFullDisclosure: () => api.get("content", "transparency-full-disclosure"),
+  getInfrastructure: () => api.get("content", "transparency-infrastructure"),
+  getFinanceReports: () => api.get("content", "transparency-finance-reports"),
+  getExecutiveOrders: () => api.get("content", "transparency-executive-orders"),
+  getBudget: () => api.get("content", "transparency-budget"),
+  getBiddings: () => api.get("content", "transparency-biddings"),
 };
 
 export const tourismApi = {
-  getSpots: () => api.get("/tourism/spots"),
-  getFestivities: () => api.get("/tourism/festivities"),
-  getDelicacies: () => api.get("/tourism/delicacies"),
+  getSpots: () => api.get("content", "tourism-spots"),
+  getFestivities: () => api.get("content", "tourism-festivities"),
+  getDelicacies: () => api.get("content", "tourism-delicacies"),
 };
 
 export const formsApi = {
-  getDownloadable: () => api.get("/forms/downloadable"),
-  getBusinessPermits: () => api.get("/forms/business-permits"),
-  getBuildingPermits: () => api.get("/forms/building-permits"),
-  getZoningClearance: () => api.get("/forms/zoning-clearance"),
+  getBusinessPermits: () => api.get("content", "forms-business-permits"),
+  getBuildingPermits: () => api.get("content", "forms-building-permits"),
+  getZoningClearance: () => api.get("content", "forms-zoning-clearance"),
 };
 
 export default api;

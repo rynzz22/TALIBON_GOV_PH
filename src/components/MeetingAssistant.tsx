@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
-import { db, handleFirestoreError, OperationType } from '../firebase';
-import { collection, addDoc, Timestamp, query, orderBy, onSnapshot, deleteDoc, doc } from 'firebase/firestore';
-import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '../lib/supabase';
+import { useAuth } from '../contexts/SupabaseAuthContext';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Mic, Square, Loader2, Save, Trash2, 
@@ -11,7 +10,8 @@ import {
 } from 'lucide-react';
 
 const MeetingAssistant: React.FC = () => {
-  const { user, isAdmin } = useAuth();
+  const { user, profile } = useAuth();
+  const isAdmin = profile?.role === 'municipal_admin';
   const [isRecording, setIsRecording] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [transcription, setTranscription] = useState('');
@@ -27,14 +27,27 @@ const MeetingAssistant: React.FC = () => {
   useEffect(() => {
     if (!isAdmin) return;
 
-    const q = query(collection(db, 'meetings'), orderBy('date', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      setMeetings(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
-    }, (err) => {
-      handleFirestoreError(err, OperationType.LIST, 'meetings');
-    });
+    const fetchMeetings = async () => {
+      const { data, error } = await supabase
+        .from('meetings')
+        .select('*')
+        .order('date', { ascending: false });
+      
+      if (error) {
+        console.error("Error fetching meetings:", error);
+      } else {
+        setMeetings(data);
+      }
+    };
 
-    return () => unsubscribe();
+    fetchMeetings();
+
+    const channel = supabase
+      .channel('meetings-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'meetings' }, () => fetchMeetings())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, [isAdmin]);
 
   const startRecording = async () => {
@@ -126,29 +139,33 @@ const MeetingAssistant: React.FC = () => {
     }
 
     try {
-      await addDoc(collection(db, 'meetings'), {
+      const { error: supabaseError } = await supabase.from('meetings').insert([{
         title,
         summary,
         transcription,
-        date: Timestamp.now(),
+        date: new Date().toISOString(),
         author: user?.email || 'Admin'
-      });
+      }]);
+      
+      if (supabaseError) throw supabaseError;
+
       setSuccess("Meeting summary saved successfully!");
       setTitle('');
       setSummary('');
       setTranscription('');
-    } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, 'meetings');
+    } catch (err: any) {
+      setError(err.message || "Failed to save meeting record.");
     }
   };
 
   const deleteMeeting = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this meeting record?")) return;
     try {
-      await deleteDoc(doc(db, 'meetings', id));
+      const { error: supabaseError } = await supabase.from('meetings').delete().eq('id', id);
+      if (supabaseError) throw supabaseError;
       setSuccess("Meeting record deleted.");
-    } catch (err) {
-      handleFirestoreError(err, OperationType.DELETE, 'meetings');
+    } catch (err: any) {
+      setError(err.message || "Failed to delete meeting record.");
     }
   };
 
@@ -287,7 +304,7 @@ const MeetingAssistant: React.FC = () => {
                 <div>
                   <h3 className="font-black text-brand-text group-hover:text-brand-primary transition-colors font-display uppercase tracking-tight">{meeting.title}</h3>
                   <p className="text-[10px] font-black text-brand-muted uppercase tracking-[0.2em] mt-1">
-                    {meeting.date?.toDate().toLocaleDateString()} • {meeting.author}
+                    {new Date(meeting.date).toLocaleDateString()} • {meeting.author}
                   </p>
                 </div>
                 <button 

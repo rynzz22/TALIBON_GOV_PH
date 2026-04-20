@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, useLocation, Link } from "react-router-dom";
 import { motion } from "motion/react";
 import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
@@ -20,18 +20,24 @@ import OrganizationalChartPage from "./pages/OrganizationalChartPage";
 import NewsCategoryPage from "./pages/NewsCategoryPage";
 import NewsDetailPage from "./pages/NewsDetailPage";
 import DownloadsPage from "./pages/DownloadsPage";
+import BarangayHome from "./pages/BarangayHome";
+import Login from "./pages/Login";
+import { BARANGAYS } from "./constants/barangayConfig";
 import AdminDashboard from "./pages/AdminDashboard";
 import GadImsSystem from "./components/GadImsSystem";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancel from "./pages/PaymentCancel";
 import Footer from "./components/Footer";
 import GeminiAssistant from "./components/GeminiAssistant";
 import ScrollToTop from "./components/ScrollToTop";
-import { aboutApi, executiveApi, legislativeApi, newsApi, transparencyApi, tourismApi, formsApi } from "./services/api";
-import { FirebaseProvider } from "./contexts/AuthContext";
-import { Eye, Target, Quote, User, Phone, ExternalLink, Clock, Building2 } from "lucide-react";
+import { aboutApi, executiveApi, legislativeApi, transparencyApi, tourismApi, formsApi } from "./services/api";
+import { AuthProvider } from "./contexts/SupabaseAuthContext";
+import { Eye, Target, Quote, User, Phone, ExternalLink, Clock, Building2, ArrowUpRight } from "lucide-react";
 
 function AppLayout() {
   const location = useLocation();
   const isHome = location.pathname === "/";
+  const isLogin = location.pathname === "/login";
 
   return (
     <div className="min-h-screen bg-white font-sans selection:bg-brand-primary selection:text-white relative overflow-hidden">
@@ -41,12 +47,16 @@ function AppLayout() {
         </div>
 
         <div className="relative z-10">
-          <Navbar />
-          <div className={isHome ? "" : "pt-[140px] lg:pt-[204px]"}>
+          {!isLogin && <Navbar />}
+          <div className={isHome || isLogin ? "" : "pt-[140px] lg:pt-[204px]"}>
             <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/brgy/:slug" element={<BarangayHome />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/downloads" element={<DownloadsPage />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/payment/cancel" element={<PaymentCancel />} />
           
           {/* About Talibon */}
           <Route path="/about/profile" element={<ContentPage title="Brief Profile" fetchData={aboutApi.getProfile} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium whitespace-pre-line">{data.content}</p>} />} />
@@ -236,13 +246,26 @@ function AppLayout() {
               </div>
             </div>
           )} />} />
-          <Route path="/about/barangays" element={<ContentPage title="Barangays" fetchData={aboutApi.getBarangays} renderContent={(data) => (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <Route path="/about/barangays" element={<ContentPage title="Barangay Profiles" fetchData={async () => ({ data: BARANGAYS })} renderContent={(data) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {Array.isArray(data) && data.length > 0 ? (
-                data.map((brgy: string, idx: number) => (
-                  <div key={`${brgy}-${idx}`} className="civic-card p-4 text-center font-bold text-brand-text uppercase tracking-widest text-[10px] hover:bg-brand-primary/5 hover:border-brand-primary transition-all">
-                    {String(brgy)}
-                  </div>
+                data.map((brgy: any, idx: number) => (
+                  <Link 
+                    key={`${brgy.slug}-${idx}`} 
+                    to={`/brgy/${brgy.slug}`}
+                    className="minimal-card p-8 flex flex-col items-center justify-center text-center gap-4 hover:border-brand-primary/30 group"
+                  >
+                    <div className="w-12 h-12 rounded-2xl bg-brand-primary/5 text-brand-primary flex items-center justify-center group-hover:bg-brand-primary group-hover:text-white transition-all">
+                      <Building2 size={24} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black uppercase tracking-widest text-brand-text group-hover:text-brand-primary transition-colors">{brgy.name}</h3>
+                      <p className="text-[10px] font-bold text-brand-muted uppercase tracking-[0.2em] mt-1">Captain: {brgy.captain}</p>
+                    </div>
+                    <div className="mt-4 flex items-center gap-1 text-[8px] font-black text-brand-primary uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-all">
+                      Visit Microsite <ArrowUpRight size={12} />
+                    </div>
+                  </Link>
                 ))
               ) : (
                 <div className="col-span-full text-center py-24 text-brand-muted font-bold uppercase tracking-widest">
@@ -502,12 +525,12 @@ function AppLayout() {
 
 export default function App() {
   return (
-    <FirebaseProvider>
+    <AuthProvider>
       <Router>
         <ScrollToTop />
         <AppLayout />
       </Router>
-    </FirebaseProvider>
+    </AuthProvider>
   );
 }
 

@@ -37,7 +37,7 @@ const OfficialSealPage: React.FC = () => {
           
           <div className="max-w-2xl text-center">
             <p className="text-xl text-brand-muted font-medium leading-relaxed">
-              The official seal of the Municipality of Talibon represents our rich history, our connection to the sea, and our commitment to progress and unity.
+              The official seal of the Municipality of Talibon, Bohol, Philippines represents our rich history, our connection to the sea, and our commitment to progress and unity.
             </p>
           </div>
         </div>

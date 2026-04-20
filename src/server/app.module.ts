@@ -16,11 +16,14 @@ import { TourismController } from "./api/tourism/tourism.controller";
 import { TourismService } from "./api/tourism/tourism.service";
 import { FormsController } from "./api/forms/forms.controller";
 import { FormsService } from "./api/forms/forms.service";
+import { PaymentsModule } from "./api/payments/payments.module";
+import { PaymentsController } from "./api/payments/payments.controller";
+import { PaymentsService } from "./api/payments/payments.service";
 
 import { SupabaseService } from "./supabase.service";
 
 @Module({
-  imports: [],
+  imports: [PaymentsModule],
   controllers: [
     AboutController,
     ExecutiveController,
@@ -29,6 +32,7 @@ import { SupabaseService } from "./supabase.service";
     TransparencyController,
     TourismController,
     FormsController,
+    PaymentsController,
   ],
   providers: [
     SupabaseService,
@@ -39,6 +43,7 @@ import { SupabaseService } from "./supabase.service";
     TransparencyService,
     TourismService,
     FormsService,
+    PaymentsService,
   ],
 })
 export class AppModule implements NestModule {

@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { HardHat, Download, ShieldCheck, Zap, Ruler, Droplets, FileCheck, FileText } from 'lucide-react';
+import { HardHat, Download, ShieldCheck, Zap, Ruler, Droplets, FileCheck, FileText, CreditCard } from 'lucide-react';
+import PaymentButton from '../components/PaymentButton';
 
 const BuildingPermitPage: React.FC = () => {
   const permitCategories = [
@@ -128,6 +129,31 @@ const BuildingPermitPage: React.FC = () => {
               </motion.div>
             ))}
           </div>
+
+          {/* Online Payment Card */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-12 pro-card p-8 md:p-12 border-2 border-brand-primary/20 bg-brand-primary/5 flex flex-col md:flex-row items-center gap-8"
+          >
+            <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center flex-shrink-0 shadow-sm border border-brand-border">
+              <CreditCard className="text-brand-primary" size={36} />
+            </div>
+
+            <div className="flex-1 text-center md:text-left">
+              <h3 className="text-2xl font-black text-brand-text uppercase tracking-tight mb-2 font-display">
+                Online Permit Fees
+              </h3>
+              <p className="text-brand-muted font-medium">
+                Settle your building permit processing fees online for faster approval and processing.
+              </p>
+            </div>
+
+            <div className="w-full md:w-72">
+              <PaymentButton itemName="Building Permit Processing Fee" amount={1500} />
+            </div>
+          </motion.div>
 
           {/* Assistance Section */}
           <div className="mt-20 p-12 bg-brand-text rounded-[3rem] text-white relative overflow-hidden shadow-2xl">

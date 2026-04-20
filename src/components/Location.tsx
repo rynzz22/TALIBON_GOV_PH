@@ -16,7 +16,7 @@ export default function Location() {
               <span className="section-label">Geography</span>
               <h2 className="section-title">Location</h2>
               <p className="text-xl text-brand-muted font-medium leading-relaxed">
-                Talibon is a first-class municipality situated in the northernmost part of Bohol, approximately 114.8 kilometers from Tagbilaran City.
+                Talibon is a first-class municipality situated in the northernmost part of Bohol, Philippines, approximately 114.8 kilometers from Tagbilaran City.
               </p>
             </div>
 

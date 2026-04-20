@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { Calendar, Clock, MapPin, ArrowRight, Loader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { db, handleFirestoreError, OperationType } from "../firebase";
-import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
+import { supabase } from "../lib/supabase";
 
 interface NewsItem {
   id: string;
@@ -11,7 +10,7 @@ interface NewsItem {
   date: string;
   category: string;
   summary: string;
-  imageUrl: string;
+  image_url: string;
 }
 
 export default function Events() {
@@ -19,23 +18,40 @@ export default function Events() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const q = query(collection(db, 'news'), orderBy('date', 'desc'), limit(3));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as NewsItem));
-      setNews(data);
-      setLoading(false);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'news');
-      setLoading(false);
-    });
+    const fetchNews = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('news')
+        .select('*')
+        .is('barangay_id', null)
+        .order('date', { ascending: false })
+        .limit(3);
 
-    return () => unsubscribe();
+      if (error) {
+        console.error("Error fetching homepage news:", error);
+      } else {
+        setNews(data as NewsItem[]);
+      }
+      setLoading(false);
+    };
+
+    fetchNews();
+
+    const channel = supabase
+      .channel('homepage-news')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'news' }, () => fetchNews())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   if (loading) {
     return (
-      <section id="events" className="py-32 bg-white flex items-center justify-center">
+      <section id="events" className="py-32 bg-white flex flex-col items-center justify-center gap-6">
         <Loader2 className="w-12 h-12 text-brand-primary animate-spin" />
+        <p className="text-brand-muted font-bold animate-pulse uppercase tracking-[0.2em] text-sm">
+          Fetching latest news...
+        </p>
       </section>
     );
   }
@@ -67,7 +83,7 @@ export default function Events() {
               >
                 <div className="aspect-[16/10] relative overflow-hidden rounded-[2.5rem] shadow-xl">
                   <img
-                    src={item.imageUrl || "https://picsum.photos/seed/news/800/600"}
+                    src={item.image_url || "https://picsum.photos/seed/news/800/600"}
                     alt={item.title}
                     className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
                     referrerPolicy="no-referrer"

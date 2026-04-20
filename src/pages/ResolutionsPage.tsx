@@ -1,8 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, FileText, Calendar, User, ChevronDown, ChevronUp, Download, Filter, ArrowUpDown, Loader2 } from 'lucide-react';
-import { db, handleFirestoreError, OperationType } from '../firebase';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
 
 interface Resolution {
   id?: string;
@@ -10,7 +9,7 @@ interface Resolution {
   date: string;
   author: string;
   title: string;
-  fileUrl?: string;
+  file_url?: string;
 }
 
 type SortKey = 'no' | 'date' | 'title';
@@ -24,17 +23,30 @@ const ResolutionsPage: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 
   useEffect(() => {
-    const q = query(collection(db, 'resolutions'), orderBy('no', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Resolution));
-      setResolutions(data);
-      setLoading(false);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'resolutions');
-      setLoading(false);
-    });
+    const fetchResolutions = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('resolutions')
+        .select('*')
+        .order('no', { ascending: false });
 
-    return () => unsubscribe();
+      if (error) {
+        console.error("Error fetching resolutions:", error);
+      } else {
+        setResolutions(data as Resolution[]);
+      }
+      setLoading(false);
+    };
+
+    fetchResolutions();
+
+    // Subscribe to changes
+    const channel = supabase
+      .channel('resolutions-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'resolutions' }, () => fetchResolutions())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const handleSort = (key: SortKey) => {

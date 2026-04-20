@@ -6,9 +6,9 @@
   --font-display: "Outfit", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   
-  --color-brand-primary: #CE1126; /* Vibrant Red */
-  --color-brand-secondary: #ea580c; /* Warm Orange */
-  --color-brand-accent: #f43f5e; /* Rose/Pink Accent */
+  --color-brand-primary: var(--primary, #CE1126); /* Dynamic Primary */
+  --color-brand-secondary: var(--secondary, #ea580c); /* Dynamic Secondary */
+  --color-brand-accent: var(--accent, #f43f5e); /* Dynamic Accent */
   --color-brand-bg: #FFFFFF;
   --color-brand-surface: #F8FAFC;
   --color-brand-border: #F1F5F9;

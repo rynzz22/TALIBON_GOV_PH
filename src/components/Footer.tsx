@@ -54,7 +54,7 @@ export default function Footer() {
             <div className="space-y-6">
               <div className="flex items-start gap-4">
                 <MapPin size={18} className="text-brand-primary mt-1" />
-                <p className="text-sm font-medium text-brand-text leading-relaxed">Municipal Hall, Poblacion, Talibon, Bohol, 6325</p>
+                <p className="text-sm font-medium text-brand-text leading-relaxed">Municipal Hall, Poblacion, Talibon, Bohol, 6325, Philippines</p>
               </div>
               <div className="flex items-center gap-4">
                 <Phone size={18} className="text-brand-primary" />

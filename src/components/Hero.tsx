@@ -3,7 +3,12 @@ import { motion } from "motion/react";
 import { ArrowRight, Play, Globe, Shield, Smartphone, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  overrideTitle?: string;
+  overrideSubtitle?: string;
+}
+
+const Hero: React.FC<HeroProps> = ({ overrideTitle, overrideSubtitle }) => {
   return (
     <section id="home" className="relative min-h-screen w-full overflow-hidden flex flex-col items-start justify-center px-4 sm:px-12 lg:px-24">
       {/* Background Image / Video Overlay */}
@@ -37,11 +42,15 @@ const Hero: React.FC = () => {
             <div className="px-4 py-1 bg-brand-secondary text-white text-sm font-black rounded-full rotate-3 animate-bounce">NEW</div>
           </div>
           <h1 className="text-5xl sm:text-8xl font-black text-white leading-tight tracking-tight">
-            Bohol's <br />
-            Seafood Capital.
+            {overrideTitle || (
+              <>
+                Bohol's <br />
+                Seafood Capital.
+              </>
+            )}
           </h1>
           <p className="text-[#ffb703] text-xl sm:text-3xl font-black tracking-tight mt-4 uppercase">
-            Experience Bohol's Premier Destination
+            {overrideSubtitle || "Experience Bohol's Premier Destination in the Philippines"}
           </p>
 
           <div className="flex flex-wrap items-center gap-4 mt-12">

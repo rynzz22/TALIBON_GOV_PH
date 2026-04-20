@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { User, Users, Loader2 } from 'lucide-react';
-import { db, handleFirestoreError, OperationType } from '../firebase';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
+import { supabase } from '../lib/supabase';
 
 const DEPARTMENT_LOGOS: Record<string, string> = {
   "Office Of Municipal Agriculturist": "http://talibon.gov.ph/wp-content/uploads/2025/10/1.png",
@@ -33,30 +32,39 @@ const OrganizationalChartPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const q = query(collection(db, 'officials'), orderBy('level', 'asc'), orderBy('order', 'asc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const officials = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const fetchOfficials = async () => {
+      setLoading(true);
+      const { data: officials, error: supabaseError } = await supabase
+        .from('officials')
+        .select('*')
+        .order('level', { ascending: true })
+        .order('display_order', { ascending: true });
       
-      if (officials.length === 0) {
+      if (supabaseError) {
+        console.error("Error fetching officials:", supabaseError);
+        setError("Failed to load organizational data.");
+      } else if (officials && officials.length > 0) {
+        const structuredData = {
+          mayor: officials.find((o: any) => o.level === 1) || { name: 'N/A', role: 'Municipal Mayor' },
+          level2: officials.filter((o: any) => o.level === 2),
+          departments: officials.filter((o: any) => o.level === 3)
+        };
+        setData(structuredData);
+      } else {
         setData(null);
-        setLoading(false);
-        return;
       }
-
-      const structuredData = {
-        mayor: officials.find((o: any) => o.level === 1) || { name: 'N/A', role: 'Municipal Mayor' },
-        level2: officials.filter((o: any) => o.level === 2),
-        departments: officials.filter((o: any) => o.level === 3)
-      };
-      
-      setData(structuredData);
       setLoading(false);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.LIST, 'officials');
-      setLoading(false);
-    });
+    };
 
-    return () => unsubscribe();
+    fetchOfficials();
+
+    // Subscribe
+    const channel = supabase
+      .channel('officials-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'officials' }, () => fetchOfficials())
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   if (loading) {
