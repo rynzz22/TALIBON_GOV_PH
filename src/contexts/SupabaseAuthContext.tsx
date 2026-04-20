@@ -32,15 +32,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   const refreshProfile = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-      const { data } = await supabase
+    try {
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (!currentUser) return;
+
+      const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("id", user.id)
+        .eq("id", currentUser.id)
         .single();
-      
+
+      if (error) {
+        if (error.code !== 'PGRST116') {
+          console.error("[Auth] Profile fetch error:", error.message);
+        }
+        return;
+      }
+
       if (data) setProfile(data as UserProfile);
+    } catch (err) {
+      console.error("[Auth] refreshProfile error:", err);
     }
   };
 
@@ -60,10 +71,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     });
 
-    // Listen for popup messages specifically for AI Studio iframe compatibility
     const handleMessage = (event: MessageEvent) => {
       if (event.origin !== window.location.origin) return;
-      if (event.data?.type === 'SUPABASE_AUTH_SUCCESS') {
+      if (
+        event.data &&
+        typeof event.data === 'object' &&
+        event.data.type === 'SUPABASE_AUTH_SUCCESS' &&
+        event.source !== null
+      ) {
         refreshProfile();
       }
     };
@@ -76,27 +91,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const signInWithGoogle = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin + "/auth/callback",
-        skipBrowserRedirect: true,
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          skipBrowserRedirect: true,
+        },
+      });
+
+      if (error) {
+        console.error("[Auth] Google sign-in error:", error.message);
+        alert("Login Error: " + error.message);
+        return;
       }
-    });
 
-    if (error) {
-      alert("Login Error: " + error.message);
-      return;
-    }
-
-    if (data?.url) {
-      // Direct the provider URL to a popup to bypass iframe blocking (403 errors)
-      window.open(data.url, 'supabase_auth_popup', 'width=600,height=700,top=100,left=100');
+      if (data?.url) {
+        const popup = window.open(
+          data.url,
+          'supabase_auth_popup',
+          'width=600,height=700,top=100,left=100,noopener,noreferrer'
+        );
+        if (!popup) {
+          alert("Popup blocked. Please allow popups for this site and try again.");
+        }
+      }
+    } catch (err) {
+      console.error("[Auth] Unexpected sign-in error:", err);
     }
   };
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    setProfile(null);
   };
 
   return (

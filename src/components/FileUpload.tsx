@@ -11,12 +11,46 @@ interface FileUploadProps {
   currentValue?: string;
 }
 
-const FileUpload: React.FC<FileUploadProps> = ({ 
-  onUploadComplete, 
-  label, 
-  accept = "*", 
-  folder = "uploads",
-  currentValue 
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
+const ALLOWED_MIME_TYPES: Record<string, string[]> = {
+  'image/*': ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+  '.pdf': ['application/pdf'],
+  '.doc,.docx': [
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  ],
+  '*': [],
+};
+
+function getAllowedMimes(accept: string): string[] {
+  if (accept === '*') return [];
+  const types: string[] = [];
+  accept.split(',').forEach((a) => {
+    const trimmed = a.trim();
+    for (const [key, mimes] of Object.entries(ALLOWED_MIME_TYPES)) {
+      if (key.includes(trimmed) || trimmed.includes(key)) {
+        types.push(...mimes);
+      }
+    }
+  });
+  return types;
+}
+
+function sanitizeFileName(name: string): string {
+  return name
+    .replace(/[^a-zA-Z0-9._-]/g, '_')
+    .replace(/_{2,}/g, '_')
+    .slice(0, 100);
+}
+
+const FileUpload: React.FC<FileUploadProps> = ({
+  onUploadComplete,
+  label,
+  accept = '*',
+  folder = 'uploads',
+  currentValue,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<number | null>(null);
@@ -24,10 +58,30 @@ const FileUpload: React.FC<FileUploadProps> = ({
   const [fileName, setFileName] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      uploadFile(e.target.files[0]);
+  const validateFile = (file: File): string | null => {
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      return `File too large. Maximum size is ${MAX_FILE_SIZE_MB}MB.`;
     }
+
+    if (accept !== '*') {
+      const allowedMimes = getAllowedMimes(accept);
+      if (allowedMimes.length > 0 && !allowedMimes.includes(file.type)) {
+        return `Invalid file type. Allowed: ${accept}`;
+      }
+    }
+
+    const suspiciousExtensions = ['.exe', '.sh', '.bat', '.cmd', '.ps1', '.js', '.php'];
+    const ext = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (suspiciousExtensions.includes(ext)) {
+      return 'This file type is not permitted for security reasons.';
+    }
+
+    return null;
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) uploadFile(file);
   };
 
   const onDragOver = (e: React.DragEvent) => {
@@ -35,68 +89,71 @@ const FileUpload: React.FC<FileUploadProps> = ({
     setIsDragging(true);
   };
 
-  const onDragLeave = () => {
-    setIsDragging(false);
-  };
+  const onDragLeave = () => setIsDragging(false);
 
   const onDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      uploadFile(e.dataTransfer.files[0]);
-    }
+    const file = e.dataTransfer.files?.[0];
+    if (file) uploadFile(file);
   };
 
   const uploadFile = async (file: File) => {
     setError(null);
-    setFileName(file.name);
-    setUploadProgress(10); // Start progress
-    
-    // Check file size (max 5MB for demo)
-    if (file.size > 5 * 1024 * 1024) {
-      setError("File is too large. Max 5MB allowed.");
-      setUploadProgress(null);
+
+    const validationError = validateFile(file);
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
+    setFileName(file.name);
+    setUploadProgress(10);
+
     try {
-      const fileNameStr = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const filePath = `${folder}/${fileNameStr}`;
+      const safeName = sanitizeFileName(file.name);
+      const filePath = `${folder}/${Date.now()}_${safeName}`;
 
       setUploadProgress(30);
 
       const { data, error: uploadError } = await supabase.storage
-        .from('public-assets') // Make sure this bucket is created in Supabase Storage with public access
+        .from('public-assets')
         .upload(filePath, file, {
           cacheControl: '3600',
-          upsert: false
+          upsert: false,
+          contentType: file.type,
         });
 
       if (uploadError) throw uploadError;
+      if (!data?.path) throw new Error('Upload succeeded but no path returned.');
 
       setUploadProgress(80);
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('public-assets')
-        .getPublicUrl(filePath);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('public-assets').getPublicUrl(data.path);
+
+      if (!publicUrl) throw new Error('Failed to generate public URL.');
 
       setUploadProgress(100);
       setTimeout(() => {
         onUploadComplete(publicUrl);
         setUploadProgress(null);
       }, 500);
-
-    } catch (err: any) {
-      console.error("Upload error:", err);
-      setError(err.message || "Upload failed. Please try again.");
+    } catch (err: unknown) {
+      console.error('[FileUpload] Error:', err);
+      const message =
+        err instanceof Error ? err.message : 'Upload failed. Please try again.';
+      setError(message);
       setUploadProgress(null);
     }
   };
 
   const clearFile = () => {
-    onUploadComplete("");
+    onUploadComplete('');
     setFileName(null);
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    setError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   return (
@@ -104,58 +161,64 @@ const FileUpload: React.FC<FileUploadProps> = ({
       <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block">
         {label}
       </label>
-      
+
       <div
         onDragOver={onDragOver}
         onDragLeave={onDragLeave}
         onDrop={onDrop}
         onClick={() => fileInputRef.current?.click()}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
+        aria-label={`Upload ${label}`}
         className={`relative cursor-pointer border-2 border-dashed rounded-2xl p-8 transition-all flex flex-col items-center justify-center gap-4 ${
-          isDragging 
-            ? 'border-blue-600 bg-blue-50/50' 
-            : uploadProgress !== null 
-              ? 'border-blue-400 bg-blue-50/10'
-              : currentValue 
-                ? 'border-green-400 bg-green-50/10'
-                : 'border-gray-200 hover:border-blue-400 hover:bg-gray-50'
+          isDragging
+            ? 'border-blue-600 bg-blue-50/50'
+            : uploadProgress !== null
+            ? 'border-blue-400 bg-blue-50/10'
+            : currentValue
+            ? 'border-green-400 bg-green-50/10'
+            : 'border-gray-200 hover:border-blue-400 hover:bg-gray-50'
         }`}
       >
-        <input 
-          type="file" 
+        <input
+          type="file"
           ref={fileInputRef}
           onChange={handleFileChange}
           accept={accept}
-          className="hidden" 
+          className="hidden"
+          aria-hidden="true"
         />
 
         <AnimatePresence mode="wait">
           {uploadProgress !== null ? (
-            <motion.div 
+            <motion.div
               key="uploading"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
               className="flex flex-col items-center gap-3 w-full max-w-xs"
+              aria-live="polite"
             >
               <div className="relative w-12 h-12 flex items-center justify-center">
-                <Loader2 size={32} className="text-blue-600 animate-spin" />
+                <Loader2 size={32} className="text-blue-600 animate-spin" aria-hidden="true" />
                 <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black text-blue-600">
                   {Math.round(uploadProgress)}%
                 </span>
               </div>
-              <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                <motion.div 
+              <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden" role="progressbar" aria-valuenow={Math.round(uploadProgress)} aria-valuemin={0} aria-valuemax={100}>
+                <motion.div
                   className="h-full bg-blue-600"
                   initial={{ width: 0 }}
                   animate={{ width: `${uploadProgress}%` }}
                 />
               </div>
               <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest text-center truncate w-full px-4">
-                UPLOADING: {fileName}
+                Uploading: {fileName}
               </p>
             </motion.div>
           ) : currentValue ? (
-            <motion.div 
+            <motion.div
               key="completed"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -163,24 +226,29 @@ const FileUpload: React.FC<FileUploadProps> = ({
               className="flex flex-col items-center gap-2"
             >
               <div className="w-12 h-12 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center">
-                <CheckCircle size={24} />
+                <CheckCircle size={24} aria-hidden="true" />
               </div>
               <p className="text-[10px] font-black text-green-600 uppercase tracking-widest">
-                FILE SECURED
+                File Secured
               </p>
               <div className="flex items-center gap-2 mt-2">
-                <a 
-                  href={currentValue} 
-                  target="_blank" 
+                <a
+                  href={currentValue}
+                  target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
                   className="text-[10px] font-black text-blue-600 hover:underline flex items-center gap-1"
                 >
-                  <FileText size={12} />
-                  VIEW CURRENT FILE
+                  <FileText size={12} aria-hidden="true" />
+                  View Current File
                 </a>
-                <button 
-                  onClick={(e) => { e.stopPropagation(); clearFile(); }}
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    clearFile();
+                  }}
+                  aria-label="Remove file"
                   className="p-1 hover:bg-red-50 text-red-400 rounded-lg transition-colors"
                 >
                   <X size={14} />
@@ -188,22 +256,22 @@ const FileUpload: React.FC<FileUploadProps> = ({
               </div>
             </motion.div>
           ) : (
-            <motion.div 
+            <motion.div
               key="instruction"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               className="flex flex-col items-center gap-3"
             >
-              <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Upload size={32} />
+              <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center">
+                <Upload size={32} aria-hidden="true" />
               </div>
               <div className="text-center">
                 <p className="text-xs font-black text-gray-900 uppercase tracking-widest mb-1">
                   Click or drag to upload
                 </p>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-                  Supported: {accept === "*" ? "All Files" : accept.toUpperCase()} (Up to 5MB)
+                  {accept === '*' ? 'All files' : accept.toUpperCase()} — Max {MAX_FILE_SIZE_MB}MB
                 </p>
               </div>
             </motion.div>
@@ -211,12 +279,13 @@ const FileUpload: React.FC<FileUploadProps> = ({
         </AnimatePresence>
 
         {error && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
+            role="alert"
             className="mt-2 flex items-center gap-2 text-red-500 font-black text-[10px] uppercase tracking-widest"
           >
-            <AlertCircle size={14} />
+            <AlertCircle size={14} aria-hidden="true" />
             {error}
           </motion.div>
         )}
