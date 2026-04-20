@@ -411,4 +411,3 @@ export default function Navbar() {
     </motion.header>
   );
 }
-
