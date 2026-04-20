@@ -66,7 +66,7 @@ const PaymentButton: React.FC<PaymentButtonProps> = ({
       )}
       
       <p className="text-[10px] text-brand-muted font-bold uppercase tracking-[0.15em] text-center opacity-60">
-        Secure payment via Stripe. All major cards accepted.
+        Secure payment via HitPay. GCash, Maya, and Cards accepted.
       </p>
     </div>
   );
