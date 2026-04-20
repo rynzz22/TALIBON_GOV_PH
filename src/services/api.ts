@@ -1,70 +1,96 @@
 import { supabase } from "../lib/supabase";
+import { ContentData } from "../types";
+import { API_ENDPOINTS, ERROR_MESSAGES } from "../constants";
+
+// Simple cache implementation
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_DURATION = 1000 * 60 * 5; // 5 minutes
+
+const getCacheKey = (table: string, slug: string) => `${table}:${slug}`;
+
+const isCacheValid = (timestamp: number): boolean => {
+  return Date.now() - timestamp < CACHE_DURATION;
+};
 
 const api = {
-  get: async (table: string, slug: string) => {
-    const { data, error } = await supabase
-      .from(table)
-      .select('*')
-      .eq('slug', slug)
-      .single();
-    
-    if (error) {
-      console.warn(`Query failed for ${table}/${slug}:`, error.message);
-      // Return empty structure to prevent crashes if content not yet seeded
-      return { data: { content: "", title: "", timeline: [], breakdown: [] } };
+  get: async (table: string, slug: string): Promise<ContentData> => {
+    const cacheKey = getCacheKey(table, slug);
+    const cached = cache.get(cacheKey);
+
+    if (cached && isCacheValid(cached.timestamp)) {
+      return cached.data;
     }
-    return { data: data.body || data };
+
+    try {
+      const { data, error } = await supabase
+        .from(table)
+        .select("*")
+        .eq("slug", slug)
+        .single();
+
+      if (error) {
+        console.error(`Query failed for ${table}/${slug}:`, error.message);
+        throw new Error(ERROR_MESSAGES.LOAD_FAILED);
+      }
+
+      const result = data?.body || data || {};
+      cache.set(cacheKey, { data: result, timestamp: Date.now() });
+      return result;
+    } catch (error) {
+      console.error(`API error: ${error}`);
+      throw error;
+    }
   },
 };
 
 export const aboutApi = {
-  getProfile: () => api.get("content", "about-profile"),
-  getSeal: () => api.get("content", "about-seal"),
-  getHistory: () => api.get("content", "about-history"),
-  getMayors: () => api.get("content", "about-mayors"),
-  getDepartments: () => api.get("content", "about-departments"),
-  getVicinityMap: () => api.get("content", "about-vicinity-map"),
-  getBarangays: () => api.get("content", "about-barangays"),
-  getIndustry: () => api.get("content", "about-industry"),
-  getServices: () => api.get("content", "about-services"),
-  getHymn: () => api.get("content", "about-hymn"),
-  getDemographics: () => api.get("content", "about-demographics"),
-  getLocation: () => api.get("content", "about-location"),
+  getProfile: () => api.get("content", API_ENDPOINTS.ABOUT.PROFILE),
+  getSeal: () => api.get("content", API_ENDPOINTS.ABOUT.SEAL),
+  getHistory: () => api.get("content", API_ENDPOINTS.ABOUT.HISTORY),
+  getMayors: () => api.get("content", API_ENDPOINTS.ABOUT.MAYORS),
+  getDepartments: () => api.get("content", API_ENDPOINTS.ABOUT.DEPARTMENTS),
+  getVicinityMap: () => api.get("content", API_ENDPOINTS.ABOUT.VICINITY_MAP),
+  getBarangays: () => api.get("content", API_ENDPOINTS.ABOUT.BARANGAYS),
+  getIndustry: () => api.get("content", API_ENDPOINTS.ABOUT.INDUSTRY),
+  getServices: () => api.get("content", API_ENDPOINTS.ABOUT.SERVICES),
+  getHymn: () => api.get("content", API_ENDPOINTS.ABOUT.HYMN),
+  getDemographics: () => api.get("content", API_ENDPOINTS.ABOUT.DEMOGRAPHICS),
+  getLocation: () => api.get("content", API_ENDPOINTS.ABOUT.LOCATION),
 };
 
 export const executiveApi = {
-  getMandate: () => api.get("content", "executive-mandate"),
-  getVisionMission: () => api.get("content", "executive-vision-mission"),
-  getChart: () => api.get("content", "executive-chart"),
-  getDirectory: () => api.get("content", "executive-directory"),
-  getGadIms: () => api.get("content", "executive-gad-ims"),
+  getMandate: () => api.get("content", API_ENDPOINTS.EXECUTIVE.MANDATE),
+  getVisionMission: () => api.get("content", API_ENDPOINTS.EXECUTIVE.VISION_MISSION),
+  getChart: () => api.get("content", API_ENDPOINTS.EXECUTIVE.CHART),
+  getDirectory: () => api.get("content", API_ENDPOINTS.EXECUTIVE.DIRECTORY),
+  getGadIms: () => api.get("content", API_ENDPOINTS.EXECUTIVE.GAD_IMS),
 };
 
 export const legislativeApi = {
-  getMandate: () => api.get("content", "legislative-mandate"),
-  getStructure: () => api.get("content", "legislative-structure"),
+  getMandate: () => api.get("content", API_ENDPOINTS.LEGISLATIVE.MANDATE),
+  getStructure: () => api.get("content", API_ENDPOINTS.LEGISLATIVE.STRUCTURE),
 };
 
 export const transparencyApi = {
-  getCitizenCharter: () => api.get("content", "transparency-citizen-charter"),
-  getFullDisclosure: () => api.get("content", "transparency-full-disclosure"),
-  getInfrastructure: () => api.get("content", "transparency-infrastructure"),
-  getFinanceReports: () => api.get("content", "transparency-finance-reports"),
-  getExecutiveOrders: () => api.get("content", "transparency-executive-orders"),
-  getBudget: () => api.get("content", "transparency-budget"),
-  getBiddings: () => api.get("content", "transparency-biddings"),
+  getCitizenCharter: () => api.get("content", API_ENDPOINTS.TRANSPARENCY.CITIZEN_CHARTER),
+  getFullDisclosure: () => api.get("content", API_ENDPOINTS.TRANSPARENCY.FULL_DISCLOSURE),
+  getInfrastructure: () => api.get("content", API_ENDPOINTS.TRANSPARENCY.INFRASTRUCTURE),
+  getFinanceReports: () => api.get("content", API_ENDPOINTS.TRANSPARENCY.FINANCE_REPORTS),
+  getExecutiveOrders: () => api.get("content", API_ENDPOINTS.TRANSPARENCY.EXECUTIVE_ORDERS),
+  getBudget: () => api.get("content", API_ENDPOINTS.TRANSPARENCY.BUDGET),
+  getBiddings: () => api.get("content", API_ENDPOINTS.TRANSPARENCY.BIDDINGS),
 };
 
 export const tourismApi = {
-  getSpots: () => api.get("content", "tourism-spots"),
-  getFestivities: () => api.get("content", "tourism-festivities"),
-  getDelicacies: () => api.get("content", "tourism-delicacies"),
+  getSpots: () => api.get("content", API_ENDPOINTS.TOURISM.SPOTS),
+  getFestivities: () => api.get("content", API_ENDPOINTS.TOURISM.FESTIVITIES),
+  getDelicacies: () => api.get("content", API_ENDPOINTS.TOURISM.DELICACIES),
 };
 
 export const formsApi = {
-  getBusinessPermits: () => api.get("content", "forms-business-permits"),
-  getBuildingPermits: () => api.get("content", "forms-building-permits"),
-  getZoningClearance: () => api.get("content", "forms-zoning-clearance"),
+  getBusinessPermits: () => api.get("content", API_ENDPOINTS.FORMS.BUSINESS_PERMITS),
+  getBuildingPermits: () => api.get("content", API_ENDPOINTS.FORMS.BUILDING_PERMITS),
+  getZoningClearance: () => api.get("content", API_ENDPOINTS.FORMS.ZONING_CLEARANCE),
 };
 
 export default api;

@@ -1,34 +1,48 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "motion/react";
-import { Loader2 } from "lucide-react";
+import { AlertCircle } from "lucide-react";
+import { SkeletonLoader } from "./SkeletonLoader";
+import { ERROR_MESSAGES } from "../constants";
 
 interface ContentPageProps {
   title: string;
   fetchData: () => Promise<any>;
   renderContent: (data: any) => React.ReactNode;
+  skeletonType?: "text" | "card" | "image";
 }
 
-const ContentPage: React.FC<ContentPageProps> = ({ title, fetchData, renderContent }) => {
+const ContentPage: React.FC<ContentPageProps> = ({ 
+  title, 
+  fetchData, 
+  renderContent,
+  skeletonType = "text"
+}) => {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetchData();
-        setData(response.data);
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load content. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadData();
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetchData();
+      setData(response);
+    } catch (err) {
+      console.error("ContentPage error:", err);
+      setError(ERROR_MESSAGES.LOAD_FAILED);
+      setData(null);
+    } finally {
+      setLoading(false);
+    }
   }, [fetchData]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const handleRetry = () => {
+    loadData();
+  };
 
   return (
     <div className="pb-20 min-h-screen bg-white relative overflow-hidden">
@@ -40,23 +54,28 @@ const ContentPage: React.FC<ContentPageProps> = ({ title, fetchData, renderConte
         >
           <div className="mb-16">
             <span className="section-label">Information</span>
-            <h1 className="section-title">
-              {title}
-            </h1>
+            <h1 className="section-title">{title}</h1>
           </div>
 
           {loading ? (
-            <div className="flex items-center justify-center h-64">
-              <Loader2 className="w-12 h-12 text-brand-primary animate-spin" />
-            </div>
+            <SkeletonLoader count={3} type={skeletonType} />
           ) : error ? (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-8 py-6 rounded-3xl font-bold shadow-sm">
-              {error}
+            <div className="bg-red-50 border-2 border-red-200 rounded-3xl p-8 flex items-start gap-4">
+              <AlertCircle className="w-6 h-6 text-red-600 flex-shrink-0 mt-1" />
+              <div className="flex-1">
+                <h3 className="font-bold text-red-900 mb-2">Error Loading Content</h3>
+                <p className="text-red-700 mb-4">{error}</p>
+                <button
+                  onClick={handleRetry}
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                  aria-label="Retry loading content"
+                >
+                  Try Again
+                </button>
+              </div>
             </div>
-          ) : (data && (!Array.isArray(data) || data.length > 0)) ? (
-            <div className="min-h-[400px]">
-              {renderContent(data)}
-            </div>
+          ) : data && (!Array.isArray(data) || data.length > 0) ? (
+            <div className="min-h-[400px]">{renderContent(data)}</div>
           ) : (
             <div className="py-24 text-center text-brand-muted font-bold uppercase tracking-widest">
               No content available at this time.
