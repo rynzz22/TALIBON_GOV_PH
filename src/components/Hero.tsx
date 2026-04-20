@@ -3,14 +3,18 @@ import { motion } from "motion/react";
 import { ArrowRight, Play, Globe, Shield, Smartphone, Search } from "lucide-react";
 import { Link } from "react-router-dom";
 
+import { useLanguage } from "../contexts/LanguageContext";
+
 interface HeroProps {
   overrideTitle?: string;
   overrideSubtitle?: string;
 }
 
 const Hero: React.FC<HeroProps> = ({ overrideTitle, overrideSubtitle }) => {
+  const { t, language } = useLanguage();
+
   return (
-    <section id="home" className="relative min-h-screen w-full overflow-hidden flex flex-col items-start justify-start pt-[260px] lg:pt-[360px] pb-20 px-0">
+    <section id="home" className="relative min-h-screen w-full overflow-hidden flex flex-col items-start justify-start pt-[300px] lg:pt-[420px] pb-20 px-0">
       {/* Background Image / Video Overlay */}
       <div className="absolute inset-0 z-0">
         <video
@@ -46,16 +50,26 @@ const Hero: React.FC<HeroProps> = ({ overrideTitle, overrideSubtitle }) => {
           <h1 className="text-6xl sm:text-9xl font-black text-white leading-[0.85] tracking-tighter mb-8">
             {overrideTitle || (
               <>
-                Bohol's <br />
-                Seafood <br />
-                Capital.
+                {language === 'en' ? (
+                  <>
+                    Bohol's <br />
+                    Seafood <br />
+                    Capital.
+                  </>
+                ) : (
+                  <>
+                    Kaulohan <br />
+                    sa Isda <br />
+                    sa Bohol.
+                  </>
+                )}
               </>
             )}
           </h1>
           
           <div className="p-1 px-4 bg-[#ffb703] inline-block mb-12">
             <p className="text-black text-xs sm:text-sm font-black tracking-[0.3em] uppercase">
-              {overrideSubtitle || "Experience Bohol's Premier Destination in the Philippines"}
+              {overrideSubtitle || (language === 'en' ? "Experience Bohol's Premier Destination in the Philippines" : "Masinati ang Kinamaayohang Destinasyon sa Bohol sa Pilipinas")}
             </p>
           </div>
 

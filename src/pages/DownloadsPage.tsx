@@ -28,9 +28,9 @@ const DownloadsPage: React.FC = () => {
         ]);
 
         const combined: DownloadItem[] = [
-          ...permits.data.map((item: any) => ({ ...item, id: `business-${item.id}`, category: 'Business' })),
-          ...buildings.data.map((item: any) => ({ ...item, id: `building-${item.id}`, category: 'Building' })),
-          ...zoning.data.map((item: any) => ({ ...item, id: `zoning-${item.id}`, category: 'Zoning' })),
+          ...(Array.isArray(permits?.data) ? permits.data : []).map((item: any) => ({ ...item, id: `business-${item.id}`, category: 'Business' })),
+          ...(Array.isArray(buildings?.data) ? buildings.data : []).map((item: any) => ({ ...item, id: `building-${item.id}`, category: 'Building' })),
+          ...(Array.isArray(zoning?.data) ? zoning.data : []).map((item: any) => ({ ...item, id: `zoning-${item.id}`, category: 'Zoning' })),
           // Adding hardcoded common forms for completeness
           { id: 'tax-dec', title: 'Tax Declaration Application', url: '#', category: 'Assessor', fileSize: '450 KB', fileType: 'PDF' },
           { id: 'residency', title: 'Barangay Residency Request Form', url: '#', category: 'Barangay', fileSize: '120 KB', fileType: 'PDF' },

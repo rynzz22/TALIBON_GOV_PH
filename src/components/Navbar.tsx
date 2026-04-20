@@ -5,10 +5,12 @@ import { Link, useLocation } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
 import { supabase } from "../lib/supabase";
 import { useAuth } from "../contexts/SupabaseAuthContext";
+import { useLanguage } from "../contexts/LanguageContext";
 import ThemeToggle from "./ThemeToggle";
 import GlobalSearch from "./GlobalSearch";
 
 export default function Navbar() {
+  const { language, setLanguage, t } = useLanguage();
   const { user, profile, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [dynamicNavLinks, setDynamicNavLinks] = useState<any[]>([]);
@@ -78,9 +80,9 @@ export default function Navbar() {
   };
 
   const topNavLinks = [
-    { name: "Home", href: "/", isHash: false },
+    { name: t('home'), href: "/", isHash: false },
     { 
-      name: "The Municipality", 
+      name: t('about'), 
       href: "#",
       subLinks: getSubLinks("ABOUT", [
         { name: "Brief Profile", href: "/about/profile" },
@@ -109,7 +111,7 @@ export default function Navbar() {
 
   const secondaryNavLinks = [
     { 
-      name: "TRANSPARENCY & FDP", 
+      name: t('transparency'), 
       href: "/transparency/disclosure",
       subLinks: getSubLinks("TRANSPARENCY", [
         { name: "Full Disclosure Policy", href: "/transparency/disclosure" },
@@ -124,9 +126,10 @@ export default function Navbar() {
     { name: "GAD-IMS", href: "/executive/gad-ims" },
     { name: "DOWNLOADABLES", href: "/downloads" },
     { 
-      name: "TOURISM & INVESTMENTS", 
+      name: t('tourism'), 
       href: "#",
       subLinks: getSubLinks("TOURISM", [
+        { name: "Interactive Map", href: "/tourism/map" },
         { name: "Tourist Spots", href: "/tourism/spots" },
         { name: "Festivities", href: "/tourism/festivities" },
         { name: "Local Delicacies", href: "/tourism/delicacies" },
@@ -153,13 +156,13 @@ export default function Navbar() {
       }}
       animate={hidden ? "hidden" : "visible"}
       transition={{ duration: 0.35, ease: "easeInOut" }}
-      className="fixed top-0 left-0 right-0 z-50 pointer-events-auto shadow-2xl bg-[url('https://phillexevansnotebook.wordpress.com/wp-content/uploads/2019/01/20180410_153642.jpg')] bg-cover bg-center"
+      className="fixed top-0 left-0 right-0 z-50 pointer-events-auto shadow-2xl bg-[url('https://phillexevansnotebook.wordpress.com/wp-content/uploads/2019/01/20180410_153642.jpg')] bg-cover bg-center flex flex-col"
     >
       {/* Immersive Overlay */}
       <div className="absolute inset-0 bg-white/70 backdrop-blur-[0.5px] -z-10" />
 
       {/* Tier 1: Utility Navigation */}
-      <div className="bg-white/40 border-b border-gray-200 backdrop-blur-sm">
+      <div className="bg-white/40 border-b border-gray-200 backdrop-blur-sm relative z-20">
         <div className="max-w-screen-2xl mx-auto px-4 sm:px-10 h-10 flex justify-between items-center text-[10px] sm:text-xs">
           <div className="flex items-center gap-10 divide-x divide-gray-300">
             <Link to="/" className="font-extrabold text-gray-800 hover:text-brand-primary transition-colors tracking-tight">GOVPH</Link>
@@ -240,6 +243,13 @@ export default function Navbar() {
           <div className="flex items-center gap-4 text-gray-500 font-medium">
             <div className="hidden xl:block">{formatTime(currentTime)} (PST)</div>
             <div className="flex items-center gap-3 pl-4 border-l border-gray-300">
+              <button 
+                onClick={() => setLanguage(language === 'en' ? 'ceb' : 'en')}
+                className="flex items-center gap-1.5 px-3 py-1 bg-brand-primary/5 hover:bg-brand-primary/10 text-brand-primary rounded-full transition-all text-[9px] font-black tracking-widest uppercase border border-brand-primary/10"
+              >
+                <Globe size={12} />
+                {language === 'en' ? 'EN' : 'CEB'}
+              </button>
               <button className="hover:text-brand-accent transition-colors"><Bell size={16} /></button>
               <button className="hover:text-brand-primary transition-colors"><Accessibility size={16} /></button>
               <ThemeToggle />
@@ -249,8 +259,8 @@ export default function Navbar() {
       </div>
 
       {/* Tier 2: Branding Header */}
-      <div className="bg-transparent border-b border-gray-100/50">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
+      <div className="bg-transparent border-b border-gray-100/50 relative z-10">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 py-6 lg:py-8 flex items-center justify-between">
           {/* Left Section: Logos */}
           <div className="flex items-center gap-4 w-1/4">
             <Link to="/" className="flex items-center gap-4 group">

@@ -26,6 +26,7 @@ import AuthCallback from "./pages/AuthCallback";
 import { BARANGAYS } from "./constants/barangayConfig";
 import AdminDashboard from "./pages/AdminDashboard";
 import GadImsSystem from "./components/GadImsSystem";
+import TourismMapPage from "./pages/TourismMapPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
 import Footer from "./components/Footer";
@@ -33,6 +34,7 @@ import GeminiAssistant from "./components/GeminiAssistant";
 import ScrollToTop from "./components/ScrollToTop";
 import { aboutApi, executiveApi, legislativeApi, transparencyApi, tourismApi, formsApi } from "./services/api";
 import { AuthProvider } from "./contexts/SupabaseAuthContext";
+import { LanguageProvider } from "./contexts/LanguageContext";
 import { Eye, Target, Quote, User, Phone, ExternalLink, Clock, Building2, ArrowUpRight } from "lucide-react";
 
 function AppLayout() {
@@ -49,7 +51,7 @@ function AppLayout() {
 
         <div className="relative z-10">
           {!isLogin && <Navbar />}
-          <div className={isHome || isLogin ? "" : "pt-[140px] lg:pt-[204px]"}>
+          <div className={isHome || isLogin ? "" : "pt-[180px] lg:pt-[260px]"}>
             <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
@@ -59,6 +61,7 @@ function AppLayout() {
           <Route path="/downloads" element={<DownloadsPage />} />
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/payment/cancel" element={<PaymentCancel />} />
+          <Route path="/tourism/map" element={<TourismMapPage />} />
           
           {/* About Talibon */}
           <Route path="/about/profile" element={<ContentPage title="Brief Profile" fetchData={aboutApi.getProfile} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium whitespace-pre-line">{data.content}</p>} />} />
@@ -527,12 +530,14 @@ function AppLayout() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <ScrollToTop />
-        <AppLayout />
-      </Router>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <Router>
+          <ScrollToTop />
+          <AppLayout />
+        </Router>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 

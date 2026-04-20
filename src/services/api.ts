@@ -26,19 +26,20 @@ const api = {
         .from(table)
         .select("*")
         .eq("slug", slug)
-        .single();
+        .limit(1);
 
       if (error) {
         console.error(`Query failed for ${table}/${slug}:`, error.message);
-        throw new Error(ERROR_MESSAGES.LOAD_FAILED);
+        return { data: [], content: "" } as any;
       }
 
-      const result = data?.body || data || {};
+      const singleData = data && data.length > 0 ? data[0] : null;
+      const result = singleData?.body || singleData || { data: [], content: "" };
       cache.set(cacheKey, { data: result, timestamp: Date.now() });
       return result;
     } catch (error) {
       console.error(`API error: ${error}`);
-      throw error;
+      return { data: [], content: "" } as any;
     }
   },
 };

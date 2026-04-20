@@ -80,7 +80,7 @@ export default function ServiceNavigator() {
                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 50, scale: 0.9 }}
-                className="relative w-full max-w-2xl bg-white dark:bg-dark-surface rounded-[3rem] overflow-hidden shadow-2xl"
+                className="relative w-full max-w-2xl bg-white dark:bg-dark-surface rounded-[3rem] shadow-2xl overflow-y-auto max-h-[90vh]"
               >
                 <div className="p-10">
                   <div className="flex justify-between items-start mb-10">

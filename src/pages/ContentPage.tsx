@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "motion/react";
 import { AlertCircle } from "lucide-react";
-import { SkeletonLoader } from "./SkeletonLoader";
+import { SkeletonLoader } from "../components/SkeletonLoader";
 import { ERROR_MESSAGES } from "../constants";
 
 interface ContentPageProps {
