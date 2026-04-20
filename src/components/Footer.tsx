@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, ArrowUpRight, Globe, ArrowRight } from "lucide-react";
+import { Phone, Mail, MapPin, Facebook, Twitter, Instagram, ArrowUpRight, Globe, ArrowRight, LogIn } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Footer() {
@@ -104,8 +104,9 @@ export default function Footer() {
               <span className="text-[10px] font-bold text-brand-muted uppercase tracking-widest">Powered by</span>
               <span className="text-[10px] font-extrabold text-brand-text uppercase">Felji</span>
             </div>
-            <Link to="/admin" className="text-[10px] font-bold text-brand-muted hover:text-brand-primary uppercase tracking-widest transition-colors">
-              Admin
+            <Link to="/login" className="text-[10px] font-bold text-brand-muted hover:text-brand-primary uppercase tracking-widest transition-colors flex items-center gap-2">
+              <LogIn size={10} />
+              Portal Access
             </Link>
           </div>
         </div>

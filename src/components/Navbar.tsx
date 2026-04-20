@@ -1,13 +1,15 @@
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "motion/react";
-import { Menu, X, Globe, ChevronDown, ArrowUpRight, Phone, Mail, MapPin, Search, Accessibility, Bell, Clock } from "lucide-react";
+import { Menu, X, Globe, ChevronDown, ArrowUpRight, Phone, Mail, MapPin, Search, Accessibility, Bell, Clock, LogIn, LayoutDashboard, LogOut, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
 import { supabase } from "../lib/supabase";
+import { useAuth } from "../contexts/SupabaseAuthContext";
 import ThemeToggle from "./ThemeToggle";
 import GlobalSearch from "./GlobalSearch";
 
 export default function Navbar() {
+  const { user, profile, signOut } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [dynamicNavLinks, setDynamicNavLinks] = useState<any[]>([]);
   const location = useLocation();
@@ -151,15 +153,18 @@ export default function Navbar() {
       }}
       animate={hidden ? "hidden" : "visible"}
       transition={{ duration: 0.35, ease: "easeInOut" }}
-      className="fixed top-0 left-0 right-0 z-50 pointer-events-auto bg-white shadow-sm"
+      className="fixed top-0 left-0 right-0 z-50 pointer-events-auto shadow-2xl bg-[url('https://phillexevansnotebook.wordpress.com/wp-content/uploads/2019/01/20180410_153642.jpg')] bg-cover bg-center"
     >
+      {/* Immersive Overlay */}
+      <div className="absolute inset-0 bg-white/70 backdrop-blur-[0.5px] -z-10" />
+
       {/* Tier 1: Utility Navigation */}
-      <div className="bg-[#f2f2f2] border-b border-gray-200">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 h-10 flex justify-between items-center text-[10px] sm:text-xs">
-          <div className="flex items-center gap-6 divide-x divide-gray-300">
+      <div className="bg-white/40 border-b border-gray-200 backdrop-blur-sm">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-10 h-10 flex justify-between items-center text-[10px] sm:text-xs">
+          <div className="flex items-center gap-10 divide-x divide-gray-300">
             <Link to="/" className="font-extrabold text-gray-800 hover:text-brand-primary transition-colors tracking-tight">GOVPH</Link>
             
-            <nav className="hidden lg:flex items-center gap-6 pl-6">
+            <nav className="hidden lg:flex items-center gap-8 pl-10">
               {topNavLinks.map((link) => (
                 <div 
                   key={link.name} 
@@ -169,7 +174,13 @@ export default function Navbar() {
                 >
                   {link.subLinks ? (
                     <div className="flex flex-col h-full justify-center">
-                      <button className="text-gray-600 hover:text-brand-primary font-medium flex items-center gap-1 transition-colors">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActiveDropdown(activeDropdown === link.name ? null : link.name);
+                        }}
+                        className="text-gray-600 hover:text-brand-primary font-medium flex items-center gap-1 transition-colors"
+                      >
                         {link.name} <ChevronDown size={12} className={activeDropdown === link.name ? 'rotate-180' : ''} />
                       </button>
                       
@@ -204,6 +215,26 @@ export default function Navbar() {
                 </div>
               ))}
             </nav>
+
+            <div className="hidden sm:flex items-center gap-6 pl-10 border-l border-gray-300">
+              {user ? (
+                <div className="flex items-center gap-4">
+                  <Link to="/admin" className="flex items-center gap-2 text-blue-600 font-extrabold uppercase tracking-widest hover:text-blue-700 transition-colors">
+                    <LayoutDashboard size={14} />
+                    CMS DASHBOARD
+                  </Link>
+                  <button onClick={() => signOut()} className="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest hover:text-red-500 transition-colors">
+                    <LogOut size={14} />
+                    LOGOUT
+                  </button>
+                </div>
+              ) : (
+                <Link to="/login" className="flex items-center gap-2 text-[#CE1126] font-extrabold uppercase tracking-widest hover:opacity-80 transition-all">
+                  <LogIn size={14} />
+                  ADMIN LOGIN
+                </Link>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-4 text-gray-500 font-medium">
@@ -218,33 +249,46 @@ export default function Navbar() {
       </div>
 
       {/* Tier 2: Branding Header */}
-      <div className="bg-white border-b border-gray-100">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 py-4 flex justify-between items-center">
-          <Link to="/" className="flex items-center gap-5">
-            <img 
-              src="http://talibon.gov.ph/wp-content/uploads/2025/09/Talibon-Official-Seal-v4-2003-to-2023-.png" 
-              alt="Talibon Seal" 
-              className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-sm" 
-              referrerPolicy="no-referrer"
-            />
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <div className="px-2 py-0.5 bg-brand-primary text-white text-[8px] font-black rounded-sm animate-pulse">#TALIBOOM</div>
+      <div className="bg-transparent border-b border-gray-100/50">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
+          {/* Left Section: Logos */}
+          <div className="flex items-center gap-4 w-1/4">
+            <Link to="/" className="flex items-center gap-4 group">
+              <div className="p-1.5 bg-white rounded-full shadow-lg border-2 border-brand-primary/20 group-hover:border-brand-primary transition-all duration-500">
+                <img 
+                  src="http://talibon.gov.ph/wp-content/uploads/2025/09/Talibon-Official-Seal-v4-2003-to-2023-.png" 
+                  alt="Talibon Seal" 
+                  className="w-16 h-16 sm:w-20 sm:h-20 object-contain transition-transform group-hover:rotate-6 rounded-full" 
+                  referrerPolicy="no-referrer"
+                />
               </div>
-              <h1 className="text-xl sm:text-3xl font-black text-[#CE1126] tracking-tight leading-none mb-1">MUNICIPALITY OF TALIBON</h1>
+              <img 
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Bagong_Pilipinas_logo.png/1920px-Bagong_Pilipinas_logo.png" 
+                alt="Bagong Pilipinas" 
+                className="hidden xl:block h-10 object-contain" 
+                referrerPolicy="no-referrer" 
+              />
+            </Link>
+          </div>
+
+          {/* Middle Section: Centered Text */}
+          <Link to="/" className="flex-1 flex flex-col items-center text-center px-4 transition-transform hover:scale-[1.01]">
+            <div className="flex flex-col items-center">
+              <div className="flex items-center gap-2 mb-1">
+                <div className="px-3 py-0.5 bg-brand-primary text-white text-[9px] font-black rounded-full animate-pulse tracking-widest shadow-sm">#TALIBOOM</div>
+              </div>
+              <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-[#CE1126] tracking-tighter leading-none mb-1 drop-shadow-sm font-display">MUNICIPALITY OF TALIBON</h1>
               <div className="flex items-center gap-2">
-                <p className="text-[#ea580c] font-bold text-[10px] sm:text-xs tracking-wide">BOHOL'S SEAFOOD CAPITAL 🦀</p>
+                <p className="text-[#ea580c] font-black text-[9px] sm:text-xs lg:text-sm tracking-[0.25em] uppercase opacity-90">BOHOL'S SEAFOOD CAPITAL 🦀</p>
               </div>
             </div>
           </Link>
 
-          <div className="flex items-center gap-4">
-            <div className="hidden sm:flex items-center gap-4">
-              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Bagong_Pilipinas_logo.png/1920px-Bagong_Pilipinas_logo.png" alt="Bagong Pilipinas" className="h-6 sm:h-10" referrerPolicy="no-referrer" />
-            </div>
+          {/* Right Section: Actions */}
+          <div className="flex items-center gap-4 w-1/4 justify-end">
             <button 
               onClick={() => setIsSearchOpen(true)}
-              className="p-2 hover:bg-gray-100 rounded-full text-brand-primary transition-all hover:scale-110 active:scale-95 border border-transparent hover:border-brand-primary/10"
+              className="p-3 bg-white/40 backdrop-blur-lg rounded-full text-brand-primary transition-all hover:scale-110 active:scale-95 border border-white/50 shadow-xl"
             >
               <Search size={22} className="stroke-[2.5]" />
             </button>
@@ -259,8 +303,8 @@ export default function Navbar() {
       </div>
 
       {/* Tier 3: Secondary Navigation (Vibrant Bar) */}
-      <div className="bg-gradient-to-r from-[#d9480f] to-[#e85d04] hidden lg:block">
-        <div className="max-w-screen-2xl mx-auto px-8 flex items-center">
+      <div className="bg-gradient-to-r from-[#d9480f]/90 to-[#e85d04]/90 hidden lg:block backdrop-blur-md border-t border-white/10">
+        <div className="max-w-screen-2xl mx-auto px-8 flex items-center justify-center">
           {secondaryNavLinks.map((link) => (
             <div 
               key={link.name} 
@@ -270,7 +314,13 @@ export default function Navbar() {
             >
               <div className="flex flex-col">
                 {link.subLinks ? (
-                  <button className="px-6 py-4 text-white text-[11px] font-black tracking-widest hover:bg-white/10 transition-all flex items-center gap-1">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveDropdown(activeDropdown === link.name ? null : link.name);
+                    }}
+                    className="px-6 py-4 text-white text-[11px] font-black tracking-widest hover:bg-white/10 transition-all flex items-center gap-1"
+                  >
                     {link.name} <ChevronDown size={14} className={activeDropdown === link.name ? 'rotate-180' : ''} />
                   </button>
                 ) : (
@@ -286,16 +336,16 @@ export default function Navbar() {
                 <AnimatePresence>
                   {activeDropdown === link.name && link.subLinks && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      className="absolute top-full left-0 w-64 bg-white shadow-2xl border border-gray-100 py-3 z-[70] rounded-b-xl"
+                      initial={{ opacity: 0, scale: 0.95, y: 5 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 5 }}
+                      className="absolute top-full left-1/2 -translate-x-1/2 w-64 bg-white shadow-2xl border border-gray-100 py-3 z-[70] rounded-b-xl overflow-hidden"
                     >
                       {link.subLinks.map((sub) => (
                         <Link
                           key={sub.name}
                           to={sub.href}
-                          className="block px-6 py-2.5 hover:bg-gray-50 text-gray-800 hover:text-[#d9480f] transition-all text-xs font-bold tracking-tight"
+                          className="block px-6 py-2.5 hover:bg-brand-primary/5 text-gray-800 hover:text-brand-primary transition-all text-xs font-bold tracking-tight"
                         >
                           {sub.name}
                         </Link>

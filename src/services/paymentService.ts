@@ -19,7 +19,7 @@ export const paymentService = {
 
       const { url } = await response.json();
       
-      // Redirect to Stripe Checkout
+      // Redirect to HitPay Checkout
       if (url) {
         window.location.href = url;
       }

@@ -3,62 +3,47 @@ import axios from "axios";
 
 @Injectable()
 export class PaymentsService {
-  private readonly paymongoBaseUrl = "https://api.paymongo.com/v1";
+  private readonly hitpayBaseUrl = "https://api.hitpayapp.com/v1";
 
-  private get authHeader() {
-    const secretKey = process.env.PAYMONGO_SECRET_KEY;
-    if (!secretKey) {
-      throw new InternalServerErrorException("PAYMONGO_SECRET_KEY is not defined in environment variables.");
+  private get headers() {
+    const apiKey = process.env.HITPAY_API_KEY;
+    if (!apiKey) {
+      throw new InternalServerErrorException("HITPAY_API_KEY is not defined in environment variables.");
     }
     return {
-      Authorization: `Basic ${Buffer.from(secretKey).toString("base64")}`,
-      "Content-Type": "application/json",
+      "X-BUSINESS-API-KEY": apiKey,
+      "Content-Type": "application/x-www-form-urlencoded",
+      "X-Requested-With": "XMLHttpRequest",
     };
   }
 
   async createCheckoutSession(itemName: string, amount: number, successUrl: string, cancelUrl: string) {
     try {
+      // HitPay expects amount as a string or number, but some versions expect specific formats.
+      // We'll use URLSearchParams for x-www-form-urlencoded
+      const params = new URLSearchParams();
+      params.append("amount", amount.toString());
+      params.append("currency", "PHP");
+      params.append("purpose", itemName);
+      params.append("redirect_url", successUrl);
+      params.append("name", "Talibon Payment Portal");
+      // Optional: params.append("email", userEmail);
+
       const response = await axios.post(
-        `${this.paymongoBaseUrl}/checkout_sessions`,
-        {
-          data: {
-            attributes: {
-              billing: {
-                address: {
-                  city: "Talibon",
-                  country: "PH",
-                  line1: "Municipal Hall, Poblacion",
-                  postal_code: "6325",
-                  state: "Bohol",
-                },
-              },
-              line_items: [
-                {
-                  amount: amount * 100, // PayMongo expects amount in cents/centavos
-                  currency: "PHP",
-                  name: itemName,
-                  quantity: 1,
-                  description: "Municipal Official Fee - Talibon, Bohol, Philippines",
-                },
-              ],
-              payment_method_types: ["card", "gcash", "grab_pay", "maya", "7eleven"],
-              success_url: successUrl,
-              cancel_url: cancelUrl,
-              description: `Payment for ${itemName} - Municipality of Talibon`,
-            },
-          },
-        },
-        { headers: this.authHeader }
+        `${this.hitpayBaseUrl}/payment-requests`,
+        params.toString(),
+        { headers: this.headers }
       );
 
+      // HitPay returns id and url for the payment request
       return { 
-        sessionId: response.data.data.id, 
-        url: response.data.data.attributes.checkout_url 
+        sessionId: response.data.id, 
+        url: response.data.url 
       };
     } catch (error: any) {
-      console.error("PayMongo Error:", error.response?.data || error.message);
-      const errorMessage = error.response?.data?.errors?.[0]?.detail || error.message;
-      throw new InternalServerErrorException(`PayMongo Error: ${errorMessage}`);
+      console.error("HitPay Error:", error.response?.data || error.message);
+      const errorMessage = typeof error.response?.data === 'string' ? error.response.data : JSON.stringify(error.response?.data || error.message);
+      throw new InternalServerErrorException(`HitPay Error: ${errorMessage}`);
     }
   }
 }

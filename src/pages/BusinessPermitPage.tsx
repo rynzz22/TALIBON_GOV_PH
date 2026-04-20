@@ -94,7 +94,7 @@ const BusinessPermitPage: React.FC = () => {
                   Simplified Online Payment
                 </h3>
                 <p className="text-brand-muted font-medium">
-                  Skip the long lines. Pay your processing fees online securely via Stripe.
+                  Skip the long lines. Pay your processing fees online securely via HitPay (GCash, Maya, Cards).
                 </p>
               </div>
 
