@@ -3,39 +3,41 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation, Link } from "react-router-dom";
 import { motion } from "motion/react";
 import Navbar from "./components/Navbar";
-import Home from "./pages/Home";
-import ContentPage from "./pages/ContentPage";
-import OfficialSealPage from "./pages/OfficialSealPage";
-import EnactedOrdinancesPage from "./pages/EnactedOrdinancesPage";
-import ResolutionsPage from "./pages/ResolutionsPage";
-import CitizenCharterPage from "./pages/CitizenCharterPage";
-import FullDisclosurePage from "./pages/FullDisclosurePage";
-import BusinessPermitPage from "./pages/BusinessPermitPage";
-import BuildingPermitPage from "./pages/BuildingPermitPage";
-import ZoningClearancePage from "./pages/ZoningClearancePage";
-import OrganizationalChartPage from "./pages/OrganizationalChartPage";
-import NewsCategoryPage from "./pages/NewsCategoryPage";
-import NewsDetailPage from "./pages/NewsDetailPage";
-import DownloadsPage from "./pages/DownloadsPage";
-import BarangayHome from "./pages/BarangayHome";
-import Login from "./pages/Login";
-import AuthCallback from "./pages/AuthCallback";
-import { BARANGAYS } from "./constants/barangayConfig";
-import AdminDashboard from "./pages/AdminDashboard";
-import GadImsSystem from "./components/GadImsSystem";
-import TourismMapPage from "./pages/TourismMapPage";
-import PaymentSuccess from "./pages/PaymentSuccess";
-import PaymentCancel from "./pages/PaymentCancel";
 import Footer from "./components/Footer";
 import GeminiAssistant from "./components/GeminiAssistant";
 import ScrollToTop from "./components/ScrollToTop";
+import { BARANGAYS } from "./constants/barangayConfig";
+import GadImsSystem from "./components/GadImsSystem";
 import { aboutApi, executiveApi, legislativeApi, transparencyApi, tourismApi, formsApi } from "./services/api";
 import { AuthProvider } from "./contexts/SupabaseAuthContext";
 import { LanguageProvider } from "./contexts/LanguageContext";
 import { Eye, Target, Quote, User, Phone, ExternalLink, Clock, Building2, ArrowUpRight } from "lucide-react";
+
+const Home = lazy(() => import("./pages/Home"));
+const ContentPage = lazy(() => import("./pages/ContentPage"));
+const OfficialSealPage = lazy(() => import("./pages/OfficialSealPage"));
+const EnactedOrdinancesPage = lazy(() => import("./pages/EnactedOrdinancesPage"));
+const ResolutionsPage = lazy(() => import("./pages/ResolutionsPage"));
+const CitizenCharterPage = lazy(() => import("./pages/CitizenCharterPage"));
+const FullDisclosurePage = lazy(() => import("./pages/FullDisclosurePage"));
+const BusinessPermitPage = lazy(() => import("./pages/BusinessPermitPage"));
+const BuildingPermitPage = lazy(() => import("./pages/BuildingPermitPage"));
+const ZoningClearancePage = lazy(() => import("./pages/ZoningClearancePage"));
+const OrganizationalChartPage = lazy(() => import("./pages/OrganizationalChartPage"));
+const NewsCategoryPage = lazy(() => import("./pages/NewsCategoryPage"));
+const NewsDetailPage = lazy(() => import("./pages/NewsDetailPage"));
+const DownloadsPage = lazy(() => import("./pages/DownloadsPage"));
+const BarangayHome = lazy(() => import("./pages/BarangayHome"));
+const Login = lazy(() => import("./pages/Login"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const TourismMapPage = lazy(() => import("./pages/TourismMapPage"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
 
 function AppLayout() {
   const location = useLocation();
@@ -52,7 +54,8 @@ function AppLayout() {
         <div className="relative z-10">
           {!isLogin && <Navbar />}
           <div className={isHome || isLogin ? "" : "pt-[180px] lg:pt-[260px]"}>
-            <Routes>
+            <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-brand-primary font-black text-xl">Loading...</div>}>
+              <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
@@ -520,6 +523,7 @@ function AppLayout() {
           <Route path="/forms/building" element={<BuildingPermitPage />} />
           <Route path="/forms/zoning" element={<ZoningClearancePage />} />
         </Routes>
+            </Suspense>
           </div>
           <Footer />
           <GeminiAssistant />

@@ -1,15 +1,28 @@
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
-import { Logger } from "@nestjs/common";
+import { Logger, ValidationPipe } from "@nestjs/common";
+import helmet from "helmet";
+import { config } from "dotenv-safe";
+
+// Allow empty values for optional env vars in development
+config({ allowEmptyValues: true });
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const logger = new Logger("Bootstrap");
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
+
+  // Security headers (skip in development for HMR)
+  if (process.env.NODE_ENV !== 'development') {
+    app.use(helmet());
+  }
 
   // Enable CORS for frontend
   app.enableCors();
+
+  // Global validation pipe
+  app.useGlobalPipes(new ValidationPipe());
 
   await app.listen(PORT, "0.0.0.0");
   logger.log(`Server running on http://localhost:${PORT}`);
