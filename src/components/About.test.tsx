@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { BrowserRouter } from 'react-router-dom'
+import type { ReactElement } from 'react'
 import About from '../components/About'
 import { supabase } from '../lib/supabase'
 
@@ -11,7 +12,7 @@ vi.mock('../lib/supabase', () => ({
   }
 }))
 
-const renderWithRouter = (component: React.ReactElement) => {
+const renderWithRouter = (component: ReactElement) => {
   return render(<BrowserRouter>{component}</BrowserRouter>)
 }
 
@@ -22,8 +23,8 @@ describe('About Component', () => {
 
   it('renders loading state initially', () => {
     const mockSupabase = vi.mocked(supabase)
-    const mockSingle = vi.fn().mockReturnValue(new Promise(() => {})) // Never resolves
-    const mockEq = vi.fn().mockReturnValue({ single: mockSingle })
+    const mockMaybeSingle = vi.fn().mockReturnValue(new Promise(() => {})) // Never resolves
+    const mockEq = vi.fn().mockReturnValue({ maybeSingle: mockMaybeSingle })
     const mockSelect = vi.fn().mockReturnValue({ eq: mockEq })
     mockSupabase.from.mockReturnValue({ select: mockSelect } as any)
 
@@ -45,11 +46,11 @@ describe('About Component', () => {
     }
 
     const mockSupabase = vi.mocked(supabase)
-    const mockSingle = vi.fn().mockResolvedValue({
+    const mockMaybeSingle = vi.fn().mockResolvedValue({
       data: { body: mockData },
       error: null
     })
-    const mockEq = vi.fn().mockReturnValue({ single: mockSingle })
+    const mockEq = vi.fn().mockReturnValue({ maybeSingle: mockMaybeSingle })
     const mockSelect = vi.fn().mockReturnValue({ eq: mockEq })
     mockSupabase.from.mockReturnValue({ select: mockSelect } as any)
 
@@ -62,11 +63,11 @@ describe('About Component', () => {
 
   it('handles fetch error gracefully', async () => {
     const mockSupabase = vi.mocked(supabase)
-    const mockSingle = vi.fn().mockResolvedValue({
+    const mockMaybeSingle = vi.fn().mockResolvedValue({
       data: null,
       error: { message: 'Fetch failed' }
     })
-    const mockEq = vi.fn().mockReturnValue({ single: mockSingle })
+    const mockEq = vi.fn().mockReturnValue({ maybeSingle: mockMaybeSingle })
     const mockSelect = vi.fn().mockReturnValue({ eq: mockEq })
     mockSupabase.from.mockReturnValue({ select: mockSelect } as any)
 
