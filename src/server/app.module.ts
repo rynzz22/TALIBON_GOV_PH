@@ -19,12 +19,15 @@ import { FormsService } from "./api/forms/forms.service";
 import { PaymentsModule } from "./api/payments/payments.module";
 import { PaymentsController } from "./api/payments/payments.controller";
 import { PaymentsService } from "./api/payments/payments.service";
-
+import { HealthController } from "./api/health/health.controller";
 import { SupabaseService } from "./supabase.service";
+
+import { env } from "./utils/env";
 
 @Module({
   imports: [PaymentsModule],
   controllers: [
+    HealthController,
     AboutController,
     ExecutiveController,
     LegislativeController,
@@ -48,7 +51,7 @@ import { SupabaseService } from "./supabase.service";
 })
 export class AppModule implements NestModule {
   async configure(consumer: MiddlewareConsumer) {
-    if (process.env.NODE_ENV !== "production") {
+    if (env.NODE_ENV !== "production") {
       const { createServer: createViteServer } = await import("vite");
       const vite = await createViteServer({
         server: { middlewareMode: true },

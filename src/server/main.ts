@@ -3,10 +3,7 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { Logger, ValidationPipe } from "@nestjs/common";
 import helmet from "helmet";
-import { config } from "dotenv-safe";
-
-// Allow empty values for optional env vars in development
-config({ allowEmptyValues: true });
+import { env } from "./utils/env";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -14,7 +11,7 @@ async function bootstrap() {
   const PORT = process.env.PORT || 3000;
 
   // Security headers (skip in development for HMR)
-  if (process.env.NODE_ENV !== 'development') {
+  if (env.NODE_ENV !== 'development') {
     app.use(helmet());
   }
 
