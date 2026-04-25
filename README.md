@@ -1,4 +1,4 @@
-# 🚨 SECURITY NOTICE
+#SECURITY NOTICE
 **Action Required**: API keys have been exposed. See [SECURITY.md](SECURITY.md) for immediate steps to secure your application.
 
 ---
@@ -7,7 +7,7 @@
 
 A modern, responsive government website for the Municipality of Talibon, built with React, TypeScript, and NestJS.
 
-## 🚀 Quick Deploy
+## Quick Deploy
 
 Choose your preferred deployment platform:
 
@@ -18,14 +18,14 @@ Choose your preferred deployment platform:
 
 See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
 
-## 📋 Prerequisites
+# Prerequisites
 
 - Node.js 20+
 - npm or yarn
 - Supabase account
 - API keys (see [SECURITY.md](SECURITY.md))
 
-## 🛠️ Local Development
+## Local Development
 
 ```bash
 # Install dependencies
@@ -58,7 +58,7 @@ src/
 └── utils/         # Helper functions
 ```
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Run all tests
@@ -71,7 +71,7 @@ npm run test:ui
 npm run lint
 ```
 
-## 📚 Documentation
+## Documentation
 
 - [Security Guide](SECURITY.md)
 - [Deployment Guide](DEPLOYMENT.md)
