@@ -11,7 +11,10 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "paths": {
+      "@/*": ["../*"]
+    }
   },
   "include": ["src/server/**/*.ts"],
   "exclude": ["src/server/**/*.spec.ts"]

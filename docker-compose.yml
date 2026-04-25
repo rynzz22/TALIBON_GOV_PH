@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  talibon-gov:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - APP_URL=http://localhost:3000
+      # Add your environment variables here
+      # - SUPABASE_URL=your_supabase_url
+      # - SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+      # - GEMINI_API_KEY=your_gemini_key
+      # - HITPAY_API_KEY=your_hitpay_key
+      # - HITPAY_SALT=your_hitpay_salt
+      # - XENDIT_SECRET_KEY=your_xendit_key
+      # - GOOGLE_MAPS_API_KEY=your_maps_key
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - talibon-network
+
+networks:
+  talibon-network:
+    driver: bridge

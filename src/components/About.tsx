@@ -27,8 +27,8 @@ export default function About() {
         .eq('slug', 'about')
         .single();
 
-      if (error) {
-        console.error('Error fetching about content:', error);
+      if (error || !data) {
+        console.error('Error fetching about content:', error || 'No data returned');
       } else {
         setContent(data.body as AboutContent);
       }

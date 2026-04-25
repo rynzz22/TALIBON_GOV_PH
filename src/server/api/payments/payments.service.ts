@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException, BadRequestException } from "@nestjs/common";
 import { Xendit } from "xendit-node";
 import { CreateInvoiceRequest } from "xendit-node/invoice/models/CreateInvoiceRequest";
+import { env } from "../../utils/env";
 
 const MIN_AMOUNT = 1;
 const MAX_AMOUNT = 1_000_000;
@@ -11,13 +12,12 @@ export class PaymentsService {
 
   private get client() {
     if (!this.xenditClient) {
-      const secretKey = process.env.XENDIT_SECRET_KEY;
-      if (!secretKey) {
+      if (!env.XENDIT_SECRET_KEY) {
         throw new InternalServerErrorException(
           "Xendit payment gateway is not configured. Please set XENDIT_SECRET_KEY in environment variables."
         );
       }
-      this.xenditClient = new Xendit({ secretKey });
+      this.xenditClient = new Xendit({ secretKey: env.XENDIT_SECRET_KEY });
     }
     return this.xenditClient;
   }
