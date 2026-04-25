@@ -14,7 +14,7 @@ const Hero: React.FC<HeroProps> = ({ overrideTitle, overrideSubtitle }) => {
   const { t, language } = useLanguage();
 
   return (
-    <section id="home" className="relative min-h-screen w-full overflow-hidden flex flex-col items-start justify-start pt-[300px] lg:pt-[420px] pb-20 px-0">
+    <section id="home" className="relative min-h-screen w-full overflow-hidden flex flex-col items-start justify-start pt-[155px] lg:pt-[230px] pb-20 px-0">
       {/* Background Image / Video Overlay */}
       <div className="absolute inset-0 z-0">
         <video
@@ -40,7 +40,7 @@ const Hero: React.FC<HeroProps> = ({ overrideTitle, overrideSubtitle }) => {
           transition={{ duration: 0.8 }}
           className="flex flex-col items-start"
         >
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4 mt-0 mb-6">
             <h2 className="text-3xl sm:text-6xl font-black text-white leading-none tracking-tighter">
               #TALIBOOM!
             </h2>

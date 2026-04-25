@@ -153,5 +153,104 @@ CREATE POLICY "Admins can manage meetings." ON meetings FOR ALL USING (
   EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_verified = true)
 );
 
+-- 9. GAD Beneficiaries (Individual Profiling)
+CREATE TABLE gad_beneficiaries (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  unique_id TEXT UNIQUE, -- Custom generated or system ID
+  full_name TEXT NOT NULL,
+  sex TEXT NOT NULL CHECK (sex IN ('Male', 'Female', 'Other')),
+  birthdate DATE,
+  age INTEGER, -- Can be calculated or stored
+  barangay_id TEXT NOT NULL, -- References BARANGAYS config slugs
+  civil_status TEXT CHECK (civil_status IN ('Single', 'Married', 'Widowed', 'Separated', 'Common-law')),
+  sectoral_classification TEXT[], -- Array for multiple (PWD, Senior, etc.)
+  contact_info TEXT,
+  encoded_by UUID REFERENCES auth.users(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE gad_beneficiaries ENABLE ROW LEVEL SECURITY;
+
+-- Only verified admins/encoders can manage GAD data
+CREATE POLICY "GAD data is viewable by authorized personnel." ON gad_beneficiaries FOR SELECT USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_verified = true)
+);
+
+CREATE POLICY "Authorized personnel can manage GAD beneficiaries." ON gad_beneficiaries FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_verified = true)
+);
+
+-- 10. Barangay Stats (Population, Captain, etc.)
+CREATE TABLE barangay_stats (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL, -- barangay slug
+  name TEXT NOT NULL,
+  population TEXT,
+  captain TEXT,
+  description TEXT,
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE barangay_stats ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Barangay stats are viewable by everyone." ON barangay_stats FOR SELECT USING (true);
+CREATE POLICY "Municipal admins can manage barangay stats." ON barangay_stats FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'municipal_admin' AND is_verified = true)
+);
+
+-- 11. Barangay Officials (Detailed List per Barangay)
+CREATE TABLE barangay_officials (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL, -- barangay slug
+  body JSONB NOT NULL, -- Array of officials [{name, position}]
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE barangay_officials ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Barangay officials are viewable by everyone." ON barangay_officials FOR SELECT USING (true);
+CREATE POLICY "Municipal admins can manage barangay officials." ON barangay_officials FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'municipal_admin' AND is_verified = true)
+);
+CREATE POLICY "Barangay admins can manage their own officials." ON barangay_officials FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'barangay_admin' AND barangay_id = barangay_officials.slug AND is_verified = true)
+);
+
+-- 12. Transparency Documents (Citizen's Charter, Budget, Biddings, etc.)
+CREATE TABLE transparency_documents (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  category TEXT NOT NULL, -- BUDGET, BIDDINGS, FINANCE, CITIZEN_CHARTER, etc.
+  year INTEGER NOT NULL,
+  file_url TEXT NOT NULL,
+  file_size TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE transparency_documents ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Transparency docs are viewable by everyone." ON transparency_documents FOR SELECT USING (true);
+CREATE POLICY "Municipal admins can manage transparency docs." ON transparency_documents FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'municipal_admin' AND is_verified = true)
+);
+
+-- 13. Legislative Reports & Minutes
+CREATE TABLE legislative_reports (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  report_type TEXT NOT NULL, -- MINUTES, COMMITTEE_REPORT, LEGISLATIVE_AGENDA
+  date DATE DEFAULT CURRENT_DATE,
+  file_url TEXT NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE legislative_reports ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Legislative reports are viewable by everyone." ON legislative_reports FOR SELECT USING (true);
+CREATE POLICY "Municipal admins can manage legislative reports." ON legislative_reports FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'municipal_admin' AND is_verified = true)
+);
+
 -- STORAGE BUCKET: public-assets
 -- Ensure you create a bucket named 'public-assets' in Supabase Storage with public access.

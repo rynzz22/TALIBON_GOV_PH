@@ -1,11 +1,21 @@
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
 
-// Mock IntersectionObserver for framer-motion
-class MockIntersectionObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
+// Mock IntersectionObserver
+class IntersectionObserverMock {
+  observe = vi.fn();
+  unobserve = vi.fn();
+  disconnect = vi.fn();
 }
 
-vi.stubGlobal('IntersectionObserver', MockIntersectionObserver)
+Object.defineProperty(window, 'IntersectionObserver', {
+  writable: true,
+  configurable: true,
+  value: IntersectionObserverMock
+});
+
+Object.defineProperty(global, 'IntersectionObserver', {
+  writable: true,
+  configurable: true,
+  value: IntersectionObserverMock
+});

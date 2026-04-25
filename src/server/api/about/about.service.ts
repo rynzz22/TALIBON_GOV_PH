@@ -1,7 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
+import { SupabaseService } from "../../supabase.service";
 
 @Injectable()
 export class AboutService {
+  constructor(@Inject(SupabaseService) private readonly supabaseService: SupabaseService) {}
+
   getProfile() {
     return {
       title: "Brief Profile",
@@ -256,6 +259,20 @@ Cities and Municipalities Competitiveness Index (CMCI) 2024. (n.d.). Department 
         serviceLink: "/about/services"
       }
     ];
+  }
+
+  async getBarangayStats() {
+    try {
+      const { data, error } = await this.supabaseService
+        .getClient()
+        .from("barangay_stats")
+        .select("*");
+      
+      if (error) throw error;
+      return data;
+    } catch (e) {
+      return [];
+    }
   }
 
   getVicinityMap() {

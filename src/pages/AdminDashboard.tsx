@@ -6,7 +6,7 @@ import {
   LogIn, LogOut, Trash2, FileText, CheckCircle,
   AlertCircle, ShieldCheck, Plus, X, Search,
   Newspaper, Users, Gavel, LayoutDashboard,
-  Edit3, Save, Globe, Building2, Mic
+  Edit3, Save, Globe, Building2, Mic, TrendingUp
 } from 'lucide-react';
 import MeetingAssistant from '../components/MeetingAssistant';
 import FileUpload from '../components/FileUpload';
@@ -19,25 +19,32 @@ function sanitizeText(input: string, maxLength = 500): string {
 const AdminDashboard: React.FC = () => {
   const { user, profile, loading, signInWithGoogle, signOut } = useAuth();
   const [activeTab, setActiveTab] = useState<
-    'news' | 'resolutions' | 'officials' | 'ordinances' | 'meeting-assistant' | 'navigation'
+    'news' | 'resolutions' | 'legislative' | 'officials' | 'ordinances' | 'meeting-assistant' | 'navigation' | 'pages' | 'barangays' | 'transparency'
   >('news');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isGadInfoOpen, setIsGadInfoOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
-
+ 
   const [news, setNews] = useState<any[]>([]);
   const [resolutions, setResolutions] = useState<any[]>([]);
+  const [legislativeReports, setLegislativeReports] = useState<any[]>([]);
+  const [transparencyDocs, setTransparencyDocs] = useState<any[]>([]);
   const [officials, setOfficials] = useState<any[]>([]);
   const [ordinances, setOrdinances] = useState<any[]>([]);
   const [navigation, setNavigation] = useState<any[]>([]);
-
+  const [pages, setPages] = useState<any[]>([]);
+  const [barangayStats, setBarangayStats] = useState<any[]>([]);
+ 
   const [newsForm, setNewsForm] = useState({
     title: '', content: '', summary: '', category: 'ARTICLE',
     image_url: '', file_url: '', date: new Date().toISOString().split('T')[0],
   });
   const [resForm, setResForm] = useState({ no: '', date: '', author: '', title: '', file_url: '' });
-  const [offForm, setOffForm] = useState({ name: '', role: '', level: 3, display_order: 0 });
+  const [legReportForm, setLegReportForm] = useState({ title: '', report_type: 'MINUTES', date: '', file_url: '' });
+  const [transForm, setTransForm] = useState({ title: '', category: 'BUDGET', year: new Date().getFullYear().toString(), file_url: '', file_size: '' });
+  const [offForm, setOffForm] = useState({ name: '', role: '', level: 3, display_order: 0, image_url: '' });
   const [ordForm, setOrdForm] = useState({
     title: '', year: new Date().getFullYear().toString(),
     file_url: '', file_size: '2 MB', barangay_id: '',
@@ -45,6 +52,9 @@ const AdminDashboard: React.FC = () => {
   const [navForm, setNavForm] = useState({
     name: '', href: '', section: 'NEWS', order: 0, is_external: false, is_hash: false,
   });
+  const [pageForm, setPageForm] = useState({ slug: '', title: '', body_json: '' });
+  const [brgyForm, setBrgyForm] = useState({ slug: '', name: '', population: '', captain: '', description: '' });
+  const [demographicsForm, setDemographicsForm] = useState({ population: '', census_year: '' });
 
   const canAccessManagement =
     profile && profile.is_verified &&
@@ -94,6 +104,29 @@ const AdminDashboard: React.FC = () => {
         const { data: navData } = await supabase
           .from('navigation').select('*').order('order', { ascending: true });
         if (navData) setNavigation(navData);
+
+        const { data: pageData } = await supabase
+          .from('content').select('*').order('slug', { ascending: true });
+        if (pageData) setPages(pageData);
+
+        const { data: brgyData } = await supabase
+          .from('barangay_stats').select('*').order('slug', { ascending: true });
+        if (brgyData) setBarangayStats(brgyData);
+
+        const { data: legData } = await supabase
+          .from('legislative_reports').select('*').order('date', { ascending: false });
+        if (legData) setLegislativeReports(legData);
+
+        const { data: transData } = await supabase
+          .from('transparency_documents').select('*').order('year', { ascending: false });
+        if (transData) setTransparencyDocs(transData);
+
+        const { data: demoData } = await supabase
+          .from('content').select('*').eq('slug', 'demographics').single();
+        if (demoData) setDemographicsForm({ 
+          population: demoData.body?.population || '', 
+          census_year: demoData.body?.census_year || '' 
+        });
       }
     } catch (err) {
       console.error('[AdminDashboard] fetchAll error:', err);
@@ -112,6 +145,10 @@ const AdminDashboard: React.FC = () => {
       supabase.channel('admin-resolutions').on('postgres_changes', { event: '*', schema: 'public', table: 'resolutions' }, fetchAll).subscribe(),
       supabase.channel('admin-officials').on('postgres_changes', { event: '*', schema: 'public', table: 'officials' }, fetchAll).subscribe(),
       supabase.channel('admin-navigation').on('postgres_changes', { event: '*', schema: 'public', table: 'navigation' }, fetchAll).subscribe(),
+      supabase.channel('admin-pages').on('postgres_changes', { event: '*', schema: 'public', table: 'content' }, fetchAll).subscribe(),
+      supabase.channel('admin-barangays').on('postgres_changes', { event: '*', schema: 'public', table: 'barangay_stats' }, fetchAll).subscribe(),
+      supabase.channel('admin-legislative').on('postgres_changes', { event: '*', schema: 'public', table: 'legislative_reports' }, fetchAll).subscribe(),
+      supabase.channel('admin-transparency').on('postgres_changes', { event: '*', schema: 'public', table: 'transparency_documents' }, fetchAll).subscribe(),
     ];
     return () => { channels.forEach((ch) => supabase.removeChannel(ch)); };
   }, [canAccessManagement, fetchAll]);
@@ -146,6 +183,65 @@ const AdminDashboard: React.FC = () => {
       resetForms();
     } catch (err: any) {
       showError(err.message ?? "Failed to save news.");
+    }
+  };
+
+  const handleSaveLegReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!legReportForm.title.trim() || !legReportForm.file_url) {
+      showError("Title and file are required.");
+      return;
+    }
+    try {
+      const payload = {
+        title: sanitizeText(legReportForm.title, 500),
+        report_type: legReportForm.report_type,
+        date: legReportForm.date || new Date().toISOString().split('T')[0],
+        file_url: legReportForm.file_url,
+      };
+      if (editingId) {
+        const { error } = await supabase.from('legislative_reports').update(payload).eq('id', editingId);
+        if (error) throw error;
+        showSuccess("Report updated!");
+      } else {
+        const { error } = await supabase.from('legislative_reports').insert([payload]);
+        if (error) throw error;
+        showSuccess("Report added!");
+      }
+      setIsModalOpen(false);
+      resetForms();
+    } catch (err: any) {
+      showError(err.message ?? "Failed to save report.");
+    }
+  };
+
+  const handleSaveTransparency = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!transForm.title.trim() || !transForm.file_url) {
+      showError("Title and file are required.");
+      return;
+    }
+    try {
+      const payload = {
+        title: sanitizeText(transForm.title, 500),
+        category: transForm.category,
+        year: parseInt(transForm.year),
+        file_url: transForm.file_url,
+        file_size: sanitizeText(transForm.file_size, 20),
+      };
+      if (editingId) {
+        const { error } = await supabase.from('transparency_documents').update(payload).eq('id', editingId);
+        if (error) throw error;
+        showSuccess("Document updated!");
+      } else {
+        const { error } = await supabase.from('transparency_documents').insert([payload]);
+        if (error) throw error;
+        showSuccess("Document added!");
+      }
+      setIsModalOpen(false);
+      resetForms();
+    } catch (err: any) {
+      showError(err.message ?? "Failed to save transparency document.");
     }
   };
 
@@ -191,6 +287,7 @@ const AdminDashboard: React.FC = () => {
         role: sanitizeText(offForm.role, 200),
         level: offForm.level,
         display_order: offForm.display_order,
+        image_url: offForm.image_url,
       };
       if (editingId) {
         const { error } = await supabase.from('officials').update(payload).eq('id', editingId);
@@ -246,6 +343,51 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleSaveDemographics = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const { error } = await supabase.from('content').upsert({
+        slug: 'demographics',
+        title: 'Municipal Demographics',
+        body: { population: demographicsForm.population, census_year: demographicsForm.census_year },
+      });
+      if (error) throw error;
+      showSuccess("Global demographics updated!");
+    } catch (err: any) {
+      showError(err.message ?? "Failed to update demographics.");
+    }
+  };
+
+  const handleSaveBarangay = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!brgyForm.slug || !brgyForm.name) {
+      showError("Barangay ID and Name are required.");
+      return;
+    }
+    try {
+      const payload = {
+        slug: brgyForm.slug.trim(),
+        name: sanitizeText(brgyForm.name, 100),
+        population: sanitizeText(brgyForm.population, 50),
+        captain: sanitizeText(brgyForm.captain, 100),
+        description: sanitizeText(brgyForm.description, 500),
+      };
+      if (editingId) {
+        const { error } = await supabase.from('barangay_stats').update(payload).eq('id', editingId);
+        if (error) throw error;
+        showSuccess("Barangay data updated!");
+      } else {
+        const { error } = await supabase.from('barangay_stats').insert([payload]);
+        if (error) throw error;
+        showSuccess("Barangay data added!");
+      }
+      setIsModalOpen(false);
+      resetForms();
+    } catch (err: any) {
+      showError(err.message ?? "Failed to save barangay data.");
+    }
+  };
+
   const handleSaveNavigation = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!navForm.name.trim() || !navForm.href.trim()) {
@@ -277,10 +419,64 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
-  const handleDelete = async (table: string, id: string) => {
+  const handleSavePage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!pageForm.slug.trim() || !pageForm.title.trim() || !pageForm.body_json.trim()) {
+      showError("Slug, title, and content are required.");
+      return;
+    }
+    try {
+      let parsedBody;
+      try {
+        parsedBody = JSON.parse(pageForm.body_json);
+      } catch (e) {
+        showError("Invalid JSON format. Check your braces and quotes.");
+        return;
+      }
+
+      const payload = {
+        slug: pageForm.slug.trim().toLowerCase(),
+        title: pageForm.title,
+        body: parsedBody,
+      };
+
+      if (activeTab === 'pages') {
+        const { error } = await supabase.from('content').update(payload).eq('slug', editingId);
+        if (error) throw error;
+        showSuccess("Page content updated!");
+      } else if (editingId) {
+        const { error } = await supabase.from(activeTab === 'news' ? 'news' : activeTab === 'resolutions' ? 'resolutions' : activeTab === 'officials' ? 'officials' : activeTab === 'ordinances' ? 'ordinances' : 'navigation').update(payload).eq('id', editingId);
+        if (error) throw error;
+        showSuccess("Updated successfully!");
+      } else {
+        const { error } = await supabase.from(activeTab === 'news' ? 'news' : activeTab === 'resolutions' ? 'resolutions' : activeTab === 'officials' ? 'officials' : activeTab === 'ordinances' ? 'ordinances' : 'navigation').insert([payload]);
+        if (error) throw error;
+        showSuccess("Created successfully!");
+      }
+      setIsModalOpen(false);
+      resetForms();
+    } catch (err: any) {
+      showError(err.message ?? "Failed to save page.");
+    }
+  };
+
+  const handleDelete = async (tab: typeof activeTab, id: string) => {
+    if (!tab) return;
     if (!window.confirm("Are you sure you want to permanently delete this item?")) return;
     try {
-      const { error } = await supabase.from(table).delete().eq('id', id);
+      let table = 'navigation';
+      if (tab === 'pages') table = 'content';
+      else if (tab === 'news') table = 'news';
+      else if (tab === 'resolutions') table = 'resolutions';
+      else if (tab === 'officials') table = 'officials';
+      else if (tab === 'ordinances') table = 'ordinances';
+      else if (tab === 'barangays') table = 'barangay_stats';
+      else if (tab === 'legislative') table = 'legislative_reports';
+      else if (tab === 'transparency') table = 'transparency_documents';
+
+      const key = tab === 'pages' ? 'slug' : 'id';
+      
+      const { error } = await supabase.from(table).delete().eq(key, id);
       if (error) throw error;
       showSuccess("Deleted successfully.");
     } catch (err: any) {
@@ -291,20 +487,29 @@ const AdminDashboard: React.FC = () => {
   const resetForms = () => {
     setNewsForm({ title: '', content: '', summary: '', category: 'ARTICLE', image_url: '', file_url: '', date: new Date().toISOString().split('T')[0] });
     setResForm({ no: '', date: '', author: '', title: '', file_url: '' });
-    setOffForm({ name: '', role: '', level: 3, display_order: 0 });
+    setOffForm({ name: '', role: '', level: 3, display_order: 0, image_url: '' });
     setOrdForm({ title: '', year: new Date().getFullYear().toString(), file_url: '', file_size: '2 MB', barangay_id: '' });
     setNavForm({ name: '', href: '', section: 'NEWS', order: 0, is_external: false, is_hash: false });
+    setPageForm({ slug: '', title: '', body_json: '' });
+    setBrgyForm({ slug: '', name: '', population: '', captain: '', description: '' });
+    setLegReportForm({ title: '', report_type: 'MINUTES', date: new Date().toISOString().split('T')[0], file_url: '' });
+    setTransForm({ title: '', category: 'BUDGET', year: new Date().getFullYear().toString(), file_url: '', file_size: '' });
     setEditingId(null);
   };
 
   const openEdit = (type: typeof activeTab, item: any) => {
-    setEditingId(item.id);
+    const editId = type === 'pages' ? item.slug : item.id;
+    setEditingId(editId);
     setActiveTab(type);
     if (type === 'news') setNewsForm({ title: item.title, content: item.content, summary: item.summary ?? '', category: item.category, image_url: item.image_url ?? '', file_url: item.file_url ?? '', date: item.date });
     if (type === 'resolutions') setResForm({ no: item.no, date: item.date, author: item.author ?? '', title: item.title, file_url: item.file_url ?? '' });
-    if (type === 'officials') setOffForm({ name: item.name, role: item.role, level: item.level, display_order: item.display_order ?? 0 });
+    if (type === 'officials') setOffForm({ name: item.name, role: item.role, level: item.level, display_order: item.display_order ?? 0, image_url: item.image_url ?? '' });
     if (type === 'ordinances') setOrdForm({ title: item.title, year: String(item.year), file_url: item.file_url ?? '', file_size: item.file_size ?? '2 MB', barangay_id: item.barangay_id ?? '' });
     if (type === 'navigation') setNavForm({ name: item.name, href: item.href, section: item.section, order: item.order ?? 0, is_external: item.is_external ?? false, is_hash: item.is_hash ?? false });
+    if (type === 'pages') setPageForm({ slug: item.slug, title: item.title, body_json: JSON.stringify(item.body, null, 2) });
+    if (type === 'barangays') setBrgyForm({ slug: item.slug, name: item.name, population: item.population ?? '', captain: item.captain ?? '', description: item.description ?? '' });
+    if (type === 'legislative') setLegReportForm({ title: item.title, report_type: item.report_type, date: item.date, file_url: item.file_url });
+    if (type === 'transparency') setTransForm({ title: item.title, category: item.category, year: String(item.year), file_url: item.file_url, file_size: item.file_size ?? '' });
     setIsModalOpen(true);
   };
 
@@ -382,8 +587,12 @@ const AdminDashboard: React.FC = () => {
     { id: 'news', label: 'News & Advisories', icon: Newspaper },
     ...(profile.role === 'municipal_admin' ? [
       { id: 'resolutions', label: 'Resolutions', icon: Gavel },
+      { id: 'legislative', label: 'Legis Reports', icon: FileText },
+      { id: 'transparency', label: 'Transparency', icon: ShieldCheck },
       { id: 'officials', label: 'Org Chart', icon: Users },
+      { id: 'barangays', label: 'Barangay Data', icon: Building2 },
       { id: 'navigation', label: 'Navigation', icon: Globe },
+      { id: 'pages', label: 'General Pages', icon: FileText },
     ] : []),
     { id: 'ordinances', label: 'Ordinances', icon: FileText },
     { id: 'meeting-assistant', label: 'Meeting AI', icon: Mic },
@@ -428,6 +637,13 @@ const AdminDashboard: React.FC = () => {
               Add New
             </button>
             <button
+              onClick={() => setIsGadInfoOpen(true)}
+              className="px-4 py-4 bg-purple-50 text-purple-600 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-purple-100 transition-all flex items-center gap-2"
+            >
+              <ShieldCheck size={16} />
+              GAD IMS
+            </button>
+            <button
               onClick={signOut}
               className="px-8 py-4 bg-white text-gray-400 rounded-2xl font-black text-xs tracking-widest hover:bg-gray-100 border border-gray-100 transition-all flex items-center gap-2"
             >
@@ -462,14 +678,223 @@ const AdminDashboard: React.FC = () => {
               {activeTab === 'news' && 'News Management'}
               {activeTab === 'resolutions' && 'Resolutions Management'}
               {activeTab === 'ordinances' && 'Ordinances Management'}
-              {activeTab === 'officials' && 'Officials Management'}
+              {activeTab === 'officials' && 'Executive Org Chart'}
+              {activeTab === 'barangays' && 'Barangay Population & Info'}
               {activeTab === 'navigation' && 'Navigation Management'}
               {activeTab === 'meeting-assistant' && 'AI Meeting Assistant'}
             </h2>
           </div>
 
           <div className="overflow-x-auto">
-            {activeTab === 'meeting-assistant' && <MeetingAssistant />}
+              {activeTab === 'pages' && profile.role === 'municipal_admin' && (
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Slug</th>
+                      <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Page Title</th>
+                      <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {pages.length === 0 ? (
+                      <tr><td colSpan={3} className="px-8 py-12 text-center text-gray-400 font-bold text-sm">No general pages managed yet.</td></tr>
+                    ) : pages.map((item) => (
+                      <tr key={item.slug} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-8 py-6 font-black text-blue-600">{item.slug}</td>
+                        <td className="px-8 py-6 font-bold text-gray-900">{item.title}</td>
+                        <td className="px-8 py-6 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button onClick={() => openEdit('pages', item)} aria-label="Edit page" className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"><Edit3 size={18} /></button>
+                            <button onClick={() => handleDelete('pages', item.slug)} aria-label="Delete page" className="p-3 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={18} /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+
+            {activeTab === 'legislative' && (
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Type</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Title</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Date</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {legislativeReports.length === 0 ? (
+                    <tr><td colSpan={4} className="px-8 py-12 text-center text-gray-400 font-bold text-sm">No legislative reports yet.</td></tr>
+                  ) : legislativeReports.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-8 py-6">
+                         <span className="px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-lg text-[8px] font-black uppercase tracking-widest">{item.report_type}</span>
+                      </td>
+                      <td className="px-8 py-6 font-bold text-gray-900 max-w-sm truncate">{item.title}</td>
+                      <td className="px-8 py-6 text-sm font-bold text-gray-400">{item.date}</td>
+                      <td className="px-8 py-6 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => openEdit('legislative', item)} aria-label="Edit report" className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"><Edit3 size={18} /></button>
+                          <button onClick={() => handleDelete('legislative', item.id)} aria-label="Delete report" className="p-3 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={18} /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
+            {activeTab === 'transparency' && (
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Category</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Document Title</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Year</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {transparencyDocs.length === 0 ? (
+                    <tr><td colSpan={4} className="px-8 py-12 text-center text-gray-400 font-bold text-sm">No transparency documents yet.</td></tr>
+                  ) : transparencyDocs.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-8 py-6">
+                         <span className="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-lg text-[8px] font-black uppercase tracking-widest">{item.category}</span>
+                      </td>
+                      <td className="px-8 py-6 font-bold text-gray-900 max-w-sm truncate">{item.title}</td>
+                      <td className="px-8 py-6 font-black text-blue-600">{item.year}</td>
+                      <td className="px-8 py-6 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => openEdit('transparency', item)} aria-label="Edit doc" className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"><Edit3 size={18} /></button>
+                          <button onClick={() => handleDelete('transparency', item.id)} aria-label="Delete doc" className="p-3 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={18} /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
+            {activeTab === 'legislative' && (
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Type</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Title</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Date</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {legislativeReports.length === 0 ? (
+                    <tr><td colSpan={4} className="px-8 py-12 text-center text-gray-400 font-bold text-sm">No legislative reports yet.</td></tr>
+                  ) : legislativeReports.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-8 py-6">
+                         <span className="px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-lg text-[8px] font-black uppercase tracking-widest">{item.report_type}</span>
+                      </td>
+                      <td className="px-8 py-6 font-bold text-gray-900 max-w-sm truncate">{item.title}</td>
+                      <td className="px-8 py-6 text-sm font-bold text-gray-400">{item.date}</td>
+                      <td className="px-8 py-6 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => openEdit('legislative', item)} aria-label="Edit report" className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"><Edit3 size={18} /></button>
+                          <button onClick={() => handleDelete('legislative', item.id)} aria-label="Delete report" className="p-3 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={18} /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
+            {activeTab === 'transparency' && (
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-gray-50">
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Category</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Document Title</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Year</th>
+                    <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {transparencyDocs.length === 0 ? (
+                    <tr><td colSpan={4} className="px-8 py-12 text-center text-gray-400 font-bold text-sm">No transparency documents yet.</td></tr>
+                  ) : transparencyDocs.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-8 py-6">
+                         <span className="px-3 py-1 bg-yellow-50 text-yellow-700 rounded-lg text-[8px] font-black uppercase tracking-widest">{item.category}</span>
+                      </td>
+                      <td className="px-8 py-6 font-bold text-gray-900 max-w-sm truncate">{item.title}</td>
+                      <td className="px-8 py-6 font-black text-blue-600">{item.year}</td>
+                      <td className="px-8 py-6 text-right">
+                        <div className="flex justify-end gap-2">
+                          <button onClick={() => openEdit('transparency', item)} aria-label="Edit doc" className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"><Edit3 size={18} /></button>
+                          <button onClick={() => handleDelete('transparency', item.id)} aria-label="Delete doc" className="p-3 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={18} /></button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+
+              {activeTab === 'meeting-assistant' && <MeetingAssistant />}
+
+              {activeTab === 'barangays' && (
+                <div className="space-y-12">
+                  <div className="bg-blue-50/50 p-8 rounded-[2rem] border border-blue-100/50">
+                    <h3 className="text-sm font-black text-blue-900 uppercase tracking-widest mb-6 flex items-center gap-2">
+                      <TrendingUp size={16} />
+                      Global Town Population
+                    </h3>
+                    <form onSubmit={handleSaveDemographics} className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Population</label>
+                        <input type="text" placeholder="e.g. 71,272" value={demographicsForm.population} onChange={(e) => setDemographicsForm({ ...demographicsForm, population: e.target.value })} className="w-full bg-white border border-blue-100 rounded-2xl py-3 px-6 font-bold text-gray-900 shadow-sm" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Census Year</label>
+                        <input type="text" placeholder="e.g. 2020" value={demographicsForm.census_year} onChange={(e) => setDemographicsForm({ ...demographicsForm, census_year: e.target.value })} className="w-full bg-white border border-blue-100 rounded-2xl py-3 px-6 font-bold text-gray-900 shadow-sm" />
+                      </div>
+                      <button type="submit" className="bg-blue-600 text-white rounded-2xl py-3 px-6 font-black text-[10px] uppercase tracking-widest hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/20">
+                        Update Global Stats
+                      </button>
+                    </form>
+                  </div>
+
+                  <table className="w-full text-left">
+                  <thead>
+                    <tr className="bg-gray-50">
+                      <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Name</th>
+                      <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">ID / Slug</th>
+                      <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest">Population</th>
+                      <th className="px-8 py-6 text-[10px] font-black text-gray-400 uppercase tracking-widest text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {barangayStats.length === 0 ? (
+                      <tr><td colSpan={4} className="px-8 py-12 text-center text-gray-400 font-bold text-sm">No barangay data in CMS yet. Populating logic is ready.</td></tr>
+                    ) : barangayStats.map((item) => (
+                      <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-8 py-6 font-bold text-gray-900">{item.name}</td>
+                        <td className="px-8 py-6 font-black text-blue-600 text-xs uppercase">{item.slug}</td>
+                        <td className="px-8 py-6 font-bold text-gray-500">{item.population || '0'}</td>
+                        <td className="px-8 py-6 text-right">
+                          <div className="flex justify-end gap-2">
+                            <button onClick={() => openEdit('barangays', item)} aria-label="Edit stats" className="p-3 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all"><Edit3 size={18} /></button>
+                            <button onClick={() => handleDelete('barangays', item.id)} aria-label="Delete stats" className="p-3 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"><Trash2 size={18} /></button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
 
             {activeTab === 'news' && (
               <table className="w-full text-left">
@@ -635,12 +1060,47 @@ const AdminDashboard: React.FC = () => {
             <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl overflow-hidden">
               <div className="p-8 border-b border-gray-50 flex justify-between items-center">
                 <h2 className="text-2xl font-black text-gray-900 uppercase tracking-tight">
-                  {editingId ? 'Edit' : 'Add New'} {activeTab === 'news' ? 'News' : activeTab === 'resolutions' ? 'Resolution' : activeTab === 'officials' ? 'Official' : activeTab === 'ordinances' ? 'Ordinance' : 'Navigation Link'}
+                  {editingId ? 'Edit' : 'Add New'} {activeTab === 'news' ? 'News' : activeTab === 'resolutions' ? 'Resolution' : activeTab === 'officials' ? 'Official' : activeTab === 'ordinances' ? 'Ordinance' : activeTab === 'barangays' ? 'Barangay' : 'Navigation Link'}
                 </h2>
                 <button onClick={() => setIsModalOpen(false)} aria-label="Close editor" className="p-2 text-gray-400 hover:bg-gray-100 rounded-xl"><X size={24} /></button>
               </div>
 
               <div className="p-8 max-h-[70vh] overflow-y-auto">
+                {activeTab === 'barangays' && (
+                  <form onSubmit={handleSaveBarangay} className="space-y-6" noValidate>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest" htmlFor="brgy-slug">Barangay ID (Slug) *</label>
+                        <select id="brgy-slug" required value={brgyForm.slug} onChange={(e) => {
+                          const b = BARANGAYS.find(br => br.slug === e.target.value);
+                          setBrgyForm({ ...brgyForm, slug: e.target.value, name: b?.name || '' });
+                        }} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20">
+                          <option value="">Select Barangay</option>
+                          {BARANGAYS.map(b => (
+                            <option key={b.slug} value={b.slug}>{b.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest" htmlFor="brgy-pop">Population *</label>
+                        <input id="brgy-pop" type="text" required placeholder="e.g. 5,420" value={brgyForm.population} onChange={(e) => setBrgyForm({ ...brgyForm, population: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest" htmlFor="brgy-captain">Barangay Captain</label>
+                      <input id="brgy-captain" type="text" value={brgyForm.captain} onChange={(e) => setBrgyForm({ ...brgyForm, captain: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest" htmlFor="brgy-desc">Short Description</label>
+                      <textarea id="brgy-desc" rows={3} value={brgyForm.description} onChange={(e) => setBrgyForm({ ...brgyForm, description: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20 resize-none" />
+                    </div>
+                    <button type="submit" className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-3">
+                      <Save size={18} aria-hidden="true" />
+                      {editingId ? 'Update' : 'Save'} Barangay Data
+                    </button>
+                  </form>
+                )}
+
                 {activeTab === 'news' && (
                   <form onSubmit={handleSaveNews} className="space-y-6" noValidate>
                     <div className="space-y-2">
@@ -713,6 +1173,130 @@ const AdminDashboard: React.FC = () => {
                   </form>
                 )}
 
+                {activeTab === 'legislative' && (
+                  <form onSubmit={handleSaveLegReport} className="space-y-6" noValidate>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Report Title *</label>
+                      <input type="text" required value={legReportForm.title} onChange={(e) => setLegReportForm({ ...legReportForm, title: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                       <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Report Type</label>
+                        <select value={legReportForm.report_type} onChange={(e) => setLegReportForm({ ...legReportForm, report_type: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20">
+                          <option value="MINUTES">Minutes of Meeting</option>
+                          <option value="COMMITTEE_REPORT">Committee Report</option>
+                          <option value="LEGISLATIVE_AGENDA">Legislative Agenda</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Date</label>
+                        <input type="date" value={legReportForm.date} onChange={(e) => setLegReportForm({ ...legReportForm, date: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" />
+                      </div>
+                    </div>
+                    <FileUpload label="Report PDF" accept=".pdf" folder="legislative" currentValue={legReportForm.file_url} onUploadComplete={(url) => setLegReportForm({ ...legReportForm, file_url: url })} />
+                    <button type="submit" className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-3">
+                      <Save size={18} aria-hidden="true" />
+                      {editingId ? 'Update' : 'Save'} Legislative Report
+                    </button>
+                  </form>
+                )}
+
+                {activeTab === 'transparency' && (
+                  <form onSubmit={handleSaveTransparency} className="space-y-6" noValidate>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Document Title *</label>
+                      <input type="text" required value={transForm.title} onChange={(e) => setTransForm({ ...transForm, title: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" />
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                       <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Category</label>
+                        <select value={transForm.category} onChange={(e) => setTransForm({ ...transForm, category: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20">
+                          <option value="BUDGET">Budget Reports</option>
+                          <option value="BIDDINGS">Biddings & Awards</option>
+                          <option value="FINANCE">Financial Statements</option>
+                          <option value="CITIZEN_CHARTER">Citizen's Charter</option>
+                          <option value="DISCLOSURE">Full Disclosure</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Year</label>
+                        <input type="number" value={transForm.year} onChange={(e) => setTransForm({ ...transForm, year: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">File Size (e.g. 1.2MB)</label>
+                        <input type="text" value={transForm.file_size} onChange={(e) => setTransForm({ ...transForm, file_size: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" />
+                      </div>
+                    </div>
+                    <FileUpload label="Disclosure PDF" accept=".pdf" folder="transparency" currentValue={transForm.file_url} onUploadComplete={(url) => setTransForm({ ...transForm, file_url: url })} />
+                    <button type="submit" className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-3">
+                      <Save size={18} aria-hidden="true" />
+                      {editingId ? 'Update' : 'Save'} Transparency Doc
+                    </button>
+                  </form>
+                )}
+
+                {activeTab === 'legislative' && (
+                  <form onSubmit={handleSaveLegReport} className="space-y-6" noValidate>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Report Title *</label>
+                      <input type="text" required value={legReportForm.title} onChange={(e) => setLegReportForm({ ...legReportForm, title: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                       <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Report Type</label>
+                        <select value={legReportForm.report_type} onChange={(e) => setLegReportForm({ ...legReportForm, report_type: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20">
+                          <option value="MINUTES">Minutes of Meeting</option>
+                          <option value="COMMITTEE_REPORT">Committee Report</option>
+                          <option value="LEGISLATIVE_AGENDA">Legislative Agenda</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Date</label>
+                        <input type="date" value={legReportForm.date} onChange={(e) => setLegReportForm({ ...legReportForm, date: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" />
+                      </div>
+                    </div>
+                    <FileUpload label="Report PDF" accept=".pdf" folder="legislative" currentValue={legReportForm.file_url} onUploadComplete={(url) => setLegReportForm({ ...legReportForm, file_url: url })} />
+                    <button type="submit" className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-3">
+                      <Save size={18} aria-hidden="true" />
+                      {editingId ? 'Update' : 'Save'} Legislative Report
+                    </button>
+                  </form>
+                )}
+
+                {activeTab === 'transparency' && (
+                  <form onSubmit={handleSaveTransparency} className="space-y-6" noValidate>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Document Title *</label>
+                      <input type="text" required value={transForm.title} onChange={(e) => setTransForm({ ...transForm, title: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" />
+                    </div>
+                    <div className="grid grid-cols-3 gap-4">
+                       <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Category</label>
+                        <select value={transForm.category} onChange={(e) => setTransForm({ ...transForm, category: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20">
+                          <option value="BUDGET">Budget Reports</option>
+                          <option value="BIDDINGS">Biddings & Awards</option>
+                          <option value="FINANCE">Financial Statements</option>
+                          <option value="CITIZEN_CHARTER">Citizen's Charter</option>
+                          <option value="DISCLOSURE">Full Disclosure</option>
+                        </select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Year</label>
+                        <input type="number" value={transForm.year} onChange={(e) => setTransForm({ ...transForm, year: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">File Size (e.g. 1.2MB)</label>
+                        <input type="text" value={transForm.file_size} onChange={(e) => setTransForm({ ...transForm, file_size: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" />
+                      </div>
+                    </div>
+                    <FileUpload label="Disclosure PDF" accept=".pdf" folder="transparency" currentValue={transForm.file_url} onUploadComplete={(url) => setTransForm({ ...transForm, file_url: url })} />
+                    <button type="submit" className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-3">
+                      <Save size={18} aria-hidden="true" />
+                      {editingId ? 'Update' : 'Save'} Transparency Doc
+                    </button>
+                  </form>
+                )}
+
                 {activeTab === 'ordinances' && (
                   <form onSubmit={handleSaveOrdinance} className="space-y-6" noValidate>
                     {profile.role === 'municipal_admin' && (
@@ -770,9 +1354,31 @@ const AdminDashboard: React.FC = () => {
                         <input id="off-order" type="number" min={0} value={offForm.display_order} onChange={(e) => setOffForm({ ...offForm, display_order: parseInt(e.target.value) || 0 })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" />
                       </div>
                     </div>
+                    <FileUpload label="Profile Picture / Department Logo" accept="image/*" folder="officials/images" currentValue={offForm.image_url} onUploadComplete={(url) => setOffForm({ ...offForm, image_url: url })} />
                     <button type="submit" className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-3">
                       <Save size={18} aria-hidden="true" />
                       {editingId ? 'Update' : 'Save'} Official
+                    </button>
+                  </form>
+                )}
+
+                {activeTab === 'pages' && profile.role === 'municipal_admin' && (
+                  <form onSubmit={handleSavePage} className="space-y-6" noValidate>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest" htmlFor="page-slug">Slug (System ID) *</label>
+                      <input id="page-slug" type="text" required placeholder="e.g., about-history" value={pageForm.slug} readOnly={!!editingId} onChange={(e) => setPageForm({ ...pageForm, slug: e.target.value })} className={`w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20 ${editingId ? 'opacity-50' : ''}`} />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest" htmlFor="page-title">Display Title *</label>
+                      <input id="page-title" type="text" required value={pageForm.title} onChange={(e) => setPageForm({ ...pageForm, title: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20" />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest" htmlFor="page-body">Body Data (JSON) *</label>
+                      <textarea id="page-body" required rows={10} value={pageForm.body_json} onChange={(e) => setPageForm({ ...pageForm, body_json: e.target.value })} className="w-full bg-gray-50 border border-transparent rounded-2xl py-4 px-6 font-mono text-xs font-bold text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400/20 resize-none" placeholder='{ "content": "Your text here..." }' />
+                    </div>
+                    <button type="submit" className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black text-xs tracking-widest hover:bg-blue-700 transition-all flex items-center justify-center gap-3">
+                      <Save size={18} aria-hidden="true" />
+                      {editingId ? 'Update' : 'Create'} Page Content
                     </button>
                   </form>
                 )}
@@ -822,6 +1428,112 @@ const AdminDashboard: React.FC = () => {
                   </form>
                 )}
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isGadInfoOpen && (
+          <div className="fixed inset-0 z-[130] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsGadInfoOpen(false)} className="absolute inset-0 bg-gray-900/80 backdrop-blur-md" />
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl p-12 overflow-hidden border border-purple-100">
+               <div className="flex items-center gap-4 mb-8">
+                  <div className="w-16 h-16 bg-purple-100 rounded-3xl flex items-center justify-center text-purple-600">
+                    <ShieldCheck size={32} />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-black text-gray-900 uppercase">GAD IMS Integration</h2>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Digital Readiness & Compliance</p>
+                  </div>
+               </div>
+               
+               <div className="space-y-6 mb-12">
+                  <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100">
+                    <h4 className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-2">Current Status</h4>
+                    <p className="text-sm font-bold text-gray-700">The Gender and Development IMS is being developed as an independent analytical system by your team. This dashboard is ready for Phase 2 integration.</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-blue-50 rounded-2xl">
+                       <h5 className="text-[8px] font-black text-blue-600 uppercase mb-1">Independent Sync</h5>
+                       <p className="text-[10px] text-gray-600 font-medium">System will run on a dedicated server for strict data privacy compliance.</p>
+                    </div>
+                    <div className="p-4 bg-green-50 rounded-2xl">
+                       <h5 className="text-[8px] font-black text-green-600 uppercase mb-1">API Webhooks</h5>
+                       <p className="text-[10px] text-gray-600 font-medium">Ready to consume real-time sex-disaggregated data via secure hooks.</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Next Integration Steps</p>
+                    <ul className="space-y-2">
+                       {['Provision independent Supabase project for GAD data.', 'Implement Single Sign-On (SSO) with the main portal.', 'Finalize Beneficiary Profiling and Analytics views.'].map((step, i) => (
+                         <li key={i} className="flex items-center gap-3 text-xs font-bold text-gray-600">
+                            <span className="w-5 h-5 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center text-[10px]">{i+1}</span>
+                            {step}
+                         </li>
+                       ))}
+                    </ul>
+                  </div>
+               </div>
+               
+               <button onClick={() => setIsGadInfoOpen(false)} className="w-full py-5 bg-gray-900 text-white rounded-2xl font-black text-xs tracking-widest hover:bg-black transition-all">
+                 I Understand, Close Overview
+               </button>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isGadInfoOpen && (
+          <div className="fixed inset-0 z-[130] flex items-center justify-center p-4">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsGadInfoOpen(false)} className="absolute inset-0 bg-gray-900/80 backdrop-blur-md" />
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="relative w-full max-w-2xl bg-white rounded-[3rem] shadow-2xl p-12 overflow-hidden border border-purple-100">
+               <div className="flex items-center gap-4 mb-8">
+                  <div className="w-16 h-16 bg-purple-100 rounded-3xl flex items-center justify-center text-purple-600">
+                    <ShieldCheck size={32} />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-black text-gray-900 uppercase">GAD IMS Integration</h2>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Digital Readiness & Compliance</p>
+                  </div>
+               </div>
+               
+               <div className="space-y-6 mb-12">
+                  <div className="p-6 bg-gray-50 rounded-3xl border border-gray-100">
+                    <h4 className="text-[10px] font-black text-purple-600 uppercase tracking-widest mb-2">Current Status</h4>
+                    <p className="text-sm font-bold text-gray-700">The Gender and Development IMS is being developed as an independent analytical system by your team. This dashboard is ready for Phase 2 integration.</p>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="p-4 bg-blue-50 rounded-2xl">
+                       <h5 className="text-[8px] font-black text-blue-600 uppercase mb-1">Independent Sync</h5>
+                       <p className="text-[10px] text-gray-600 font-medium">System will run on a dedicated server for strict data privacy compliance.</p>
+                    </div>
+                    <div className="p-4 bg-green-50 rounded-2xl">
+                       <h5 className="text-[8px] font-black text-green-600 uppercase mb-1">API Webhooks</h5>
+                       <p className="text-[10px] text-gray-600 font-medium">Ready to consume real-time sex-disaggregated data via secure hooks.</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Next Integration Steps</p>
+                    <ul className="space-y-2">
+                       {['Provision independent Supabase project for GAD data.', 'Implement Single Sign-On (SSO) with the main portal.', 'Finalize Beneficiary Profiling and Analytics views.'].map((step, i) => (
+                         <li key={i} className="flex items-center gap-3 text-xs font-bold text-gray-600">
+                            <span className="w-5 h-5 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center text-[10px]">{i+1}</span>
+                            {step}
+                         </li>
+                       ))}
+                    </ul>
+                  </div>
+               </div>
+               
+               <button onClick={() => setIsGadInfoOpen(false)} className="w-full py-5 bg-gray-900 text-white rounded-2xl font-black text-xs tracking-widest hover:bg-black transition-all">
+                 I Understand, Close Overview
+               </button>
             </motion.div>
           </div>
         )}

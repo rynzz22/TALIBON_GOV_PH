@@ -3,41 +3,49 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { Suspense, lazy } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation, Link } from "react-router-dom";
+import { Suspense, lazy } from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { motion } from "motion/react";
 import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
-import GeminiAssistant from "./components/GeminiAssistant";
-import ScrollToTop from "./components/ScrollToTop";
-import { BARANGAYS } from "./constants/barangayConfig";
-import GadImsSystem from "./components/GadImsSystem";
-import { aboutApi, executiveApi, legislativeApi, transparencyApi, tourismApi, formsApi } from "./services/api";
-import { AuthProvider } from "./contexts/SupabaseAuthContext";
-import { LanguageProvider } from "./contexts/LanguageContext";
-import { Eye, Target, Quote, User, Phone, ExternalLink, Clock, Building2, ArrowUpRight } from "lucide-react";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { SkeletonLoader } from "./components/SkeletonLoader";
 
+// Lazy load pages
 const Home = lazy(() => import("./pages/Home"));
+const Login = lazy(() => import("./pages/Login"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
+const BarangayHome = lazy(() => import("./pages/BarangayHome"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const DownloadsPage = lazy(() => import("./pages/DownloadsPage"));
+const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
+const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
+const TourismMapPage = lazy(() => import("./pages/TourismMapPage"));
+const UpdatesPage = lazy(() => import("./pages/UpdatesPage"));
 const ContentPage = lazy(() => import("./pages/ContentPage"));
 const OfficialSealPage = lazy(() => import("./pages/OfficialSealPage"));
 const EnactedOrdinancesPage = lazy(() => import("./pages/EnactedOrdinancesPage"));
 const ResolutionsPage = lazy(() => import("./pages/ResolutionsPage"));
 const CitizenCharterPage = lazy(() => import("./pages/CitizenCharterPage"));
 const FullDisclosurePage = lazy(() => import("./pages/FullDisclosurePage"));
+const OrganizationalChartPage = lazy(() => import("./pages/OrganizationalChartPage"));
+const LegislativeRecordsPage = lazy(() => import("./pages/LegislativeRecordsPage"));
+const CensusPage = lazy(() => import("./pages/CensusPage"));
+const NewsCategoryPage = lazy(() => import("./pages/NewsCategoryPage"));
+const NewsDetailPage = lazy(() => import("./pages/NewsDetailPage"));
+const BarangayOfficialsPage = lazy(() => import("./pages/BarangayOfficialsPage"));
+const GadImsSystem = lazy(() => import("./components/GadImsSystem"));
 const BusinessPermitPage = lazy(() => import("./pages/BusinessPermitPage"));
 const BuildingPermitPage = lazy(() => import("./pages/BuildingPermitPage"));
 const ZoningClearancePage = lazy(() => import("./pages/ZoningClearancePage"));
-const OrganizationalChartPage = lazy(() => import("./pages/OrganizationalChartPage"));
-const NewsCategoryPage = lazy(() => import("./pages/NewsCategoryPage"));
-const NewsDetailPage = lazy(() => import("./pages/NewsDetailPage"));
-const DownloadsPage = lazy(() => import("./pages/DownloadsPage"));
-const BarangayHome = lazy(() => import("./pages/BarangayHome"));
-const Login = lazy(() => import("./pages/Login"));
-const AuthCallback = lazy(() => import("./pages/AuthCallback"));
-const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
-const TourismMapPage = lazy(() => import("./pages/TourismMapPage"));
-const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess"));
-const PaymentCancel = lazy(() => import("./pages/PaymentCancel"));
+
+import Footer from "./components/Footer";
+import GeminiAssistant from "./components/GeminiAssistant";
+import ScrollToTop from "./components/ScrollToTop";
+import { aboutApi, executiveApi, legislativeApi, transparencyApi, tourismApi } from "./services/api";
+import { AuthProvider } from "./contexts/SupabaseAuthContext";
+import { LanguageProvider } from "./contexts/LanguageContext";
+import { Eye, Target, Quote, User, Phone, ExternalLink, Building2 } from "lucide-react";
+import LocationMap from "./components/LocationMap";
 
 function AppLayout() {
   const location = useLocation();
@@ -45,7 +53,8 @@ function AppLayout() {
   const isLogin = location.pathname === "/login";
 
   return (
-    <div className="min-h-screen bg-white font-sans selection:bg-brand-primary selection:text-white relative overflow-hidden">
+    <Suspense fallback={<SkeletonLoader />}>
+      <div className="min-h-screen bg-white font-sans selection:bg-brand-primary selection:text-white relative overflow-hidden">
         {/* Minimal Background */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
           <div className="absolute top-0 left-0 w-full h-full opacity-[0.2]" style={{ backgroundImage: 'radial-gradient(#cbd5e1 1px, transparent 1px)', backgroundSize: '64px 64px' }} />
@@ -54,8 +63,7 @@ function AppLayout() {
         <div className="relative z-10">
           {!isLogin && <Navbar />}
           <div className={isHome || isLogin ? "" : "pt-[180px] lg:pt-[260px]"}>
-            <Suspense fallback={<div className="min-h-[60vh] flex items-center justify-center text-brand-primary font-black text-xl">Loading...</div>}>
-              <Routes>
+            <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/auth/callback" element={<AuthCallback />} />
@@ -65,6 +73,7 @@ function AppLayout() {
           <Route path="/payment/success" element={<PaymentSuccess />} />
           <Route path="/payment/cancel" element={<PaymentCancel />} />
           <Route path="/tourism/map" element={<TourismMapPage />} />
+          <Route path="/news/updates" element={<UpdatesPage />} />
           
           {/* About Talibon */}
           <Route path="/about/profile" element={<ContentPage title="Brief Profile" fetchData={aboutApi.getProfile} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium whitespace-pre-line">{data.content}</p>} />} />
@@ -254,65 +263,33 @@ function AppLayout() {
               </div>
             </div>
           )} />} />
-          <Route path="/about/barangays" element={<ContentPage title="Barangay Profiles" fetchData={async () => ({ data: BARANGAYS })} renderContent={(data) => (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {Array.isArray(data) && data.length > 0 ? (
-                data.map((brgy: any, idx: number) => (
-                  <Link 
-                    key={`${brgy.slug}-${idx}`} 
-                    to={`/brgy/${brgy.slug}`}
-                    className="minimal-card p-8 flex flex-col items-center justify-center text-center gap-4 hover:border-brand-primary/30 group"
-                  >
-                    <div className="w-12 h-12 rounded-2xl bg-brand-primary/5 text-brand-primary flex items-center justify-center group-hover:bg-brand-primary group-hover:text-white transition-all">
-                      <Building2 size={24} />
+          <Route path="/about/demographics" element={<ContentPage title="Demographics" fetchData={aboutApi.getDemographics} renderContent={(data) => (
+            <div className="space-y-12">
+              <p className="text-lg text-brand-muted leading-relaxed font-medium">{data?.content}</p>
+              {data.images && Array.isArray(data.images) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {data.images.map((img: string, i: number) => (
+                    <div key={i} className="aspect-square bg-brand-surface rounded-3xl border-4 border-white shadow-xl overflow-hidden hover:scale-105 transition-transform duration-500">
+                      <img src={img} alt={`Demographics ${i}`} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                     </div>
-                    <div>
-                      <h3 className="text-sm font-black uppercase tracking-widest text-brand-text group-hover:text-brand-primary transition-colors">{brgy.name}</h3>
-                      <p className="text-[10px] font-bold text-brand-muted uppercase tracking-[0.2em] mt-1">Captain: {brgy.captain}</p>
-                    </div>
-                    <div className="mt-4 flex items-center gap-1 text-[8px] font-black text-brand-primary uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-all">
-                      Visit Microsite <ArrowUpRight size={12} />
-                    </div>
-                  </Link>
-                ))
-              ) : (
-                <div className="col-span-full text-center py-24 text-brand-muted font-bold uppercase tracking-widest">
-                  No barangays found.
+                  ))}
                 </div>
               )}
             </div>
           )} />} />
-          <Route path="/about/demographics" element={<ContentPage title="Demographics" fetchData={aboutApi.getDemographics} renderContent={(data) => <p className="text-lg text-brand-muted leading-relaxed font-medium">{data?.content}</p>} />} />
           <Route path="/about/location" element={<ContentPage title="Location" fetchData={aboutApi.getLocation} renderContent={(data) => (
             <div className="space-y-8">
-              <div className="relative aspect-video bg-brand-surface rounded-3xl border-4 border-white shadow-xl overflow-hidden group">
-                <iframe
-                  width="100%"
-                  height="100%"
-                  frameBorder="0"
-                  style={{ border: 0 }}
-                  src={`https://www.google.com/maps/embed/v1/place?key=${process.env.GOOGLE_MAPS_API_KEY || ''}&q=Talibon,Bohol&zoom=14`}
-                  allowFullScreen
-                ></iframe>
-                
-                {/* Custom Logo Pin Overlay */}
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
-                  <div className="relative">
-                    <div className="absolute inset-0 bg-brand-primary rounded-full blur-xl opacity-20 animate-pulse scale-150" />
-                    <div className="relative w-20 h-20 bg-white rounded-full border-4 border-brand-primary p-3 shadow-lg">
-                      <img 
-                        src={data.logoUrl} 
-                        alt="Talibon Logo" 
-                        className="w-full h-full object-contain"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                  </div>
-                </div>
+              <div className="relative aspect-video bg-brand-surface rounded-3xl border-4 border-white shadow-xl overflow-hidden group z-0">
+                <LocationMap 
+                  lat={data.lat || 10.1517} 
+                  lng={data.lng || 124.3333} 
+                  title="Talibon Bohol" 
+                  logoUrl={data.logoUrl} 
+                />
               </div>
               
               <div className="p-8 bg-brand-primary/5 rounded-2xl border border-brand-primary/10">
-                <p className="text-lg text-brand-muted leading-relaxed font-medium">{data?.description}</p>
+                <p className="text-lg text-brand-muted leading-relaxed font-medium whitespace-pre-line">{data?.description}</p>
               </div>
             </div>
           )} />} />
@@ -336,15 +313,36 @@ function AppLayout() {
             </div>
           )} />} />
           <Route path="/about/hymn" element={<ContentPage title="Talibon Hymn" fetchData={aboutApi.getHymn} renderContent={(data) => (
-            <div className="max-w-4xl mx-auto">
-              <div className="bg-white rounded-3xl border-4 border-white shadow-2xl p-8 overflow-hidden">
-                <img 
-                  src={data.imageUrl} 
-                  alt="Talibon Hymn Lyrics" 
-                  className="w-full h-auto rounded-xl"
-                  referrerPolicy="no-referrer"
-                />
+            <div className="max-w-4xl mx-auto space-y-12">
+              <div className="text-center space-y-4">
+                <h2 className="text-4xl font-black text-brand-text font-display uppercase tracking-tight">{data.title || "Talibon Hymn"}</h2>
+                <p className="text-sm font-black text-brand-primary uppercase tracking-[0.3em]">BY: {data.author || "Norman Ingking"}</p>
               </div>
+              
+              {data.imageUrl ? (
+                <div className="bg-white rounded-3xl border-4 border-white shadow-2xl p-8 overflow-hidden">
+                  <img 
+                    src={data.imageUrl} 
+                    alt="Talibon Hymn Lyrics" 
+                    className="w-full h-auto rounded-xl"
+                    referrerPolicy="no-referrer"
+                  />
+                </div>
+              ) : (
+                <div className="civic-card p-12 bg-white text-center">
+                  <div className="prose prose-blue max-w-none mx-auto">
+                    {data.lyrics?.split('\n\n').map((paragraph: string, idx: number) => (
+                      <div key={idx} className="mb-8 last:mb-0">
+                        {paragraph.split('\n').map((line: string, lIdx: number) => (
+                          <p key={lIdx} className="text-xl text-brand-text font-bold leading-tight mb-1">
+                            {line}
+                          </p>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )} />} />
 
@@ -397,6 +395,7 @@ function AppLayout() {
               </div>
             </div>
           )} />} />
+          <Route path="/legislative/records" element={<LegislativeRecordsPage />} />
           <Route path="/legislative/ordinances" element={<EnactedOrdinancesPage />} />
           <Route path="/legislative/resolutions" element={<ResolutionsPage />} />
 
@@ -407,6 +406,7 @@ function AppLayout() {
           {/* Transparency */}
           <Route path="/transparency/charter" element={<CitizenCharterPage />} />
           <Route path="/transparency/disclosure" element={<FullDisclosurePage />} />
+          <Route path="/transparency/census" element={<CensusPage />} />
           <Route path="/transparency/infrastructure" element={<ContentPage title="Infrastructure Projects" fetchData={transparencyApi.getInfrastructure} renderContent={(data) => (
             <div className="grid grid-cols-1 gap-4">
               {Array.isArray(data) && data.map((project: any, idx: number) => (
@@ -471,6 +471,7 @@ function AppLayout() {
               ))}
             </div>
           )} />} />
+          <Route path="/about/barangays" element={<BarangayOfficialsPage />} />
 
           {/* Tourism */}
           <Route path="/tourism/spots" element={<ContentPage title="Tourist Spots" fetchData={tourismApi.getSpots} renderContent={(data) => (
@@ -523,25 +524,27 @@ function AppLayout() {
           <Route path="/forms/building" element={<BuildingPermitPage />} />
           <Route path="/forms/zoning" element={<ZoningClearancePage />} />
         </Routes>
-            </Suspense>
           </div>
           <Footer />
           <GeminiAssistant />
         </div>
       </div>
+    </Suspense>
   );
 }
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <Router>
-          <ScrollToTop />
-          <AppLayout />
-        </Router>
-      </AuthProvider>
-    </LanguageProvider>
+    <ErrorBoundary>
+      <LanguageProvider>
+        <AuthProvider>
+          <Router>
+            <ScrollToTop />
+            <AppLayout />
+          </Router>
+        </AuthProvider>
+      </LanguageProvider>
+    </ErrorBoundary>
   );
 }
 

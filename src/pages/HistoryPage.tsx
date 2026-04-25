@@ -1,11 +1,19 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { History, ArrowLeft, MapPin, Users, Anchor, Fish, Waves, TrendingUp, Landmark } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { aboutApi } from '../services/api';
 
 const HistoryPage: React.FC = () => {
+  const [demographics, setDemographics] = useState<any>(null);
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    aboutApi.getDemographics().then(data => {
+      if (data && (data as any).population) {
+        setDemographics(data);
+      }
+    }).catch(() => {});
   }, []);
 
   return (
@@ -147,7 +155,7 @@ const HistoryPage: React.FC = () => {
                 The municipality possesses a total land area of 140.46 sq km, of which about 7.97 sq km or 5.7% is classified as urban, while the remaining 132.49 sq km is rural.
               </p>
               <p className="text-brand-text/80 leading-relaxed text-lg font-medium">
-                According to the 2020 Philippine Statistics Authority Population Census, it has a population of <span className="text-brand-primary font-extrabold">71,272 people</span>, making it the second-most populous town in Bohol.
+                According to the {demographics?.census_year || '2020'} Philippine Statistics Authority Population Census, it has a population of <span className="text-brand-primary font-extrabold">{demographics?.population || '71,272'} people</span>, making it the second-most populous town in Bohol.
               </p>
             </section>
 

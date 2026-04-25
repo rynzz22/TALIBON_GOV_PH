@@ -54,41 +54,31 @@ export default function SocialMediaUpdates() {
           </div>
 
           <div className="relative">
-            {/* Mock Social Feed UI */}
-            <div className="space-y-6">
-              {[1, 2].map((i) => (
-                <motion.div
-                  key={`social-feed-item-${i}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.2 }}
-                  className="p-8 bg-white rounded-[2.5rem] border border-brand-border shadow-xl shadow-black/5"
-                >
-                  <div className="flex items-center gap-4 mb-6">
-                    <div className="w-12 h-12 rounded-2xl bg-brand-primary flex items-center justify-center text-white font-black">T</div>
-                    <div>
-                      <h4 className="text-sm font-bold text-brand-text uppercase tracking-tight">Talibon Information Office</h4>
-                      <p className="text-[10px] text-brand-muted font-medium">2 hours ago • Public Advisory</p>
-                    </div>
-                  </div>
-                  <p className="text-sm text-brand-text font-medium leading-relaxed mb-6">
-                    Important update regarding the upcoming municipal-wide clean-up drive. Join us this Saturday as we keep Talibon clean and green! 🌿 #AbanteTalibon
-                  </p>
-                  <div className="aspect-video rounded-3xl bg-brand-surface overflow-hidden border border-brand-border">
-                    <img 
-                      src={`https://picsum.photos/seed/talibon${i}/800/450`} 
-                      alt="Update" 
-                      className="w-full h-full object-cover"
-                      referrerPolicy="no-referrer"
-                    />
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            {/* Real Facebook Feed */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              className="bg-white rounded-[2.5rem] border border-brand-border shadow-2xl shadow-black/5 p-4 overflow-hidden"
+            >
+              <div className="w-full flex justify-center">
+                <iframe 
+                  src="https://www.facebook.com/plugins/page.php?href=https%3A%2F%2Fwww.facebook.com%2FPioTalibon&tabs=timeline&width=500&height=600&small_header=false&adapt_container_width=true&hide_cover=false&show_facepile=true&appId" 
+                  width="100%" 
+                  height="600" 
+                  style={{ border: 'none', overflow: 'hidden', borderRadius: '1.5rem' }} 
+                  scrolling="no" 
+                  frameBorder="0" 
+                  allowFullScreen={true} 
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+                  title="Talibon Facebook Feed"
+                />
+              </div>
+            </motion.div>
             
             {/* Decorative element */}
             <div className="absolute -top-12 -right-12 w-64 h-64 bg-brand-primary/5 rounded-full blur-3xl -z-10" />
+            <div className="absolute -bottom-12 -left-12 w-48 h-48 bg-brand-accent/5 rounded-full blur-3xl -z-10" />
           </div>
         </div>
       </div>

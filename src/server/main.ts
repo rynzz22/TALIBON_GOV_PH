@@ -3,7 +3,18 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { Logger, ValidationPipe } from "@nestjs/common";
 import helmet from "helmet";
-import { env } from "./utils/env";
+import { config } from "dotenv";
+
+// Load environment variables from .env if it exists
+config();
+
+// Log missing critical variables instead of crashing
+const criticalVars = ['GEMINI_API_KEY', 'SUPABASE_SERVICE_ROLE_KEY'];
+criticalVars.forEach(v => {
+  if (!process.env[v]) {
+    console.warn(`WARNING: Missing environment variable ${v}. Some features may not work.`);
+  }
+});
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -11,7 +22,7 @@ async function bootstrap() {
   const PORT = process.env.PORT || 3000;
 
   // Security headers (skip in development for HMR)
-  if (env.NODE_ENV !== 'development') {
+  if (process.env.NODE_ENV !== 'development') {
     app.use(helmet());
   }
 

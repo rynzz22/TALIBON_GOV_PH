@@ -1,13 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { AboutService } from './about.service'
+import { SupabaseService } from '../../supabase.service'
 
 describe('AboutService', () => {
   let service: AboutService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AboutService],
+      providers: [
+        AboutService,
+        {
+          provide: SupabaseService,
+          useValue: {
+            getClient: vi.fn()
+          }
+        }
+      ],
     }).compile()
 
     service = module.get<AboutService>(AboutService)
