@@ -1,4 +1,6 @@
 import { Module, MiddlewareConsumer, NestModule, RequestMethod } from "@nestjs/common";
+import { APP_GUARD } from "@nestjs/core";
+import { ThrottlerModule, ThrottlerGuard } from "@nestjs/throttler";
 import * as path from "path";
 import * as express from "express";
 
@@ -23,7 +25,21 @@ import { PaymentsService } from "./api/payments/payments.service";
 import { SupabaseService } from "./supabase.service";
 
 @Module({
-  imports: [PaymentsModule],
+  imports: [
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: 60 * 1000,        // 1 minute
+        limit: 10,              // 10 requests per minute (default)
+      },
+      {
+        name: 'long',
+        ttl: 60 * 60 * 1000,    // 1 hour
+        limit: 100,             // 100 requests per hour (default)
+      },
+    ]),
+    PaymentsModule,
+  ],
   controllers: [
     AboutController,
     ExecutiveController,
@@ -35,6 +51,10 @@ import { SupabaseService } from "./supabase.service";
     PaymentsController,
   ],
   providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
     SupabaseService,
     AboutService,
     ExecutiveService,

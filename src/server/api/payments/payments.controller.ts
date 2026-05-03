@@ -1,4 +1,5 @@
 import { Controller, Post, Body, Req } from "@nestjs/common";
+import { Throttle } from "@nestjs/throttler";
 import { PaymentsService } from "./payments.service";
 import type { Request } from "express";
 
@@ -7,6 +8,7 @@ export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
   @Post("create-checkout-session")
+  @Throttle({ short: { limit: 3, ttl: 60 * 1000 } })  // 3 requests per minute for payments
   async createCheckoutSession(@Body() body: { itemName: string; amount: number; successUrl?: string; cancelUrl?: string }, @Req() req: Request) {
     const protocol = req.protocol;
     const host = req.get("host");
