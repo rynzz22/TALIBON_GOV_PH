@@ -20,7 +20,7 @@
     "@google/genai": "^1.50.0",
     "@nestjs/common": "^11.1.17",
     "@nestjs/core": "^11.1.17",
-    "@nestjs/platform-express": "^11.1.17",
+    "@nestjs/platform-express": "^11.1.19",
     "@nestjs/testing": "^11.1.19",
     "@nestjs/throttler": "^6.5.0",
     "@stripe/stripe-js": "^9.2.0",
