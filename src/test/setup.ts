@@ -1,14 +1,14 @@
 import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 
-class IntersectionObserverStub {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-  takeRecords() {
-    return []
-  }
+class IntersectionObserverMock {
+  observe = vi.fn()
+  unobserve = vi.fn()
+  disconnect = vi.fn()
 }
 
-Object.assign(globalThis, {
-  IntersectionObserver: IntersectionObserverStub,
+Object.defineProperty(globalThis, 'IntersectionObserver', {
+  writable: true,
+  configurable: true,
+  value: IntersectionObserverMock,
 })

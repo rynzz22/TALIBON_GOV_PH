@@ -77,10 +77,20 @@ const OrganizationalChartPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="pb-20 px-4 max-w-7xl mx-auto min-h-screen bg-brand-bg">
+      <div className="pb-20 px-4 max-w-7xl mx-auto min-h-screen bg-brand-bg pt-32">
         <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-2xl font-bold">
           {error}
         </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="pb-20 px-4 max-w-7xl mx-auto min-h-screen bg-brand-bg pt-32 flex flex-col items-center justify-center text-center">
+        <Users className="w-16 h-16 text-brand-muted/30 mb-4" />
+        <h2 className="text-2xl font-bold text-brand-text mb-2">Structure Not Found</h2>
+        <p className="text-brand-muted max-w-md">The organizational chart is currently being updated. Please check back later.</p>
       </div>
     );
   }
@@ -156,9 +166,9 @@ const OrganizationalChartPage: React.FC = () => {
                     
                     <div className="p-6 bg-white border border-brand-border rounded-2xl hover:shadow-xl hover:border-brand-primary/30 transition-all text-center w-full group h-full flex flex-col items-center justify-center">
                       <div className="w-12 h-12 bg-brand-surface rounded-2xl mx-auto mb-4 flex items-center justify-center overflow-hidden">
-                        {DEPARTMENT_LOGOS[dept.role] ? (
+                        {dept.image_url || DEPARTMENT_LOGOS[dept.role] ? (
                           <img 
-                            src={DEPARTMENT_LOGOS[dept.role]} 
+                            src={dept.image_url || DEPARTMENT_LOGOS[dept.role]} 
                             alt={`${dept.role} Logo`} 
                             className="w-full h-full object-contain p-2"
                             referrerPolicy="no-referrer"

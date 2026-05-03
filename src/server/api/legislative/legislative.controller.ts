@@ -24,4 +24,9 @@ export class LegislativeController {
   getResolutions() {
     return this.legislativeService.getResolutions();
   }
+
+  @Get("reports")
+  getReports() {
+    return this.legislativeService.getReports();
+  }
 }

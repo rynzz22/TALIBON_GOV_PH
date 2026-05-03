@@ -91,3 +91,16 @@ export interface Barangay {
   slug: string;
   captain: string;
 }
+
+export interface GADBeneficiary {
+  id?: string;
+  unique_id?: string;
+  full_name: string;
+  sex: 'Male' | 'Female';
+  barangay_id: string;
+  civil_status: 'Single' | 'Married' | 'Widowed' | 'Separated' | 'Common-law';
+  sectoral_classification: string[];
+  birthdate: string;
+  contact_info?: string;
+  created_at?: string;
+}

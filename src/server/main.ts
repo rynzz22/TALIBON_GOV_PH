@@ -3,10 +3,18 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { Logger, ValidationPipe } from "@nestjs/common";
 import helmet from "helmet";
-import { config } from "dotenv-safe";
+import { config } from "dotenv";
 
-// Allow empty values for optional env vars in development
-config({ allowEmptyValues: true });
+// Load environment variables from .env if it exists
+config();
+
+// Log missing critical variables instead of crashing
+const criticalVars = ['GEMINI_API_KEY', 'SUPABASE_SERVICE_ROLE_KEY'];
+criticalVars.forEach(v => {
+  if (!process.env[v]) {
+    console.warn(`WARNING: Missing environment variable ${v}. Some features may not work.`);
+  }
+});
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

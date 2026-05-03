@@ -102,6 +102,9 @@ export default function Navbar() {
         { name: "Executive Mandate", href: "/executive/mandate" },
         { name: "Legislative Mandate", href: "/legislative/mandate" },
         { name: "Organizational Chart", href: "/executive/chart" },
+        { name: "Legislative Records", href: "/legislative/records" },
+        { name: "Enacted Ordinances", href: "/legislative/ordinances" },
+        { name: "Resolutions", href: "/legislative/resolutions" },
         { name: "Departments & Offices", href: "/about/departments" },
       ]
     },
@@ -115,6 +118,7 @@ export default function Navbar() {
       href: "/transparency/disclosure",
       subLinks: getSubLinks("TRANSPARENCY", [
         { name: "Full Disclosure Policy", href: "/transparency/disclosure" },
+        { name: "Census Reports", href: "/transparency/census" },
         { name: "Infrastructure Projects", href: "/transparency/infrastructure" },
         { name: "Finance Reports", href: "/transparency/finance" },
         { name: "Executive Orders", href: "/transparency/orders" },
@@ -122,7 +126,7 @@ export default function Navbar() {
         { name: "Biddings", href: "/transparency/biddings" },
       ])
     },
-    { name: "BARANGAY PROFILES", href: "/about/barangays" },
+    { name: "BARANGAY OFFICIALS", href: "/about/barangays" },
     { name: "GAD-IMS", href: "/executive/gad-ims" },
     { name: "DOWNLOADABLES", href: "/downloads" },
     { 
@@ -137,7 +141,7 @@ export default function Navbar() {
     },
     { 
       name: "NEWS & UPDATES", 
-      href: "#",
+      href: "/news/updates",
       subLinks: getSubLinks("NEWS", [
         { name: "Articles", href: "/news/articles" },
         { name: "Advisories", href: "/news/advisories" },
@@ -324,15 +328,23 @@ export default function Navbar() {
             >
               <div className="flex flex-col">
                 {link.subLinks ? (
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setActiveDropdown(activeDropdown === link.name ? null : link.name);
-                    }}
-                    className="px-6 py-4 text-white text-[11px] font-black tracking-widest hover:bg-white/10 transition-all flex items-center gap-1"
-                  >
-                    {link.name} <ChevronDown size={14} className={activeDropdown === link.name ? 'rotate-180' : ''} />
-                  </button>
+                  <div className="flex items-center">
+                    <Link 
+                      to={link.href} 
+                      className={`pl-6 ${link.href === '#' ? 'pointer-events-none' : ''} py-4 text-white text-[11px] font-black tracking-widest hover:bg-white/10 transition-all`}
+                    >
+                      {link.name}
+                    </Link>
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveDropdown(activeDropdown === link.name ? null : link.name);
+                      }}
+                      className="pr-6 py-4 text-white hover:bg-white/10 transition-all"
+                    >
+                      <ChevronDown size={14} className={activeDropdown === link.name ? 'rotate-180' : ''} />
+                    </button>
+                  </div>
                 ) : (
                   <Link 
                     to={link.href} 
@@ -406,7 +418,27 @@ export default function Navbar() {
 
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-8">Government Portal</p>
                 {secondaryNavLinks.map(link => (
-                  <Link key={link.name} to={link.href} onClick={() => setIsOpen(false)} className="block py-2 text-lg font-black text-brand-primary">{link.name}</Link>
+                  <div key={link.name}>
+                    {link.subLinks ? (
+                      <div>
+                        <button 
+                          onClick={() => setMobileSubMenu(mobileSubMenu === link.name ? null : link.name)}
+                          className="w-full text-left py-2 text-lg font-black text-brand-primary flex justify-between items-center"
+                        >
+                          {link.name} <ChevronDown size={18} />
+                        </button>
+                        {mobileSubMenu === link.name && (
+                          <div className="pl-4 py-2 space-y-2 border-l-2 border-brand-primary/20">
+                            {link.subLinks.map(sub => (
+                              <Link key={sub.name} to={sub.href} onClick={() => setIsOpen(false)} className="block py-1 text-sm font-bold text-gray-600">{sub.name}</Link>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <Link to={link.href} onClick={() => setIsOpen(false)} className="block py-2 text-lg font-black text-brand-primary">{link.name}</Link>
+                    )}
+                  </div>
                 ))}
               </div>
             </div>

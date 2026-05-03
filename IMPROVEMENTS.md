@@ -45,21 +45,9 @@
    - Go to HitPay dashboard and regenerate keys
    - Update your `.env` file with new keys
 
-2. **Implement Lazy Loading**: Update `src/App.tsx` to use lazy-loaded routes
-   ```tsx
-   import { LazyHome, LazyLogin } from "./utils/lazyLoad";
-   
-   <Route path="/" element={<Suspense fallback={<SkeletonLoader />}><LazyHome /></Suspense>} />
-   ```
+2. **[COMPLETED] Implement Lazy Loading**: `src/App.tsx` now uses lazy-loaded routes for better performance.
 
-3. **Add Error Boundary**: Wrap your app with ErrorBoundary
-   ```tsx
-   import { ErrorBoundary } from "./components/ErrorBoundary";
-   
-   <ErrorBoundary>
-     <App />
-   </ErrorBoundary>
-   ```
+3. **[COMPLETED] Add Error Boundary**: The app is now wrapped in an `ErrorBoundary` to catch and display runtime errors gracefully.
 
 ### Optional Enhancements
 - Add React Query for more advanced caching and data fetching

@@ -52,11 +52,22 @@ export const aboutApi = {
   getDepartments: () => api.get("content", API_ENDPOINTS.ABOUT.DEPARTMENTS),
   getVicinityMap: () => api.get("content", API_ENDPOINTS.ABOUT.VICINITY_MAP),
   getBarangays: () => api.get("content", API_ENDPOINTS.ABOUT.BARANGAYS),
+  getBarangayStats: () => api.get("content", API_ENDPOINTS.ABOUT.BARANGAYS),
+  getBarangayStatsBySlug: async (slug: string) => {
+    const data = await api.get("content", API_ENDPOINTS.ABOUT.BARANGAYS);
+    const stats = (data as any).data || (Array.isArray(data) ? data : []);
+    return stats.find((s: any) => s.slug === slug);
+  },
   getIndustry: () => api.get("content", API_ENDPOINTS.ABOUT.INDUSTRY),
   getServices: () => api.get("content", API_ENDPOINTS.ABOUT.SERVICES),
   getHymn: () => api.get("content", API_ENDPOINTS.ABOUT.HYMN),
   getDemographics: () => api.get("content", API_ENDPOINTS.ABOUT.DEMOGRAPHICS),
   getLocation: () => api.get("content", API_ENDPOINTS.ABOUT.LOCATION),
+  getBarangayOfficials: async (brgyId: string) => {
+    const { data, error } = await supabase.from('barangay_officials').select('*').eq('barangay_id', brgyId);
+    if (error) throw error;
+    return data;
+  },
 };
 
 export const executiveApi = {

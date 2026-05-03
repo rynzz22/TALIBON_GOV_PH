@@ -4,8 +4,10 @@ import {
   ClipboardList, Users, Database, Search, 
   BarChart3, Activity, FileCheck, Landmark, 
   GraduationCap, Settings, ChevronRight, Info,
-  ShieldCheck, Cpu, Wifi, Globe, Terminal, Clock as ClockIcon
+  ShieldCheck, Cpu, Wifi, Globe, Terminal, Clock as ClockIcon,
+  UserPlus
 } from 'lucide-react';
+import GadEntryModule from './GadEntryModule';
 import { 
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, 
   CartesianGrid, Tooltip, PieChart, Pie, Cell 
@@ -31,6 +33,7 @@ interface GadImsData {
 const SECTION_ICONS: Record<string, React.ReactNode> = {
   overview: <Info size={18} />,
   governance: <Landmark size={18} />,
+  "data-entry": <UserPlus size={18} />,
   "data-modules": <Database size={18} />,
   analysis: <Search size={18} />,
   budgeting: <BarChart3 size={18} />,
@@ -57,15 +60,35 @@ const MOCK_BAR_DATA = [
 ];
 
 const GadImsSystem: React.FC<{ data: GadImsData }> = ({ data }) => {
-  const [activeTab, setActiveTab] = useState(data.sections[0].id);
+  const [activeTab, setActiveTab] = useState(data?.sections?.[0]?.id || "overview");
   const [time, setTime] = useState(new Date().toLocaleTimeString());
+
+  // Inject Data Entry tab if not in data sections
+  const sections = data?.sections ? [
+    ...data.sections.slice(0, 2),
+    { id: 'data-entry', title: '03. Individual Profiling', content: [] },
+    ...data.sections.slice(2)
+  ] : [];
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date().toLocaleTimeString()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  const activeSection = data.sections.find(s => s.id === activeTab);
+  if (!data?.sections || data.sections.length === 0) {
+    return (
+      <div className="p-12 text-center bg-gray-50 rounded-[2rem] border border-brand-border">
+        <Database size={48} className="mx-auto text-brand-muted mb-4 opacity-50" />
+        <h3 className="text-xl font-bold text-brand-text mb-2 tracking-tight">GAD-IMS Database Offline</h3>
+        <p className="text-sm text-brand-muted font-medium max-w-md mx-auto">
+          The Gender and Development Integrated Management System data has not been seeded yet. 
+          Please contact the system administrator to initialize the GAD database.
+        </p>
+      </div>
+    );
+  }
+
+  const activeSection = sections.find(s => s.id === activeTab);
 
   return (
     <div className="flex flex-col lg:flex-row gap-8 bg-white border border-brand-border rounded-[2.5rem] p-4 lg:p-10 shadow-2xl relative overflow-hidden">
@@ -101,7 +124,7 @@ const GadImsSystem: React.FC<{ data: GadImsData }> = ({ data }) => {
         </div>
         
         <nav className="flex flex-col gap-1 p-2 bg-gray-50 rounded-[2rem] border border-brand-border/50">
-          {data.sections.map((section) => (
+          {sections.map((section) => (
             <button
               key={section.id}
               onClick={() => setActiveTab(section.id)}
@@ -224,38 +247,44 @@ const GadImsSystem: React.FC<{ data: GadImsData }> = ({ data }) => {
               </div>
             ) : null}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {activeSection?.content.map((sub, idx) => (
-                <motion.div 
-                  key={`gad-subsection-${idx}`} 
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="bg-white border border-brand-border rounded-[2rem] p-8 shadow-sm hover:shadow-xl transition-all duration-500 group relative overflow-hidden"
-                >
-                  <div className="relative z-10">
-                    <h3 className="text-sm font-black text-brand-text uppercase tracking-widest pb-4 mb-6 border-b border-gray-100 flex items-center justify-between">
-                      {sub.subTitle}
-                      <span className="text-[8px] font-mono text-brand-primary opacity-30">SUB_SEC_{idx.toString().padStart(2, '0')}</span>
-                    </h3>
-                    <ul className="space-y-4">
-                      {sub.items.map((item, i) => (
-                        <li key={`gad-item-${idx}-${i}`} className="flex gap-4 text-xs text-brand-muted font-bold leading-relaxed group/item">
-                          <div className="mt-1 flex flex-col items-center">
-                            <div className="w-1.5 h-1.5 rounded-full bg-brand-primary group-hover/item:scale-150 transition-transform shrink-0" />
-                            <div className="w-px h-full bg-gray-100 mt-1" />
-                          </div>
-                          <span>{item}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="absolute top-1/2 -right-4 -translate-y-1/2 opacity-[0.03] group-hover:scale-110 transition-transform duration-1000">
-                    <Database size={100} />
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            {activeTab === 'data-entry' ? (
+              <div className="flex-1 mt-4">
+                <GadEntryModule />
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {activeSection?.content.map((sub, idx) => (
+                  <motion.div 
+                    key={`gad-subsection-${idx}`} 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="bg-white border border-brand-border rounded-[2rem] p-8 shadow-sm hover:shadow-xl transition-all duration-500 group relative overflow-hidden"
+                  >
+                    <div className="relative z-10">
+                      <h3 className="text-sm font-black text-brand-text uppercase tracking-widest pb-4 mb-6 border-b border-gray-100 flex items-center justify-between">
+                        {sub.subTitle}
+                        <span className="text-[8px] font-mono text-brand-primary opacity-30">SUB_SEC_{idx.toString().padStart(2, '0')}</span>
+                      </h3>
+                      <ul className="space-y-4">
+                        {sub.items.map((item, i) => (
+                          <li key={`gad-item-${idx}-${i}`} className="flex gap-4 text-xs text-brand-muted font-bold leading-relaxed group/item">
+                            <div className="mt-1 flex flex-col items-center">
+                              <div className="w-1.5 h-1.5 rounded-full bg-brand-primary group-hover/item:scale-150 transition-transform shrink-0" />
+                              <div className="w-px h-full bg-gray-100 mt-1" />
+                            </div>
+                            <span>{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="absolute top-1/2 -right-4 -translate-y-1/2 opacity-[0.03] group-hover:scale-110 transition-transform duration-1000">
+                      <Database size={100} />
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
 
             {/* Background Narrative Decoration */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-[0.02] pointer-events-none select-none">

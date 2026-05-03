@@ -13,6 +13,15 @@ export interface BarangayInfo {
   captain: string;
   population: string;
   sealUrl?: string;
+  officials?: BarangayOfficial[];
+}
+
+export interface BarangayOfficial {
+  id: string;
+  name: string;
+  position: string;
+  barangay_id: string;
+  image_url?: string;
 }
 
 export const BARANGAYS: BarangayInfo[] = [

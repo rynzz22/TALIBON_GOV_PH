@@ -1,7 +1,10 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
+import { SupabaseService } from "../../supabase.service";
 
 @Injectable()
 export class TransparencyService {
+  constructor(@Inject(SupabaseService) private readonly supabaseService: SupabaseService) {}
+
   getCitizenCharter() {
     return {
       title: "Citizen's Charter",
@@ -16,23 +19,59 @@ export class TransparencyService {
     };
   }
 
-  getInfrastructure() {
-    return [
-      { id: 1, title: "Construction of New Health Center", status: "Ongoing", budget: "5M" },
-      { id: 2, title: "Road Concreting - Brgy. San Jose", status: "Completed", budget: "2M" },
-    ];
+  async getInfrastructure() {
+    try {
+      const { data, error } = await this.supabaseService
+        .getClient()
+        .from("transparency_documents")
+        .select("*")
+        .eq("category", "INFRASTRUCTURE")
+        .order("year", { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    } catch (e) {
+      return [
+        { id: 1, title: "Construction of New Health Center", status: "Ongoing", budget: "5M" },
+        { id: 2, title: "Road Concreting - Brgy. San Jose", status: "Completed", budget: "2M" },
+      ];
+    }
   }
 
-  getFinanceReports() {
-    return [
-      { id: 1, title: "Quarterly Financial Report - Q1 2024", url: "#" },
-    ];
+  async getFinanceReports() {
+    try {
+      const { data, error } = await this.supabaseService
+        .getClient()
+        .from("transparency_documents")
+        .select("*")
+        .eq("category", "FINANCE")
+        .order("year", { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    } catch (e) {
+      return [
+        { id: 1, title: "Quarterly Financial Report - Q1 2024", url: "#" },
+      ];
+    }
   }
 
-  getExecutiveOrders() {
-    return [
-      { id: 1, title: "EO No. 1 - Reorganization of LGU Committees", date: "2024-01-05" },
-    ];
+  async getExecutiveOrders() {
+    try {
+      const { data, error } = await this.supabaseService
+        .getClient()
+        .from("transparency_documents")
+        .select("*")
+        .eq("category", "EXECUTIVE_ORDER")
+        .order("year", { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    } catch (e) {
+      return [
+        { id: 1, title: "EO No. 1 - Reorganization of LGU Committees", date: "2024-01-05" },
+      ];
+    }
   }
 
   getBudget() {
@@ -54,16 +93,39 @@ export class TransparencyService {
     };
   }
 
-  getBiddings() {
-    return [
-      { id: 1, title: "Invitation to Bid: Office Supplies", deadline: "2024-04-10" },
-    ];
+  async getBiddings() {
+    try {
+      const { data, error } = await this.supabaseService
+        .getClient()
+        .from("transparency_documents")
+        .select("*")
+        .eq("category", "BIDDINGS")
+        .order("year", { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    } catch (e) {
+      return [
+        { id: 1, title: "Invitation to Bid: Office Supplies", deadline: "2024-04-10" },
+      ];
+    }
   }
 
-  getOrdinances() {
-    return [
-      { id: 1, title: "Tax Incentive Ordinance", year: 2024 },
-    ];
+  async getOrdinances() {
+    try {
+      const { data, error } = await this.supabaseService
+        .getClient()
+        .from("ordinances")
+        .select("*")
+        .order("year", { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    } catch (e) {
+      return [
+        { id: 1, title: "Tax Incentive Ordinance", year: 2024 },
+      ];
+    }
   }
 
   getSroi() {

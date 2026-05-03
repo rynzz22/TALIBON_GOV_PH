@@ -60,6 +60,11 @@ export class AboutController {
     return this.aboutService.getDemographics();
   }
 
+  @Get("barangay-stats")
+  getBarangayStats() {
+    return this.aboutService.getBarangayStats();
+  }
+
   @Get("location")
   getLocation() {
     return this.aboutService.getLocation();

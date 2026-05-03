@@ -1,18 +1,47 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
+import { SupabaseService } from "../../supabase.service";
 
 @Injectable()
 export class NewsService {
-  getArticles() {
-    return [
-      { id: 1, title: "Talibon Celebrates Seafood Festival", date: "2024-03-20", image: "https://picsum.photos/seed/news1/800/600" },
-      { id: 2, title: "New Infrastructure Project Launched", date: "2024-03-15", image: "https://picsum.photos/seed/news2/800/600" },
-    ];
+  constructor(@Inject(SupabaseService) private readonly supabaseService: SupabaseService) {}
+
+  async getArticles() {
+    try {
+      const { data, error } = await this.supabaseService
+        .getClient()
+        .from("news")
+        .select("*")
+        .eq("category", "ARTICLE")
+        .is("barangay_id", null)
+        .order("date", { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    } catch (e) {
+      return [
+        { id: 1, title: "Talibon Celebrates Seafood Festival", date: "2024-03-20", image: "https://picsum.photos/seed/news1/800/600" },
+        { id: 2, title: "New Infrastructure Project Launched", date: "2024-03-15", image: "https://picsum.photos/seed/news2/800/600" },
+      ];
+    }
   }
 
-  getAdvisories() {
-    return [
-      { id: 1, title: "Water Service Interruption", date: "2024-03-25", content: "Scheduled maintenance on March 26." },
-    ];
+  async getAdvisories() {
+    try {
+      const { data, error } = await this.supabaseService
+        .getClient()
+        .from("news")
+        .select("*")
+        .eq("category", "ADVISORY")
+        .is("barangay_id", null)
+        .order("date", { ascending: false });
+      
+      if (error) throw error;
+      return data;
+    } catch (e) {
+      return [
+        { id: 1, title: "Water Service Interruption", date: "2024-03-25", content: "Scheduled maintenance on March 26." },
+      ];
+    }
   }
 
   getDisasterPreparedness() {

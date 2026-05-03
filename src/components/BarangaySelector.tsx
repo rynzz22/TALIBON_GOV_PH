@@ -1,10 +1,29 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BARANGAYS } from "../constants/barangayConfig";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { ArrowUpRight, MapPin } from "lucide-react";
+import { aboutApi } from "../services/api";
 
 const BarangaySelector: React.FC = () => {
+  const [liveStats, setLiveStats] = useState<any[]>([]);
+
+  useEffect(() => {
+    aboutApi.getBarangayStats().then(data => {
+      if (!data) return;
+      
+      const stats = (data as any).data || (Array.isArray(data) ? data : []);
+      if (stats.length > 0) {
+        setLiveStats(stats);
+      }
+    }).catch(() => {});
+  }, []);
+
+  const getPop = (brgy: any) => {
+    const stats = liveStats.find(s => s.slug === brgy.slug);
+    return stats?.population || brgy.population;
+  };
+
   return (
     <section className="py-32 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -66,7 +85,7 @@ const BarangaySelector: React.FC = () => {
 
                   <div className="pt-6 border-t border-brand-border/50 flex justify-between items-center">
                     <span className="text-[10px] font-black uppercase tracking-widest text-brand-primary">Official Portal</span>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-brand-muted">Population: {brgy.population}</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-brand-muted">Population: {getPop(brgy)}</span>
                   </div>
                 </div>
               </Link>
