@@ -31,8 +31,7 @@ describe('About Component', () => {
     mockSupabase.from.mockReturnValue({ select: mockSelect } as any)
 
     renderWithRouter(<About />)
-    // Check for loading skeleton
-    expect(screen.getByText('Our Story')).toBeInTheDocument()
+    expect(document.querySelector('.animate-pulse')).toBeTruthy()
   })
 
   it('renders content after successful fetch', async () => {

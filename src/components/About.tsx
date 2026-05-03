@@ -29,7 +29,7 @@ export default function About() {
 
       if (error) {
         console.error('Error fetching about content:', error);
-      } else {
+      } else if (data?.body) {
         setContent(data.body as AboutContent);
       }
       setLoading(false);

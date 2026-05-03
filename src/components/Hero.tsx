@@ -25,7 +25,7 @@ const Hero: React.FC<HeroProps> = ({ overrideTitle, overrideSubtitle }) => {
           className="w-full h-full object-cover"
         >
           <source 
-            src="http://talibon.gov.ph/wp-content/uploads/2025/11/AQNfA76VxqBsdOkCQGUI91qEDtBLVfxVALb-H9LBY6HdxHPZYsDhTPqmq4uncItBA1u5CUFmq7KAQA3usI2om9XI_dJCwqeJLyINzeVU7fug1A.mp4" 
+            src="http://talibon.gov.ph/wp-content/uploads/2025/11/AQNfA76VxqBsdOkCQGUI91qEDtBLVfxVALb-H9LBY6HdxHPZYsDhTPqmq4uncItBA1u5CUFmq7KAkQA3usI2om9XI_dJCwqeJLyINzeVU7fug1A.mp4" 
             type="video/mp4" 
           />
         </video>
@@ -44,7 +44,6 @@ const Hero: React.FC<HeroProps> = ({ overrideTitle, overrideSubtitle }) => {
             <h2 className="text-3xl sm:text-6xl font-black text-white leading-none tracking-tighter">
               #TALIBOOM!
             </h2>
-            <div className="px-4 py-1.5 bg-brand-secondary text-white text-[10px] sm:text-xs font-black rounded-full rotate-3 animate-pulse shadow-lg">OFFICIAL</div>
           </div>
           
           <h1 className="text-6xl sm:text-9xl font-black text-white leading-[0.85] tracking-tighter mb-8">
@@ -67,13 +66,13 @@ const Hero: React.FC<HeroProps> = ({ overrideTitle, overrideSubtitle }) => {
             )}
           </h1>
           
-          <div className="p-1 px-4 bg-[#ffb703] inline-block mb-12">
+          <div className="p-1 px-4 bg-[#ffb703] inline-block mb-5">
             <p className="text-black text-xs sm:text-sm font-black tracking-[0.3em] uppercase">
               {overrideSubtitle || (language === 'en' ? "Experience Bohol's Premier Destination in the Philippines" : "Masinati ang Kinamaayohang Destinasyon sa Bohol sa Pilipinas")}
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center mb-10 gap-4">
             <a 
               href="https://talibon-citizen-stg.multisyscorp.io/e-services"
               target="_blank"
