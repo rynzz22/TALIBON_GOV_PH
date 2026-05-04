@@ -29,7 +29,6 @@ describe('About Component', () => {
     mockSupabase.from.mockReturnValue({ select: mockSelect } as any)
 
     const { container } = renderWithRouter(<About />)
-    // Check for loading skeleton (animate-pulse)
     expect(container.querySelector('.animate-pulse')).toBeInTheDocument()
   })
 

@@ -25,7 +25,7 @@ const Hero: React.FC<HeroProps> = ({ overrideTitle, overrideSubtitle }) => {
           className="w-full h-full object-cover"
         >
           <source 
-            src="http://talibon.gov.ph/wp-content/uploads/2025/11/AQNfA76VxqBsdOkCQGUI91qEDtBLVfxVALb-H9LBY6HdxHPZYsDhTPqmq4uncItBA1u5CUFmq7KAQA3usI2om9XI_dJCwqeJLyINzeVU7fug1A.mp4" 
+            src="http://talibon.gov.ph/wp-content/uploads/2025/11/AQNfA76VxqBsdOkCQGUI91qEDtBLVfxVALb-H9LBY6HdxHPZYsDhTPqmq4uncItBA1u5CUFmq7KAkQA3usI2om9XI_dJCwqeJLyINzeVU7fug1A.mp4" 
             type="video/mp4" 
           />
         </video>
@@ -66,7 +66,7 @@ const Hero: React.FC<HeroProps> = ({ overrideTitle, overrideSubtitle }) => {
             )}
           </h1>
           
-          <div className="p-1 px-4 bg-[#ffb703] inline-block mb-12">
+          <div className="p-1 px-4 bg-[#ffb703] inline-block mb-5">
             <p className="text-black text-xs sm:text-sm font-black tracking-[0.3em] uppercase">
               {overrideSubtitle || (language === 'en' ? "Experience Bohol's Premier Destination in the Philippines" : "Masinati ang Kinamaayohang Destinasyon sa Bohol sa Pilipinas")}
             </p>

@@ -1,4 +1,32 @@
-TALIBON.GOV.PH TIMELINE
+# TALIBON.GOV.PH
+
+Municipal web platform (Vite + React, Express/Nest-style API server). Upstream: [github.com/rynzz22/TALIBON_GOV_PH](https://github.com/rynzz22/TALIBON_GOV_PH).
+
+## Development
+
+| Requirement | Notes |
+| --- | --- |
+| Node.js | Version in [`.nvmrc`](./.nvmrc) (currently **22**). |
+| Environment | Copy `.env.example` → `.env` and set keys for what you use (Supabase, optional Gemini/Maps/Xendit). |
+
+```bash
+npm ci
+npm run dev
+```
+
+Quality checks (also run in CI):
+
+```bash
+npm run lint
+npm run test:ci
+npm run build
+```
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for branch/PR expectations and testing guidance. Architecture and MVP notes live under [`docs/`](./docs/) when present.
+
+---
+
+## TALIBON.GOV.PH TIMELINE
 
 April 1-14 (Sprint 1) Construct the wireframes and initial contents - NAV BAR COMPONENTS
 
