@@ -1,39 +1,37 @@
-import "reflect-metadata";
-import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
-import { Logger, ValidationPipe } from "@nestjs/common";
-import helmet from "helmet";
-import { config } from "dotenv";
-
-// Load environment variables from .env if it exists
-config();
-
-// Log missing critical variables instead of crashing
-const criticalVars = ['GEMINI_API_KEY', 'SUPABASE_SERVICE_ROLE_KEY'];
-criticalVars.forEach(v => {
-  if (!process.env[v]) {
-    console.warn(`WARNING: Missing environment variable ${v}. Some features may not work.`);
-  }
-});
+import express from 'express';
+import path from 'path';
+import { createServer as createViteServer } from 'vite';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
-  const logger = new Logger("Bootstrap");
-  const PORT = process.env.PORT || 3000;
+  const app = express();
+  const PORT = Number(process.env.PORT) || 3000;
 
-  // Security headers (skip in development for HMR)
-  if (process.env.NODE_ENV !== 'development') {
-    app.use(helmet());
+  // API Middleware
+  app.use(express.json());
+
+  // API routes
+  app.get('/api/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+
+  // Serve front-end
+  if (process.env.NODE_ENV !== 'production') {
+    const vite = await createViteServer({
+      server: { middlewareMode: true },
+      appType: 'spa',
+    });
+    app.use(vite.middlewares);
+  } else {
+    const distPath = path.join(process.cwd(), 'dist');
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(distPath, 'index.html'));
+    });
   }
 
-  // Enable CORS for frontend
-  app.enableCors();
-
-  // Global validation pipe
-  app.useGlobalPipes(new ValidationPipe());
-
-  await app.listen(PORT, "0.0.0.0");
-  logger.log(`Server running on http://localhost:${PORT}`);
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Application is running on: http://localhost:${PORT}`);
+  });
 }
 
 bootstrap();

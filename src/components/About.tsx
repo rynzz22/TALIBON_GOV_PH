@@ -64,9 +64,9 @@ export default function About() {
   };
 
   return (
-    <section id="about" className="py-32 bg-white relative overflow-hidden">
+    <section id="about" className="py-20 bg-white relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Image */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
@@ -75,7 +75,7 @@ export default function About() {
             transition={{ duration: 0.8 }}
             className="relative"
           >
-            <div className="aspect-[4/5] overflow-hidden rounded-[3rem] shadow-2xl">
+            <div className="aspect-[4/5] overflow-hidden rounded-[2rem] shadow-2xl">
               <img 
                 src={aboutContent.mayor.image} 
                 alt={aboutContent.mayor.name} 
@@ -84,23 +84,23 @@ export default function About() {
               />
             </div>
             {/* Minimal Caption */}
-            <div className="mt-8">
-              <h3 className="text-2xl font-bold text-brand-text font-display uppercase tracking-tight">{aboutContent.mayor.name}</h3>
+            <div className="mt-6">
+              <h3 className="text-xl font-bold text-brand-text font-display uppercase tracking-tight">{aboutContent.mayor.name}</h3>
               <p className="text-brand-primary font-bold uppercase tracking-[0.2em] text-[10px] mt-1">{aboutContent.mayor.title}</p>
             </div>
           </motion.div>
 
           {/* Content */}
-          <div className="space-y-12">
-            <div className="space-y-6">
+          <div className="space-y-10">
+            <div className="space-y-4">
               <span className="section-label">Our Story</span>
-              <h2 className="section-title">Heritage & Progress</h2>
-              <p className="text-xl text-brand-muted font-medium leading-relaxed">
+              <h2 className="section-title text-3xl sm:text-4xl">Heritage & Progress</h2>
+              <p className="text-lg text-brand-muted font-medium leading-relaxed">
                 {aboutContent.description}
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[
                 { 
                   title: "VISION", 
@@ -113,22 +113,22 @@ export default function About() {
                   icon: Target,
                 }
               ].map((item) => (
-                <div key={item.title} className="space-y-4">
-                  <div className="w-12 h-12 rounded-2xl bg-brand-surface flex items-center justify-center text-brand-primary">
-                    <item.icon size={24} />
+                <div key={item.title} className="space-y-3">
+                  <div className="w-10 h-10 rounded-xl bg-brand-surface flex items-center justify-center text-brand-primary">
+                    <item.icon size={20} />
                   </div>
-                  <h3 className="text-xs font-bold text-brand-text tracking-[0.2em] uppercase">{item.title}</h3>
-                  <p className="text-brand-muted text-sm font-medium leading-relaxed">{item.desc}</p>
+                  <h3 className="text-[10px] font-bold text-brand-text tracking-[0.2em] uppercase">{item.title}</h3>
+                  <p className="text-brand-muted text-xs font-medium leading-relaxed">{item.desc}</p>
                 </div>
               ))}
             </div>
 
-            <div className="pt-12 border-t border-brand-border">
+            <div className="pt-8 border-t border-brand-border">
               <Link 
                 to="/about/history"
-                className="minimal-button-primary inline-flex"
+                className="minimal-button-primary inline-flex text-xs py-3"
               >
-                Explore History <ArrowUpRight size={18} />
+                Explore History <ArrowUpRight size={16} />
               </Link>
             </div>
           </div>

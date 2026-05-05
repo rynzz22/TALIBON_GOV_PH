@@ -145,11 +145,12 @@ export default function Navbar() {
       subLinks: getSubLinks("NEWS", [
         { name: "Articles", href: "/news/articles" },
         { name: "Advisories", href: "/news/advisories" },
+        { name: "Facebook Live Feed", href: "/#facebook-updates" },
         { name: "Updates", href: "/news/updates" },
         { name: "Gallery", href: "/news/gallery" },
       ])
     },
-    { name: "SOCIAL MEDIA", href: "https://web.facebook.com/TalibonOfficialPage?_rdc=1&_rdr#", isExternal: true },
+    { name: "SOCIAL MEDIA", href: "/#facebook-updates" },
   ];
 
   return (
@@ -167,7 +168,7 @@ export default function Navbar() {
 
       {/* Tier 1: Utility Navigation */}
       <div className="bg-white/40 border-b border-gray-200 backdrop-blur-sm relative z-20">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-10 h-10 flex justify-between items-center text-[10px] sm:text-xs">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-10 h-10 flex justify-between items-center text-[11px] sm:text-xs">
           <div className="flex items-center gap-10 divide-x divide-gray-300">
             <Link to="/" className="font-extrabold text-gray-800 hover:text-brand-primary transition-colors tracking-tight">GOVPH</Link>
             
@@ -264,15 +265,15 @@ export default function Navbar() {
 
       {/* Tier 2: Branding Header */}
       <div className="bg-transparent border-b border-gray-100/50 relative z-10">
-        <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 py-6 lg:py-8 flex items-center justify-between">
+        <div className="max-w-screen-2xl mx-auto px-4 sm:px-8 py-3 lg:py-4 flex items-center justify-between">
           {/* Left Section: Logos */}
           <div className="flex items-center gap-4 w-1/4">
             <Link to="/" className="flex items-center gap-4 group">
-              <div className="p-1.5 bg-white rounded-full shadow-lg border-2 border-brand-primary/20 group-hover:border-brand-primary transition-all duration-500">
+              <div className="p-1 bg-white rounded-full shadow-lg border-2 border-brand-primary/20 group-hover:border-brand-primary transition-all duration-500">
                 <img 
                   src="http://talibon.gov.ph/wp-content/uploads/2025/09/Talibon-Official-Seal-v4-2003-to-2023-.png" 
                   alt="Talibon Seal" 
-                  className="w-16 h-16 sm:w-20 sm:h-20 object-contain transition-transform group-hover:rotate-6 rounded-full" 
+                  className="w-12 h-12 sm:w-16 sm:h-16 object-contain transition-transform group-hover:rotate-6 rounded-full" 
                   referrerPolicy="no-referrer"
                 />
               </div>
@@ -288,12 +289,12 @@ export default function Navbar() {
           {/* Middle Section: Centered Text */}
           <Link to="/" className="flex-1 flex flex-col items-center text-center px-4 transition-transform hover:scale-[1.01]">
             <div className="flex flex-col items-center">
-              <div className="flex items-center gap-2 mb-1">
-                <div className="px-3 py-0.5 bg-brand-primary text-white text-[9px] font-black rounded-full animate-pulse tracking-widest shadow-sm">#TALIBOOM</div>
+              <div className="flex items-center gap-2 mb-0.5">
+                <div className="px-2.5 py-0.5 bg-brand-primary text-white text-[9px] font-black rounded-full animate-pulse tracking-widest shadow-sm">#TALIBOOM</div>
               </div>
-              <h1 className="text-xl sm:text-3xl lg:text-4xl font-black text-[#CE1126] tracking-tighter leading-none mb-1 drop-shadow-sm font-display">MUNICIPALITY OF TALIBON</h1>
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-[#CE1126] tracking-tighter leading-none mb-1 drop-shadow-sm font-display">MUNICIPALITY OF TALIBON</h1>
               <div className="flex items-center gap-2">
-                <p className="text-[#ea580c] font-black text-[9px] sm:text-xs lg:text-sm tracking-[0.25em] uppercase opacity-90">BOHOL'S SEAFOOD CAPITAL 🦀</p>
+                <p className="text-[#c2410c] font-black text-[10px] sm:text-xs lg:text-sm tracking-[0.2em] uppercase">BOHOL'S SEAFOOD CAPITAL 🦀</p>
               </div>
             </div>
           </Link>
@@ -331,7 +332,7 @@ export default function Navbar() {
                   <div className="flex items-center">
                     <Link 
                       to={link.href} 
-                      className={`pl-6 ${link.href === '#' ? 'pointer-events-none' : ''} py-4 text-white text-[11px] font-black tracking-widest hover:bg-white/10 transition-all`}
+                      className={`pl-5 ${link.href === '#' ? 'pointer-events-none' : ''} py-2.5 text-white text-[11px] font-black tracking-widest hover:bg-white/10 transition-all`}
                     >
                       {link.name}
                     </Link>
@@ -340,16 +341,16 @@ export default function Navbar() {
                         e.stopPropagation();
                         setActiveDropdown(activeDropdown === link.name ? null : link.name);
                       }}
-                      className="pr-6 py-4 text-white hover:bg-white/10 transition-all"
+                      className="pr-5 py-2.5 text-white hover:bg-white/10 transition-all"
                     >
-                      <ChevronDown size={14} className={activeDropdown === link.name ? 'rotate-180' : ''} />
+                      <ChevronDown size={12} className={activeDropdown === link.name ? 'rotate-180' : ''} />
                     </button>
                   </div>
                 ) : (
                   <Link 
                     to={link.href} 
                     target={link.isExternal ? "_blank" : undefined}
-                    className="px-6 py-4 text-white text-[11px] font-black tracking-widest hover:bg-white/10 transition-all block"
+                    className="px-5 py-2.5 text-white text-[11px] font-black tracking-widest hover:bg-white/10 transition-all block"
                   >
                     {link.name}
                   </Link>

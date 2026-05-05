@@ -1,46 +1,73 @@
--- TALIBON DIGITAL CORE: SAFE SCHEMA UPDATE
--- This script uses "IF NOT EXISTS" to skip existing tables and prevent errors.
+-- SUPABASE SQL SCHEMA FOR TALIBON DIGITAL CORE
+-- Execute this in your Supabase SQL Editor
 
--- 1. Profiles (RBAC)
-CREATE TABLE IF NOT EXISTS public.profiles (
+-- 1. Profiles table for RBAC
+CREATE TABLE profiles (
   id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
   email TEXT UNIQUE NOT NULL,
   full_name TEXT,
   role TEXT NOT NULL DEFAULT 'barangay_admin' CHECK (role IN ('municipal_admin', 'barangay_admin')),
-  barangay_id TEXT,
-  is_verified BOOLEAN DEFAULT FALSE,
+  barangay_id TEXT, -- Scope for barangay admins (slug)
+  is_verified BOOLEAN DEFAULT FALSE, -- Only verified admins can edit
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. News/Articles
-CREATE TABLE IF NOT EXISTS public.news (
+-- Enable RLS on profiles
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+
+-- Profiles Policies
+CREATE POLICY "Public profiles are viewab le by everyone." ON profiles FOR SELECT USING (true);
+CREATE POLICY "Users can insert their own profile." ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+CREATE POLICY "Users can update own profile." ON profiles FOR UPDATE USING (auth.uid() = id);
+
+-- 2. News/Articles (Macro and Micro)
+CREATE TABLE news (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
   content TEXT NOT NULL,
   summary TEXT,
-  category TEXT NOT NULL,
+  category TEXT NOT NULL, -- ARTICLE, ADVISORY, DISASTER, UPDATE, etc.
   image_url TEXT,
   file_url TEXT,
   date DATE DEFAULT CURRENT_DATE,
-  barangay_id TEXT,
+  barangay_id TEXT, -- NULL for municipal, slug for barangay
   author_id UUID REFERENCES auth.users(id),
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+ALTER TABLE news ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "News is viewable by everyone." ON news FOR SELECT USING (true);
+CREATE POLICY "Municipal admins can manage all news." ON news FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'municipal_admin' AND is_verified = true)
+);
+CREATE POLICY "Barangay admins can manage their own news." ON news FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'barangay_admin' AND barangay_id = news.barangay_id AND is_verified = true)
+);
+
 -- 3. Ordinances
-CREATE TABLE IF NOT EXISTS public.ordinances (
+CREATE TABLE ordinances (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   no TEXT NOT NULL,
   title TEXT NOT NULL,
   year INTEGER NOT NULL,
   date_enacted DATE,
   pdf_url TEXT,
-  barangay_id TEXT,
+  barangay_id TEXT, -- NULL for municipal, slug for barangay
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+ALTER TABLE ordinances ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Ordinances are viewable by everyone." ON ordinances FOR SELECT USING (true);
+CREATE POLICY "Admins can manage ordinances based on scope." ON ordinances FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_verified = true AND (
+    role = 'municipal_admin' OR (role = 'barangay_admin' AND barangay_id = ordinances.barangay_id)
+  ))
+);
+
 -- 4. Resolutions
-CREATE TABLE IF NOT EXISTS public.resolutions (
+CREATE TABLE resolutions (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   no TEXT NOT NULL,
   title TEXT NOT NULL,
@@ -49,19 +76,33 @@ CREATE TABLE IF NOT EXISTS public.resolutions (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 5. Officials
-CREATE TABLE IF NOT EXISTS public.officials (
+ALTER TABLE resolutions ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Resolutions are viewable by everyone." ON resolutions FOR SELECT USING (true);
+CREATE POLICY "Municipal admins can manage resolutions." ON resolutions FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'municipal_admin' AND is_verified = true)
+);
+
+-- 5. Officials (Organizational Chart)
+CREATE TABLE officials (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   role TEXT NOT NULL,
-  level INTEGER NOT NULL,
+  level INTEGER NOT NULL, -- 1: Mayor, 2: SB/Admin, 3: Dept
   display_order INTEGER DEFAULT 0,
   barangay_id TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+ALTER TABLE officials ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Officials are viewable by everyone." ON officials FOR SELECT USING (true);
+CREATE POLICY "Municipal admins can manage officials." ON officials FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'municipal_admin' AND is_verified = true)
+);
+
 -- 6. Navigation
-CREATE TABLE IF NOT EXISTS public.navigation (
+CREATE TABLE navigation (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   href TEXT NOT NULL,
@@ -70,16 +111,30 @@ CREATE TABLE IF NOT EXISTS public.navigation (
   is_external BOOLEAN DEFAULT FALSE
 );
 
+ALTER TABLE navigation ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Navigation is viewable by everyone." ON navigation FOR SELECT USING (true);
+CREATE POLICY "Municipal admins can manage navigation." ON navigation FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'municipal_admin' AND is_verified = true)
+);
+
 -- 7. Content (Static Sections)
-CREATE TABLE IF NOT EXISTS public.content (
+CREATE TABLE content (
   slug TEXT PRIMARY KEY,
   title TEXT NOT NULL,
   body JSONB NOT NULL,
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+ALTER TABLE content ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Content is viewable by everyone." ON content FOR SELECT USING (true);
+CREATE POLICY "Municipal admins can manage content." ON content FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'municipal_admin' AND is_verified = true)
+);
+
 -- 8. Meetings
-CREATE TABLE IF NOT EXISTS public.meetings (
+CREATE TABLE meetings (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
   summary TEXT NOT NULL,
@@ -89,27 +144,47 @@ CREATE TABLE IF NOT EXISTS public.meetings (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 9. GAD Beneficiaries
-CREATE TABLE IF NOT EXISTS public.gad_beneficiaries (
+ALTER TABLE meetings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Meetings are viewable by admins." ON meetings FOR SELECT USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_verified = true)
+);
+CREATE POLICY "Admins can manage meetings." ON meetings FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_verified = true)
+);
+
+-- 9. GAD Beneficiaries (Individual Profiling)
+CREATE TABLE gad_beneficiaries (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  unique_id TEXT UNIQUE,
+  unique_id TEXT UNIQUE, -- Custom generated or system ID
   full_name TEXT NOT NULL,
   sex TEXT NOT NULL CHECK (sex IN ('Male', 'Female', 'Other')),
   birthdate DATE,
-  age INTEGER,
-  barangay_id TEXT NOT NULL,
+  age INTEGER, -- Can be calculated or stored
+  barangay_id TEXT NOT NULL, -- References BARANGAYS config slugs
   civil_status TEXT CHECK (civil_status IN ('Single', 'Married', 'Widowed', 'Separated', 'Common-law')),
-  sectoral_classification TEXT[],
+  sectoral_classification TEXT[], -- Array for multiple (PWD, Senior, etc.)
   contact_info TEXT,
   encoded_by UUID REFERENCES auth.users(id),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 10. Barangay Stats
-CREATE TABLE IF NOT EXISTS public.barangay_stats (
+ALTER TABLE gad_beneficiaries ENABLE ROW LEVEL SECURITY;
+
+-- Only verified admins/encoders can manage GAD data
+CREATE POLICY "GAD data is viewable by authorized personnel." ON gad_beneficiaries FOR SELECT USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_verified = true)
+);
+
+CREATE POLICY "Authorized personnel can manage GAD beneficiaries." ON gad_beneficiaries FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND is_verified = true)
+);
+
+-- 10. Barangay Stats (Population, Captain, etc.)
+CREATE TABLE barangay_stats (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  slug TEXT UNIQUE NOT NULL,
+  slug TEXT UNIQUE NOT NULL, -- barangay slug
   name TEXT NOT NULL,
   population TEXT,
   captain TEXT,
@@ -117,108 +192,65 @@ CREATE TABLE IF NOT EXISTS public.barangay_stats (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 11. Barangay Officials
-CREATE TABLE IF NOT EXISTS public.barangay_officials (
+ALTER TABLE barangay_stats ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Barangay stats are viewable by everyone." ON barangay_stats FOR SELECT USING (true);
+CREATE POLICY "Municipal admins can manage barangay stats." ON barangay_stats FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'municipal_admin' AND is_verified = true)
+);
+
+-- 11. Barangay Officials (Detailed List per Barangay)
+CREATE TABLE barangay_officials (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  slug TEXT UNIQUE NOT NULL,
-  body JSONB NOT NULL,
+  slug TEXT UNIQUE NOT NULL, -- barangay slug
+  body JSONB NOT NULL, -- Array of officials [{name, position}]
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 12. Transparency Documents
-CREATE TABLE IF NOT EXISTS public.transparency_documents (
+ALTER TABLE barangay_officials ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Barangay officials are viewable by everyone." ON barangay_officials FOR SELECT USING (true);
+CREATE POLICY "Municipal admins can manage barangay officials." ON barangay_officials FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'municipal_admin' AND is_verified = true)
+);
+CREATE POLICY "Barangay admins can manage their own officials." ON barangay_officials FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'barangay_admin' AND barangay_id = barangay_officials.slug AND is_verified = true)
+);
+
+-- 12. Transparency Documents (Citizen's Charter, Budget, Biddings, etc.)
+CREATE TABLE transparency_documents (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
-  category TEXT NOT NULL,
+  category TEXT NOT NULL, -- BUDGET, BIDDINGS, FINANCE, CITIZEN_CHARTER, etc.
   year INTEGER NOT NULL,
   file_url TEXT NOT NULL,
   file_size TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 13. Legislative Reports
-CREATE TABLE IF NOT EXISTS public.legislative_reports (
+ALTER TABLE transparency_documents ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Transparency docs are viewable by everyone." ON transparency_documents FOR SELECT USING (true);
+CREATE POLICY "Municipal admins can manage transparency docs." ON transparency_documents FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'municipal_admin' AND is_verified = true)
+);
+
+-- 13. Legislative Reports & Minutes
+CREATE TABLE legislative_reports (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   title TEXT NOT NULL,
-  report_type TEXT NOT NULL,
+  report_type TEXT NOT NULL, -- MINUTES, COMMITTEE_REPORT, LEGISLATIVE_AGENDA
   date DATE DEFAULT CURRENT_DATE,
   file_url TEXT NOT NULL,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 14. Barangays (CMS-managed: captains, population, themes)
-CREATE TABLE IF NOT EXISTS public.barangays (
-  id TEXT PRIMARY KEY,
-  name TEXT NOT NULL,
-  slug TEXT UNIQUE NOT NULL,
-  description TEXT,
-  captain TEXT,
-  population TEXT,
-  theme_primary TEXT DEFAULT '#0f4c81',
-  theme_secondary TEXT DEFAULT '#f5f5f5',
-  theme_accent TEXT DEFAULT '#ffb703',
-  seal_url TEXT,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
+ALTER TABLE legislative_reports ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Legislative reports are viewable by everyone." ON legislative_reports FOR SELECT USING (true);
+CREATE POLICY "Municipal admins can manage legislative reports." ON legislative_reports FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'municipal_admin' AND is_verified = true)
 );
 
--- 15. Services (Citizen Charter - CMS-managed permits/requirements)
-CREATE TABLE IF NOT EXISTS public.services (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT NOT NULL,
-  requirements TEXT[] NOT NULL,
-  processing_time TEXT NOT NULL,
-  office TEXT NOT NULL,
-  category TEXT DEFAULT 'permit', -- permit, certificate, registration
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- 16. Tourism Items (CMS-managed spots, festivities, delicacies)
-CREATE TABLE IF NOT EXISTS public.tourism_items (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT NOT NULL,
-  description TEXT NOT NULL,
-  category TEXT NOT NULL, -- spot, festival, delicacy, product
-  image_url TEXT,
-  date_info TEXT, -- for festivals/events
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- Add unique constraints for CMS tables (safe to run multiple times)
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'services_name_unique') THEN
-        ALTER TABLE public.services ADD CONSTRAINT services_name_unique UNIQUE (name);
-    END IF;
-END $$;
-
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'tourism_items_name_unique') THEN
-        ALTER TABLE public.tourism_items ADD CONSTRAINT tourism_items_name_unique UNIQUE (name);
-    END IF;
-END $$;
-
--- Enable RLS on all (Safe to run multiple times)
-ALTER TABLE IF EXISTS public.profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.news ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.ordinances ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.resolutions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.officials ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.navigation ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.content ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.meetings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.gad_beneficiaries ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.barangay_stats ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.barangay_officials ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.transparency_documents ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.legislative_reports ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.barangays ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.services ENABLE ROW LEVEL SECURITY;
-ALTER TABLE IF EXISTS public.tourism_items ENABLE ROW LEVEL SECURITY;
-
--- Note: Policies are not idempotent by default.
--- If you see "policy already exists" errors, you can safely ignore them
--- as it means your existing security rules are already active.
+-- STORAGE BUCKET: public-assets
+-- Ensure you create a bucket named 'public-assets' in Supabase Storage with public access.
