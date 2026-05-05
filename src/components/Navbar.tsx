@@ -127,7 +127,7 @@ export default function Navbar() {
       ])
     },
     { name: "BARANGAY OFFICIALS", href: "/about/barangays" },
-    { name: "GAD-IMS", href: "/executive/gad-ims" },
+    { name: "GAD-IMS", href: "#", isExternal: true },
     { name: "DOWNLOADABLES", href: "/downloads" },
     { 
       name: t('tourism'), 

@@ -1,39 +1,26 @@
 // Test file existence
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { AuthProvider } from './contexts/SupabaseAuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import About from './components/About';
-import FacebookSection from './components/FacebookSection';
-import { SkeletonLoader } from './components/SkeletonLoader';
+import Home from './pages/Home';
+import { ErrorBoundary } from './components/ErrorBoundary';
 
-// Lazy loaded page for Organizational Chart
+// Lazy loaded pages
 const OrganizationalChart = lazy(() => import('./components/OrganizationalChart'));
+const ContentPage = lazy(() => import('./pages/ContentPage'));
 
-function HomePage() {
-  return (
-    <>
-      <Hero />
-      <About />
-      <FacebookSection />
-      {/* Additional landing page sections would go here */}
-      <footer className="bg-brand-secondary text-white py-20">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-sm opacity-60 font-bold uppercase tracking-widest">
-            © {new Date().getFullYear()} Municipality of Talibon, Bohol. All Rights Reserved.
-          </p>
-        </div>
-      </footer>
-    </>
-  );
-}
+const SuspensePage = () => (
+  <Suspense fallback={<div className="pt-40 p-20 text-center uppercase font-black tracking-widest animate-pulse font-sans">Loading Page...</div>}>
+    <ContentPage />
+  </Suspense>
+);
 
 function ExecutiveChartPage() {
   return (
     <div className="pt-[180px] bg-white min-h-screen">
-      <Suspense fallback={<div className="p-20 text-center uppercase font-black tracking-widest animate-pulse">Loading Chart...</div>}>
+      <Suspense fallback={<div className="p-20 text-center uppercase font-black tracking-widest animate-pulse font-sans">Loading Chart...</div>}>
         <OrganizationalChart />
       </Suspense>
     </div>
@@ -42,26 +29,46 @@ function ExecutiveChartPage() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <LanguageProvider>
-        <Router>
-          <div className="app-container">
-            <Navbar />
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/executive/chart" element={<ExecutiveChartPage />} />
-              {/* Fallback for other routes mentioned in Navbar but not implemented yet */}
-              <Route path="*" element={
-                <div className="pt-40 p-20 text-center">
-                  <h2 className="text-2xl font-black uppercase tracking-tight mb-4">Under Construction</h2>
-                  <p className="text-brand-muted">This page is currently being migrated to the new CMS structure.</p>
-                </div>
-              } />
-            </Routes>
-          </div>
-        </Router>
-      </LanguageProvider>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <LanguageProvider>
+          <Router>
+            <div className="app-container">
+              <Navbar />
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/executive/chart" element={<ExecutiveChartPage />} />
+                
+                {/* CMS Driven Content Routes */}
+                <Route path="/page/:slug" element={<SuspensePage />} />
+                <Route path="/about/:slug" element={<SuspensePage />} />
+                <Route path="/executive/:slug" element={<SuspensePage />} />
+                <Route path="/legislative/:slug" element={<SuspensePage />} />
+                <Route path="/transparency/:slug" element={<SuspensePage />} />
+                <Route path="/tourism/:slug" element={<SuspensePage />} />
+                <Route path="/news/:slug" element={<SuspensePage />} />
+                
+                <Route path="/login" element={
+                  <div className="pt-60 p-20 text-center min-h-screen font-sans">
+                    <h2 className="text-2xl font-black uppercase mb-4">Admin Access</h2>
+                    <p className="text-brand-muted mb-8">Please use your Supabase credentials to log in.</p>
+                    <button className="minimal-button-primary mx-auto">Login with Google</button>
+                  </div>
+                } />
+
+                <Route path="*" element={
+                  <div className="pt-60 p-20 text-center min-h-screen">
+                    <h2 className="text-2xl font-black uppercase tracking-tight mb-4 font-display">Under Construction</h2>
+                    <p className="text-brand-muted font-medium">This page is currently being migrated to the new CMS structure.</p>
+                    <Link to="/" className="inline-block mt-8 text-brand-primary font-black uppercase tracking-widest hover:underline">Return Home</Link>
+                  </div>
+                } />
+              </Routes>
+            </div>
+          </Router>
+        </LanguageProvider>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
