@@ -10,6 +10,7 @@ interface Official {
   level: number;
   display_order: number;
   image_url?: string;
+  barangay_id?: string | null;
 }
 
 const levelColors: Record<number, string> = {
