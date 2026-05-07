@@ -11,7 +11,7 @@ import GlobalSearch from "./GlobalSearch";
 
 export default function Navbar() {
   const { language, setLanguage, t } = useLanguage();
-  const { user, profile, signOut } = useAuth();
+  const { user, profile, signOut, loading, error } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [dynamicNavLinks, setDynamicNavLinks] = useState<any[]>([]);
   const location = useLocation();
@@ -225,13 +225,27 @@ export default function Navbar() {
             </nav>
 
             <div className="hidden sm:flex items-center gap-6 pl-10 border-l border-gray-300">
-              {user ? (
+              {loading ? (
+                <div className="flex items-center gap-2 text-gray-500 uppercase tracking-widest text-[10px]">
+                  <Clock size={14} />
+                  Checking admin access...
+                </div>
+              ) : user ? (
                 <div className="flex items-center gap-4">
                   <Link to="/admin" className="flex items-center gap-2 text-blue-600 font-extrabold uppercase tracking-widest hover:text-blue-700 transition-colors">
                     <LayoutDashboard size={14} />
                     CMS DASHBOARD
                   </Link>
-                  <button onClick={() => signOut()} className="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest hover:text-red-500 transition-colors">
+                  <button
+                    onClick={async () => {
+                      try {
+                        await signOut();
+                      } catch (err) {
+                        console.error('Logout failed', err);
+                      }
+                    }}
+                    className="flex items-center gap-2 text-gray-400 font-bold uppercase tracking-widest hover:text-red-500 transition-colors"
+                  >
                     <LogOut size={14} />
                     LOGOUT
                   </button>
@@ -241,6 +255,12 @@ export default function Navbar() {
                   <LogIn size={14} />
                   ADMIN LOGIN
                 </Link>
+              )}
+
+              {error && (
+                <div className="text-[10px] text-red-600 uppercase tracking-widest ml-2">
+                  Auth issue: {error}
+                </div>
               )}
             </div>
           </div>
