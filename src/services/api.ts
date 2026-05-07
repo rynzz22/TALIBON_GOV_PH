@@ -52,5 +52,55 @@ export const api = {
     
     if (error) throw error;
     return data;
+  },
+
+  // CMS Operations
+  async getAllContent() {
+    const { data, error } = await supabase
+      .from('content')
+      .select('*')
+      .order('updated_at', { ascending: false });
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async createContent(contentData: any) {
+    const { data, error } = await supabase
+      .from('content')
+      .insert([contentData])
+      .select()
+      .single();
+    
+    if (error) throw error;
+    return data;
+  },
+
+  async updateContent(slug: string, contentData: any) {
+    const { data, error } = await supabase
+      .from('content')
+      .update({ ...contentData, updated_at: new Date().toISOString() })
+      .eq('slug', slug)
+      .select()
+      .single();
+    
+    if (error) throw error;
+    
+    // Invalidate cache
+    cache.delete(`content:${slug}`);
+    
+    return data;
+  },
+
+  async deleteContent(slug: string) {
+    const { error } = await supabase
+      .from('content')
+      .delete()
+      .eq('slug', slug);
+    
+    if (error) throw error;
+    
+    // Invalidate cache
+    cache.delete(`content:${slug}`);
   }
 };

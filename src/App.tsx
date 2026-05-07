@@ -6,6 +6,12 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import ProtectedRoute from './components/ProtectedRoute';
+import AdminLayout from './layouts/AdminLayout';
+import AdminLogin from './pages/admin/AdminLogin';
+import Dashboard from './pages/admin/Dashboard';
+import ContentManager from './pages/admin/ContentManager';
+import ContentEditor from './pages/admin/ContentEditor';
 
 // Lazy loaded pages
 const OrganizationalChart = lazy(() => import('./components/OrganizationalChart'));
@@ -48,13 +54,18 @@ export default function App() {
                 <Route path="/tourism/:slug" element={<SuspensePage />} />
                 <Route path="/news/:slug" element={<SuspensePage />} />
                 
-                <Route path="/login" element={
-                  <div className="pt-60 p-20 text-center min-h-screen font-sans">
-                    <h2 className="text-2xl font-black uppercase mb-4">Admin Access</h2>
-                    <p className="text-brand-muted mb-8">Please use your Supabase credentials to log in.</p>
-                    <button className="minimal-button-primary mx-auto">Login with Google</button>
-                  </div>
-                } />
+                {/* Admin Auth Route */}
+                <Route path="/login" element={<AdminLogin />} />
+
+                {/* Protected Admin Routes */}
+                <Route path="/admin" element={<ProtectedRoute />}>
+                  <Route element={<AdminLayout />}>
+                    <Route index element={<Dashboard />} />
+                    <Route path="content" element={<ContentManager />} />
+                    <Route path="content/:slug" element={<ContentEditor />} />
+                    <Route path="news" element={<div className="p-8 text-2xl font-black uppercase tracking-tight">News Manager Coming Soon</div>} />
+                  </Route>
+                </Route>
 
                 <Route path="*" element={
                   <div className="pt-60 p-20 text-center min-h-screen">

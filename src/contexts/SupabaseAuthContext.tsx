@@ -17,6 +17,7 @@ interface AuthContextType {
   loading: boolean;
   authReady: boolean;
   error: string | null;
+  signInWithEmail: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -86,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const fetchProfile = async (id: string) => {
     try {
       const { data, error: profileError } = await supabase
-        .from<Profile>('profiles')
+        .from('profiles')
         .select('*')
         .eq('id', id)
         .maybeSingle();
@@ -108,8 +109,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signInWithEmail = async (email: string, password: string) => {
+    try {
+      setError(null);
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (error) throw error;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+      throw err;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, authReady, error, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, authReady, error, signInWithEmail, signOut }}>
       {children}
     </AuthContext.Provider>
   );
